@@ -105,4 +105,7 @@ test('the house map shows a lit window for each restored room', async ({ page })
   await expect(house.getByRole('img', { name: 'The house: 1 of 6 rooms restored' })).toBeVisible();
   await expect(house.locator('.facade-window.restored')).toHaveCount(1);
   await expect(house.locator('.facade-window.current')).toHaveCount(1);
+  // The room being restored now holds the ghost, so it never reads as already lit.
+  await expect(house.locator('.facade-window.current [data-testid="window-ghost"]')).toHaveCount(1);
+  await expect(house.getByTestId('window-ghost')).toHaveCount(1);
 });

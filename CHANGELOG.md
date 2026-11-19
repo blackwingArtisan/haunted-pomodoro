@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- **Moonlight and a lived-in house map.** The haunted parlor now reads as cold moonlight rather than sepia (no sepia, more contrast, a stronger blue cast and moon shaft, brighter cobwebs). On the house map, the room being restored shows the ghost in its window instead of a dim amber fill that looked lit, haunted windows gather ivy, restored rooms spill warm light onto the ground, and the house gains porch steps and a picket fence.
 - **Fresh media.** `npm run media` now records the README stills too (haunted, the ghost after a wandering, restored, costume off and the finale) alongside the hero GIF, which now includes the wander-and-return beat, and the link-preview image.
 - **README for a first-time reader.** A 60-second path for judges, what sets the timer apart, the lead audience first, "Built with Kiro" as a table of what each piece actually did, a "Why now" and a unit-economics line with sources. Build, test and architecture notes moved to `docs/DEVELOPING.md`.
 - **The finale demo.** `?demo=finale` opens the demo house on its last dark room. One 20-second session restores the Observatory, the ghost finishes her book, and the house map opens on the last page with a new, dark house down the lane and the finished one lit up the hill.

@@ -389,7 +389,7 @@ function Cobwebs() {
     );
   };
   return (
-    <g className="cobwebs" data-testid="cobwebs" stroke="#e8e4f0" strokeWidth="1.4" fill="none" strokeOpacity="0.55">
+    <g className="cobwebs" data-testid="cobwebs" stroke="#eef0ff" strokeWidth="1.4" fill="none" strokeOpacity="0.7">
       {web(0, 0, 1, 1, 190, 'tl')}
       {web(1200, 0, -1, 1, 170, 'tr')}
       {web(696, 66, -1, 1, 70, 'portrait')}

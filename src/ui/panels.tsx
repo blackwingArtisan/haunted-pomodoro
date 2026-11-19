@@ -582,12 +582,36 @@ export function HouseMap({ house, reducedMotion, finale = false }: { house: Hous
                 <path d={`M${x} ${y + 50} V${y + 22} A24 22 0 0 1 ${x + 48} ${y + 22} V${y + 50} Z`} className="pane" />
                 <path d={`M${x + 24} ${y} V${y + 50} M${x} ${y + 28} H${x + 48}`} stroke="#0b0910" strokeWidth="3" />
                 {s === 'haunted' && <path d={`M${x + 2} ${y + 6} l14 14 M${x + 46} ${y + 6} l-12 12`} stroke="#e8e4f0" strokeOpacity="0.35" strokeWidth="1" />}
+                {s === 'haunted' && (
+                  // Ivy creeping over the sill of a room nobody has warmed yet.
+                  <path d={`M${x - 4} ${y + 52} q6 -10 12 -4 q4 -12 12 -6 M${x + 52} ${y + 52} q-6 -12 -12 -5`} stroke="#3f6b45" strokeWidth="3" fill="none" strokeLinecap="round" className="ivy" />
+                )}
+                {s === 'current' && (
+                  // The ghost waits in the room being restored now.
+                  <g className="window-ghost" data-testid="window-ghost">
+                    <path d={`M${x + 24} ${y + 16} c-9 0 -12 8 -12 15 v16 l4 -3 l4 3 l4 -3 l4 3 l4 -3 l4 3 v-16 c0 -7 -3 -15 -12 -15 z`} fill="#c9fbe8" />
+                    <circle cx={x + 20} cy={y + 29} r="1.8" fill="#16111d" />
+                    <circle cx={x + 28} cy={y + 29} r="1.8" fill="#16111d" />
+                  </g>
+                )}
               </g>
             );
           })}
+          {/* Each restored room spills a little more warm light onto the ground. */}
+          <ellipse cx="180" cy="300" rx="160" ry="12" fill="#ffbf5a" opacity={Math.min(0.3, view.roomsInThisHouse * 0.05)} />
           <path d="M164 296 V262 A16 16 0 0 1 196 262 V296 Z" fill="#2a1a10" stroke="#c9a25a" strokeOpacity="0.5" />
           <circle cx="189" cy="280" r="2" fill="#c9a25a" />
           <path d="M150 296 H210" stroke="#c9a25a" strokeOpacity="0.4" strokeWidth="3" />
+          {/* Porch steps down to the lane and a crooked picket fence either side of the path. */}
+          <rect x="144" y="298" width="72" height="6" fill="#1d1626" stroke="#c9a25a" strokeOpacity="0.35" />
+          <rect x="138" y="304" width="84" height="6" fill="#1d1626" stroke="#c9a25a" strokeOpacity="0.3" />
+          <g className="fence" fill="#2a2233" stroke="#070912" strokeWidth="1">
+            {[16, 32, 48, 64, 80, 96, 112, 128, 232, 248, 264, 280, 296, 312, 328, 344].map((fx, i) => (
+              <path key={fx} d={`M${fx - 4} 312 V${296 + (i % 3)} L${fx} ${290 + (i % 3)} L${fx + 4} ${296 + (i % 3)} V312 Z`} transform={`rotate(${(i % 4) - 1.5} ${fx} 312)`} />
+            ))}
+            <rect x="8" y="300" width="128" height="3" />
+            <rect x="224" y="300" width="128" height="3" />
+          </g>
         </svg>
         {view.housesRestored > 0 && (
           <p className="note">

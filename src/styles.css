@@ -1261,8 +1261,24 @@ input[type='number'],
   animation-delay: -1.4s;
 }
 .facade-window.current .pane {
-  fill: #6a4a2a;
-  animation: window-flicker 2.4s infinite;
+  fill: #101626;
+  stroke: rgba(143, 245, 210, 0.75);
+}
+.facade-window .window-ghost {
+  filter: drop-shadow(0 0 5px rgba(143, 245, 210, 0.8));
+  animation: window-ghost-glow 2.4s ease-in-out infinite;
+}
+@keyframes window-ghost-glow {
+  0%,
+  100% {
+    opacity: 0.8;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+[data-motion='reduced'] .facade-window .window-ghost {
+  animation: none;
 }
 .rooms {
   display: grid;
@@ -1423,7 +1439,8 @@ input[type='number'],
 
 .scene .room {
   transform-origin: 600px 420px;
-  filter: saturate(calc(0.15 + var(--restore) * 0.95)) brightness(calc(0.52 + var(--restore) * 0.55)) sepia(calc((1 - var(--restore)) * 0.35));
+  /* Haunted reads as cold moonlight, not mud: no sepia, a little more contrast, and the blue cast below does the rest. */
+  filter: saturate(calc(0.32 + var(--restore) * 0.78)) brightness(calc(0.6 + var(--restore) * 0.47)) contrast(calc(1.1 - var(--restore) * 0.1));
   transition: filter 1.4s var(--ease);
 }
 .scene .room-shade {
@@ -1461,11 +1478,12 @@ input[type='number'],
 }
 .scene .moonbeam {
   mix-blend-mode: screen;
-  opacity: 0.75;
+  /* The moon carries the haunted room; it fades back as the candles take over. */
+  opacity: calc(0.6 + (1 - var(--restore)) * 0.4);
 }
 .scene .haunt-cast {
   mix-blend-mode: color;
-  opacity: calc((1 - var(--restore)) * 0.45);
+  opacity: calc((1 - var(--restore)) * 0.6);
   transition: opacity 1.4s var(--ease);
 }
 .scene.is-restored .haunt-cast {
@@ -1963,15 +1981,6 @@ input[type='number'],
   }
   55% {
     fill: #f0ad48;
-  }
-}
-@keyframes window-flicker {
-  0%,
-  100% {
-    fill: #6a4a2a;
-  }
-  50% {
-    fill: #8a6232;
   }
 }
 
