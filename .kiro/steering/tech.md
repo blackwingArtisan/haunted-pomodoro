@@ -31,5 +31,6 @@ The real adapter is unit tested against the Worker handler through a stubbed `fe
 ## Testing rules
 - Unit tests for every rule in `src/core` (timer transitions, distraction counting, streak math across days with an injectable clock, house progress, persistence round-trip, merge).
 - End-to-end tests drive the real app in Chromium with Playwright's fake clock. Visibility changes are simulated by overriding `document.visibilityState` and dispatching `visibilitychange`.
+- Accessibility is scanned with `@axe-core/playwright` (WCAG 2.1 A and AA) on the main screen, the restored room, settings and the house map.
 - Chromium is launched with `--disable-audio-output`.
 - Every commit passes `npm run typecheck`, `npm test` and `npm run test:e2e` from a clean checkout.

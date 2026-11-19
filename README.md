@@ -43,7 +43,7 @@ npx playwright install chromium   # once
 npm run test:e2e   # Playwright against the production build on port 3182
 npm run check      # all three
 ```
-The end-to-end suite uses Playwright's fake clock to run the whole demo arc: light a candle, hide the tab, watch the ghost call, come back, finish the session, see the parlor restored, breathe through the break, and arrive in the library. It also covers reload persistence, keyboard shortcuts, sound controls, the house map, offline reload, reduced motion and a phone-width layout.
+The end-to-end suite uses Playwright's fake clock to run the whole demo arc: light a candle, hide the tab, watch the ghost call, come back, finish the session, see the parlor restored, breathe through the break, and arrive in the library. It also covers reload persistence, keyboard shortcuts, sound controls, the house map, the first-visit guide, offline reload, reduced motion, a phone-width layout, and axe-core WCAG 2.1 A/AA scans of the main screen, the restored room, settings and the house map.
 
 ## Architecture
 ```

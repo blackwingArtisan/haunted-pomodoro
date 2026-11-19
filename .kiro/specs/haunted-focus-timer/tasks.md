@@ -20,5 +20,7 @@
 - [x] 14. Demo mode with in-memory house and banner (Req 9.1 to 9.3)
 - [x] 15. Erase all data with confirmation (Req 8.4)
 - [x] 16. Playwright: demo arc, demo isolation, reload persistence, shortcuts, sound controls, house map, offline, reduced motion, phone width
-- [ ] 17. Optional browser notification when a phase ends while the tab is hidden (opt-in, off by default)
-- [ ] 18. Export and import the house as a JSON file
+- [x] 17. First-visit guide card, dismissed once per browser
+- [x] 18. axe-core WCAG 2.1 A/AA scans in the Playwright suite (Req 7.1, 7.5)
+- [ ] 19. Optional browser notification when a phase ends while the tab is hidden (opt-in, off by default)
+- [ ] 20. Export and import the house as a JSON file
