@@ -165,7 +165,7 @@ export function TaskLedger({ model, dispatch, inputRef }: { model: AppModel; dis
                 <button type="button" className="task-title" aria-pressed={active} disabled={t.done} onClick={() => dispatch({ type: 'setActiveTask', id: active ? null : t.id })}>
                   {t.title}
                 </button>
-                <span className="pips" aria-label={`${t.spent} of ${t.estimate} candles`}>
+                <span className="pips" role="img" aria-label={`${t.spent} of ${t.estimate} ${t.estimate === 1 ? 'candle' : 'candles'} burned`}>
                   {Array.from({ length: Math.max(t.estimate, t.spent) }, (_, i) => (
                     <span key={i} className={i < t.spent ? 'pip lit' : 'pip'} />
                   ))}
