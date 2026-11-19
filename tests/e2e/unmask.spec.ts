@@ -28,7 +28,7 @@ test('unmask takes the costume off live and puts it back, with the timer, tasks 
   await page.getByRole('button', { name: 'Pause' }).click();
 
   const before = await stateText(page);
-  expect(before.wanderings).toBe('Wandered off 1 time');
+  expect(before.wanderings).toBe('Came back 1 time');
 
   // Costume off: the scene is gone and a plain Pomodoro shows the same numbers.
   await page.getByTestId('unmask').click();
@@ -36,9 +36,9 @@ test('unmask takes the costume off live and puts it back, with the timer, tasks 
   await expect(page.locator('svg.scene')).toHaveCount(0);
   await expect(page.getByTestId('plain-stage')).toBeVisible();
   await expect(page.getByTestId('room-title')).toHaveText('Focus timer');
-  await expect(page.getByTestId('plain-distractions-this-session')).toContainText('1');
-  await expect(page.getByTestId('plain-distractions-this-session')).toContainText('In costume: the ghost drifting closer');
-  await expect(page.getByTestId('plain-distractions-today')).toContainText("the will-o'-wisps");
+  await expect(page.getByTestId('plain-comebacks-this-session')).toContainText('1');
+  await expect(page.getByTestId('plain-comebacks-this-session')).toContainText('In costume: the ghost, the comeback counter');
+  await expect(page.getByTestId('plain-comebacks-today')).toContainText("the will-o'-wisps");
   await expect(page.getByTestId('plain-sessions-toward-this-goal')).toContainText('0 of 1');
   await expect(page.getByTestId('plain-streak')).toContainText('4 days');
   const bar = page.getByRole('progressbar', { name: 'Session progress' });

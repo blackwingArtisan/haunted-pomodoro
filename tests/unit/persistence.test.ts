@@ -90,6 +90,20 @@ describe('persistence', () => {
     expect(JSON.parse(serializeModel(merged)).version).toBe(1);
   });
 
+  // Req 3.20, 4.6
+  it('keeps the time away through a save, a damaged value and a merge, and reads older saves without it', () => {
+    const base = busyModel();
+    const withAway = { ...base, days: { '2026-11-17': { sessions: 3, focusMs: 4_500_000, distractions: 2, awayMs: 90_000 } } };
+    expect(deserializeModel(serializeModel(withAway), 0)?.days['2026-11-17']).toEqual(withAway.days['2026-11-17']);
+    expect(deserializeModel(serializeModel(base), 0)?.days['2026-11-17']).not.toHaveProperty('awayMs');
+    const damaged = JSON.parse(serializeModel(withAway));
+    damaged.days['2026-11-17'].awayMs = 'soon';
+    expect(parseModel(damaged, 0).days['2026-11-17']?.awayMs).toBe(0);
+    const remote = { ...base, days: { '2026-11-17': { sessions: 1, focusMs: 1_500_000, distractions: 4, awayMs: 30_000 } } };
+    expect(mergeModels(withAway, remote).days['2026-11-17']).toEqual({ sessions: 3, focusMs: 4_500_000, distractions: 4, awayMs: 90_000 });
+    expect(mergeModels(base, remote).days['2026-11-17']).toEqual({ sessions: 3, focusMs: 4_500_000, distractions: 4, awayMs: 30_000 });
+  });
+
   // Req 8.1
   it('selects the local store unless sync is fully configured', () => {
     expect(storeKind({})).toBe('local');

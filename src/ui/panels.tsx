@@ -75,7 +75,7 @@ export function TimerPlaque(props: {
         </p>
         {isFocus && timer.distractions > 0 && (
           <p className="wanderings" data-testid="wanderings">
-            Wandered off {timer.distractions} {timer.distractions === 1 ? 'time' : 'times'}
+            Came back {timer.distractions} {timer.distractions === 1 ? 'time' : 'times'}
           </p>
         )}
       </div>
@@ -255,7 +255,7 @@ export function Hearth({ streak, days, today, house, roomId }: { streak: Streak;
           </dd>
         </div>
         <div>
-          <dt>Wanderings today</dt>
+          <dt>Comebacks today</dt>
           <dd>{todayLog.distractions}</dd>
         </div>
         <div>

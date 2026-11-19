@@ -243,7 +243,7 @@ export function App() {
               setGhostAwakeUntil(t + 6_000);
               setRattleUntil(t + 1_400);
               setGhostLine(returnLine(viewHouse(controller.getModel().house).room.id, cue.count));
-              setAnnouncement(`The ghost noticed you left. Wandered off ${cue.count} ${cue.count === 1 ? 'time' : 'times'} this session.`);
+              setAnnouncement(`Welcome back. You came back ${cue.count} ${cue.count === 1 ? 'time' : 'times'} this session, and the candle kept burning.`);
               sound.play('rattle');
               break;
             case 'phase':
@@ -383,8 +383,8 @@ export function App() {
   const wispSentence = wispLine(returnsToday);
   const plainRows: PlainRow[] = [
     { label: 'Session progress', value: inSession ? `${Math.round(sessionProgress * 100)}% of this focus session` : 'No focus session running', costume: 'the candle burning down on the mantel', progress: sessionProgress },
-    { label: 'Distractions this session', value: String(timer.distractions), costume: 'the ghost drifting closer' },
-    { label: 'Distractions today', value: String(returnsToday), costume: "the will-o'-wisps near the ceiling" },
+    { label: 'Comebacks this session', value: String(timer.distractions), costume: 'the ghost, the comeback counter, drifting closer' },
+    { label: 'Comebacks today', value: String(returnsToday), costume: "the will-o'-wisps near the ceiling" },
     { label: 'Sessions toward this goal', value: `${view.candlesLit} of ${view.candlesPerRoom}`, costume: `candles lit in ${view.room.name}` },
     { label: 'Goals finished', value: String(house.roomsRestored), costume: 'rooms restored, and pages of the journal' },
     { label: 'Streak', value: `${streak.current} ${streak.current === 1 ? 'day' : 'days'} (best ${streak.best})`, costume: 'the Hearth fire' },

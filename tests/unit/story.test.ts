@@ -104,27 +104,42 @@ describe('the Hearth diary', () => {
 });
 
 describe('the weekly reflection', () => {
-  // Req 12.6, 12.8
-  it('sums the last seven days and says when wanderings went down', () => {
+  const away = (day: ReturnType<typeof log>, minutes: number) => ({ ...day, awayMs: minutes * MIN });
+
+  // Req 12.6, 12.8, 12.10
+  it('sums the last seven days, counts comebacks and says when time away went down', () => {
     const days = {
-      [TODAY]: log(3, 1, 75),
-      [addDays(TODAY, -2)]: log(4, 2, 100),
-      [addDays(TODAY, -6)]: log(4, 3, 100),
-      [addDays(TODAY, -7)]: log(5, 14, 125), // the week before
+      [TODAY]: away(log(3, 1, 75), 1),
+      [addDays(TODAY, -2)]: away(log(4, 2, 100), 2),
+      [addDays(TODAY, -6)]: away(log(4, 3, 100), 3),
+      [addDays(TODAY, -7)]: away(log(5, 14, 125), 14), // the week before
     };
     const r = weeklyReflection(days, TODAY)!;
-    expect(r).toMatchObject({ candles: 11, focusMs: 275 * MIN, wanderings: 6, previousWanderings: 14 });
-    expect(r.text).toBe('This week: 11 candles, 4 h 35 min focused, 6 wanderings, down from 14.');
+    expect(r).toMatchObject({ candles: 11, focusMs: 275 * MIN, wanderings: 6, previousWanderings: 14, awayMs: 6 * MIN, previousAwayMs: 14 * MIN });
+    expect(r.text).toBe('This week: 11 candles, 4 h 35 min focused, 6 comebacks; time away fell from 14 min to 6 min.');
   });
 
-  // Req 12.6, 12.7
-  it('never scolds when wanderings went up or there is nothing to compare', () => {
-    const up = weeklyReflection({ [TODAY]: log(2, 5), [addDays(TODAY, -8)]: log(2, 1) }, TODAY)!;
-    expect(up.text).toBe('This week: 2 candles, 50 min focused, 5 wanderings. Every candle stayed lit.');
+  // Req 12.6, 12.7, 12.10
+  it('never scolds when time away went up or there is nothing to compare', () => {
+    const up = weeklyReflection({ [TODAY]: away(log(2, 5), 9), [addDays(TODAY, -8)]: away(log(2, 1), 2) }, TODAY)!;
+    expect(up.text).toBe('This week: 2 candles, 50 min focused, 5 comebacks. Every candle stayed lit.');
     expect(up.text).not.toMatch(HARSH);
     const first = weeklyReflection({ [TODAY]: log(1, 0) }, TODAY)!;
     expect(first.previousWanderings).toBeNull();
-    expect(first.text).toBe('This week: 1 candle, 25 min focused, 0 wanderings. Not one. The ghost is speechless.');
+    expect(first.text).toBe('This week: 1 candle, 25 min focused, and you never once left. The ghost is speechless.');
+    const one = weeklyReflection({ [TODAY]: log(1, 1) }, TODAY)!;
+    expect(one.text).toBe('This week: 1 candle, 25 min focused, 1 comeback. Every candle stayed lit.');
+  });
+
+  // Req 12.10
+  it('compares time away only when the week before logged some, and only when the change shows', () => {
+    // Saves from before time away was logged have none, so there is nothing to compare.
+    const older = weeklyReflection({ [TODAY]: away(log(2, 2), 3), [addDays(TODAY, -8)]: log(2, 6) }, TODAY)!;
+    expect(older.previousAwayMs).toBeNull();
+    expect(older.text).toBe('This week: 2 candles, 50 min focused, 2 comebacks. Every candle stayed lit.');
+    // Both weeks round to the same words: no "fell from 1 min to 1 min".
+    const same = weeklyReflection({ [TODAY]: { ...log(2, 2), awayMs: 61_000 }, [addDays(TODAY, -8)]: { ...log(2, 2), awayMs: 70_000 } }, TODAY)!;
+    expect(same.text).toBe('This week: 2 candles, 50 min focused, 2 comebacks. Every candle stayed lit.');
   });
 
   // Req 12.6

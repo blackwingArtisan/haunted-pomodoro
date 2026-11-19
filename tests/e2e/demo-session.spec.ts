@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { setTabHidden } from './helpers';
 
-// Req 1.1, 1.4, 3.1, 3.2, 3.3, 3.8, 3.10, 3.12, 3.14, 3.15, 4.1, 4.3, 4.4, 4.9, 4.10, 4.11, 4.13, 4.16, 4.17, 4.18, 4.19, 7.10, 7.11, 7.14, 9.1, 9.3, 9.4
+// Req 1.1, 1.4, 3.1, 3.2, 3.3, 3.8, 3.10, 3.12, 3.14, 3.15, 3.20, 4.1, 4.3, 4.4, 4.9, 4.10, 4.11, 4.13, 4.16, 4.17, 4.18, 4.19, 7.10, 7.11, 7.14, 9.1, 9.3, 9.4
 test('demo mode: a full session wakes the ghost, then restores the parlor', async ({ page }) => {
   await page.clock.install();
   await page.goto('/?demo=1');
@@ -36,8 +36,8 @@ test('demo mode: a full session wakes the ghost, then restores the parlor', asyn
   // Come back: the ghost has drifted closer and says so, kindly.
   await setTabHidden(page, false);
   await expect(page.getByTestId('ghost-line')).toContainText('There you are');
-  await expect(page.getByTestId('wanderings')).toHaveText('Wandered off 1 time');
-  await expect(page.getByTestId('announcer')).toContainText('The ghost noticed you left. Wandered off 1 time this session.');
+  await expect(page.getByTestId('wanderings')).toHaveText('Came back 1 time');
+  await expect(page.getByTestId('announcer')).toContainText('Welcome back. You came back 1 time this session, and the candle kept burning.');
   await expect(page).toHaveTitle(/^00:\d\d · Focus · Haunted Pomodoro$/);
   await expect(scene).toHaveAttribute('data-ghost', 'awake');
   await expect(scene).toHaveAttribute('data-ghost-closeness', '1');
@@ -91,19 +91,19 @@ test('the ghost comes right up to the glass after three wanderings, and its colo
     await setTabHidden(page, false);
     await page.clock.runFor(200);
   }
-  await expect(page.getByTestId('wanderings')).toHaveText('Wandered off 3 times');
+  await expect(page.getByTestId('wanderings')).toHaveText('Came back 3 times');
   await expect(scene).toHaveAttribute('data-ghost-closeness', '3');
   await expect(page.getByTestId('ghost')).toHaveAttribute('style', /scale\(1\.8\)/);
   await expect(page.getByTestId('ghost-vignette')).toHaveCSS('opacity', '0.85', { timeout: 5_000 });
 });
 
-// Req 5.6, 5.7, 12.1, 12.2, 12.5, 12.6
+// Req 5.6, 5.7, 12.1, 12.2, 12.5, 12.6, 3.20
 test('restoring a room gives back a page of the ghost’s journal, and the Hearth keeps a diary', async ({ page }) => {
   await page.clock.install();
   await page.goto('/?demo=1');
   // The demo house has a few earlier days, so the diary and the weekly reflection already speak.
   await expect(page.getByTestId('diary')).toContainText('Yesterday you lit one candle and left me once.');
-  await expect(page.getByTestId('weekly')).toHaveText(/^This week: 10 candles, 4 h 10 min focused, 4 wanderings/);
+  await expect(page.getByTestId('weekly')).toHaveText(/^This week: 10 candles, 4 h 10 min focused, 4 comebacks/);
 
   await page.keyboard.press('h');
   const journal = page.getByTestId('journal');
@@ -121,10 +121,10 @@ test('restoring a room gives back a page of the ghost’s journal, and the Heart
   await expect(journal.locator('[data-unlocked="true"]')).toHaveCount(1);
   await expect(journal.locator('[data-unlocked="true"]')).toContainText('I began this book the winter the lamps went out.');
   await expect(page.getByTestId('weekly')).toHaveText(/^This week: 11 candles/);
-  // The Hearth's numbers: today's candles and minutes, wanderings, best streak and rooms restored.
+  // The Hearth's numbers: today's candles and minutes, comebacks, best streak and rooms restored.
   const stat = (name: string) => page.locator('.stats div').filter({ has: page.locator('dt', { hasText: new RegExp(`^${name}$`) }) }).locator('dd');
   await expect(stat('Today')).toHaveText(/^\d+ candles? · /);
-  await expect(stat('Wanderings today')).toHaveText(/^\d+$/);
+  await expect(stat('Comebacks today')).toHaveText(/^\d+$/);
   await expect(stat('Best streak')).toHaveText(/^\d+ days$/);
   await expect(stat('Rooms restored')).toHaveText('1');
 });

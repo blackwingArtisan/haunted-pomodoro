@@ -57,6 +57,22 @@ describe('app reducer', () => {
     expect(h.model.days[dayKey(h.clock.now())]?.distractions).toBe(1);
   });
 
+  // Req 3.20
+  it('a comeback adds its time away to the day, and a return inside the grace period adds nothing', () => {
+    const h = harness();
+    h.timer('start');
+    h.timer('hidden');
+    h.clock.advance(4_000);
+    h.timer('visible');
+    h.timer('hidden');
+    h.clock.advance(1_000);
+    h.timer('visible');
+    h.timer('hidden');
+    h.clock.advance(6_000);
+    h.timer('visible');
+    expect(h.model.days[dayKey(h.clock.now())]).toMatchObject({ distractions: 2, awayMs: 10_000 });
+  });
+
   // Req 1.17, 4.6
   it('reset snuffs the candle without touching the house', () => {
     const h = harness();

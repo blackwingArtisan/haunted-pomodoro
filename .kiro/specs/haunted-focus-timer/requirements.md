@@ -70,6 +70,7 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 17. WHILE the ghost is closer than its sleeping spot, THE SYSTEM SHALL tint the edges of the room in the ghost's color, more strongly the closer it is.
 18. WHEN the person comes back from a wandering that was counted, THE SYSTEM SHALL leave one will-o'-wisp in the upper room for each wandering counted that day, up to eight, SHALL never remove one as the count grows, and SHALL keep them through the end of the session and a reload.
 19. WHILE any will-o'-wisp is shown, THE SYSTEM SHALL describe the wisps in the scene's accessible label as the times the person came back, without counting the leaving.
+20. WHEN a wandering is counted, THE SYSTEM SHALL show the session's count on the timer as comebacks ("Came back N times"), call that day's count comebacks in the Hearth, and add the time away to that day's log.
 
 ## Requirement 4: The house
 **User story:** As a returning user, I want my focus to visibly restore something, so that the work feels like it adds up.
@@ -208,7 +209,8 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 3. WHEN all six rooms of a house are restored, THE SYSTEM SHALL finish the book, show its last page in the journal from then on, and start the next house's pages afresh.
 4. WHEN a wandering is counted, THE SYSTEM SHALL choose the ghost's line from the current room and the session's wander count, from at least fifteen lines.
 5. WHERE an earlier day in the last fourteen has a focus session, THE SYSTEM SHALL show one diary line in the Hearth about the most recent such day, in the ghost's voice.
-6. WHERE the last seven days have a focus session, THE SYSTEM SHALL show a weekly reflection with candles, focus time and wanderings, and, when wanderings fell from the seven days before, the earlier count.
+6. WHERE the last seven days have a focus session, THE SYSTEM SHALL show a weekly reflection with candles, focus time and the week's comebacks (its counted wanderings).
 7. THE SYSTEM SHALL keep every journal page, ghost line, diary line and reflection free of shaming words, and SHALL NOT mention a rise in wanderings.
 8. THE SYSTEM SHALL compute the journal, the ghost's lines, the diary and the reflection with pure functions that take the day as an argument and use no network.
 9. WHEN a whole house is restored, THE SYSTEM SHALL keep the journal's last page in the house map, and SHALL keep the room heading on the finished house while its last room is on show.
+10. WHERE the seven days before logged time away AND this week's time away is lower in whole minutes, THE SYSTEM SHALL say in the weekly reflection that time away fell, with both totals; otherwise it SHALL say only what was kept.

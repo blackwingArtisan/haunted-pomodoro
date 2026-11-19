@@ -73,7 +73,10 @@ export interface Task {
 export interface DayLog {
   sessions: number;
   focusMs: number;
+  /** Counted wanderings, which are also the comebacks: every counted wandering ends in a return. */
   distractions: number;
+  /** Time away from the tab across that day's counted wanderings. Absent in saves made before it was logged. */
+  awayMs?: number;
 }
 
 export interface AppModel {
@@ -222,7 +225,7 @@ function applyTimerEffects(model: AppModel, effects: TimerEffect[], now: number)
       case 'distracted':
         next = {
           ...next,
-          days: logDay(next.days, now, (d) => ({ ...d, distractions: d.distractions + 1 })),
+          days: logDay(next.days, now, (d) => ({ ...d, distractions: d.distractions + 1, awayMs: (d.awayMs ?? 0) + effect.awayMs })),
           updatedAt: now,
         };
         cues.push({ kind: 'ghostReturned', count: effect.count });

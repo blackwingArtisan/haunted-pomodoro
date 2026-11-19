@@ -127,6 +127,7 @@ export interface DayCounts {
   sessions: number;
   focusMs: number;
   distractions: number;
+  awayMs?: number;
 }
 
 const FULL_WEEKDAY: Record<string, string> = {
@@ -179,9 +180,14 @@ export function diaryLine(days: Record<DayKey, DayCounts>, today: DayKey, roomId
 export interface WeeklyReflection {
   candles: number;
   focusMs: number;
+  /** Counted wanderings this week. Each one ended in a return, so the reflection calls them comebacks. */
   wanderings: number;
   /** Wanderings in the seven days before; null when that week had no sessions to compare with. */
   previousWanderings: number | null;
+  /** Time away this week, across the counted wanderings. */
+  awayMs: number;
+  /** Time away in the seven days before; null when that week had no sessions or no time away logged. */
+  previousAwayMs: number | null;
   /** The whole reflection as one sentence. */
   text: string;
 }
@@ -199,25 +205,33 @@ function sum(days: Record<DayKey, DayCounts>, keys: DayKey[]): DayCounts {
   return keys.reduce<DayCounts>(
     (acc, k) => {
       const d = days[k];
-      return d ? { sessions: acc.sessions + d.sessions, focusMs: acc.focusMs + d.focusMs, distractions: acc.distractions + d.distractions } : acc;
+      return d
+        ? { sessions: acc.sessions + d.sessions, focusMs: acc.focusMs + d.focusMs, distractions: acc.distractions + d.distractions, awayMs: (acc.awayMs ?? 0) + (d.awayMs ?? 0) }
+        : acc;
     },
-    { sessions: 0, focusMs: 0, distractions: 0 },
+    { sessions: 0, focusMs: 0, distractions: 0, awayMs: 0 },
   );
 }
 
 /**
- * The last seven days, today included, against the seven before. When wanderings went down it says
- * so; when they went up it says only what was kept. Null when the week has no sessions yet.
+ * The last seven days, today included, against the seven before. It counts comebacks, not
+ * distractions, and the number it lets fall is the time away: when that went down it says so; when
+ * it went up it says only what was kept. Null when the week has no sessions yet.
  */
 export function weeklyReflection(days: Record<DayKey, DayCounts>, today: DayKey): WeeklyReflection | null {
   const week = sum(days, lastDays(today, 7));
   if (week.sessions <= 0) return null;
   const before = sum(days, lastDays(addDays(today, -7), 7));
   const previousWanderings = before.sessions > 0 ? before.distractions : null;
-  const head = `This week: ${week.sessions} ${week.sessions === 1 ? 'candle' : 'candles'}, ${hoursAndMinutes(week.focusMs)} focused, ${week.distractions} ${week.distractions === 1 ? 'wandering' : 'wanderings'}`;
-  let tail: string;
-  if (previousWanderings !== null && week.distractions < previousWanderings) tail = `, down from ${previousWanderings}.`;
-  else if (week.distractions === 0) tail = '. Not one. The ghost is speechless.';
-  else tail = '. Every candle stayed lit.';
-  return { candles: week.sessions, focusMs: week.focusMs, wanderings: week.distractions, previousWanderings, text: head + tail };
+  const awayMs = week.awayMs ?? 0;
+  const previousAwayMs = before.sessions > 0 && (before.awayMs ?? 0) > 0 ? (before.awayMs ?? 0) : null;
+  const head = `This week: ${week.sessions} ${week.sessions === 1 ? 'candle' : 'candles'}, ${hoursAndMinutes(week.focusMs)} focused`;
+  let text: string;
+  if (week.distractions === 0) text = `${head}, and you never once left. The ghost is speechless.`;
+  else {
+    const comebacks = `${head}, ${week.distractions} ${week.distractions === 1 ? 'comeback' : 'comebacks'}`;
+    if (previousAwayMs !== null && awayMs < previousAwayMs && hoursAndMinutes(awayMs) !== hoursAndMinutes(previousAwayMs)) text = `${comebacks}; time away fell from ${hoursAndMinutes(previousAwayMs)} to ${hoursAndMinutes(awayMs)}.`;
+    else text = `${comebacks}. Every candle stayed lit.`;
+  }
+  return { candles: week.sessions, focusMs: week.focusMs, wanderings: week.distractions, previousWanderings, awayMs, previousAwayMs, text };
 }

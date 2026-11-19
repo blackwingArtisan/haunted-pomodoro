@@ -48,7 +48,9 @@ function parseDays(raw: unknown): Record<DayKey, DayLog> {
     .slice(-MAX_DAYS)
     .map(([key, value]): [DayKey, DayLog] => {
       const v = value as Json;
-      return [key, { sessions: int(v.sessions, 0, 0, 1_000), focusMs: num(v.focusMs, 0, 0), distractions: int(v.distractions, 0, 0, 10_000) }];
+      const day: DayLog = { sessions: int(v.sessions, 0, 0, 1_000), focusMs: num(v.focusMs, 0, 0), distractions: int(v.distractions, 0, 0, 10_000) };
+      if (v.awayMs !== undefined) day.awayMs = num(v.awayMs, 0, 0);
+      return [key, day];
     });
   return Object.fromEntries(entries);
 }
@@ -125,13 +127,20 @@ export function deserializeModel(text: string | null, now: number): AppModel | n
  * logs keep the larger count for each day; the house keeps whichever copy is further restored, so
  * progress never moves backward. The running timer always stays with this device.
  */
+/** The larger value of each count, so a merge never lowers a day. */
+function mergeDay(l: DayLog, r: DayLog): DayLog {
+  const day: DayLog = { sessions: Math.max(l.sessions, r.sessions), focusMs: Math.max(l.focusMs, r.focusMs), distractions: Math.max(l.distractions, r.distractions) };
+  if (l.awayMs !== undefined || r.awayMs !== undefined) day.awayMs = Math.max(l.awayMs ?? 0, r.awayMs ?? 0);
+  return day;
+}
+
 export function mergeModels(local: AppModel, remote: AppModel): AppModel {
   const newer = remote.updatedAt > local.updatedAt ? remote : local;
   const days: Record<DayKey, DayLog> = { ...local.days };
   for (const [key, r] of Object.entries(remote.days)) {
     const l = days[key];
     days[key] = l
-      ? { sessions: Math.max(l.sessions, r.sessions), focusMs: Math.max(l.focusMs, r.focusMs), distractions: Math.max(l.distractions, r.distractions) }
+      ? mergeDay(l, r)
       : r;
   }
   return {
