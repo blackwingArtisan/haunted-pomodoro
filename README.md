@@ -4,11 +4,15 @@
 
 A real Pomodoro timer wearing a haunted house: every focus session lights a candle, wandering off wakes a lonely ghost who counts it without taking anything away, and finished sessions restore the house room by room. Built for Kiroween 2026 (Costume Contest) by Stubborn Otter Software.
 
-![The demo in twelve seconds: the drapes part on a haunted parlor, one focus candle burns down, and a warm sweep restores the room](docs/media/hero.gif)
+![The demo in thirteen seconds: the drapes part on a haunted parlor, a candle is lit, the ghost wakes when the tab is left and greets the person on return, and a warm sweep restores the room](docs/media/hero.gif)
 
 | Haunted | You wandered off | Restored |
 |---|---|---|
-| ![The parlor, still haunted, with cobwebs and a staring portrait](docs/screenshots/haunted.jpg) | ![The ghost has drifted closer and says: there you are, I kept your candle lit](docs/screenshots/ghost.jpg) | ![The parlor restored: warm colors, the portrait asleep, the Restored banner](docs/screenshots/restored.jpg) |
+| ![The parlor, still haunted, with cobwebs and a staring portrait](docs/screenshots/haunted.jpg) | ![The ghost has drifted closer and says: there you are, I kept your candle lit](docs/screenshots/ghost.jpg) | ![The parlor restored: warm colors, the portrait asleep, the Restored caption on the rug](docs/screenshots/restored.jpg) |
+
+| Costume off (press U) | The last page (`?demo=finale`) |
+|---|---|
+| ![The same session as a plain Pomodoro: a progress bar, distraction counts, sessions toward the goal and the streak, each labelled with the part of the house behind it](docs/screenshots/costume-off.jpg) | ![The house map opened on the journal's last page, a new dark house in front and the finished house lit up the hill](docs/screenshots/finale.jpg) |
 
 > **Judges: 60 seconds.** Run `npm ci && npm run dev` and open `http://localhost:3180/?demo=1` (sound on).
 > 1. Press **Light a candle**.

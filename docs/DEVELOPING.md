@@ -10,7 +10,7 @@ npm run build && npm run preview   # production build with the service worker, h
 ```
 Open `http://localhost:3180/?demo=1` for the 30 second demo, `?demo=finale` for the last room and the end of the book, and `http://localhost:3180/sound-check.html` to hear and measure every sound.
 
-Set `SITE_URL` (for example `SITE_URL=https://example.pages.dev npm run build`) so the link-preview tags point at an absolute image URL. `npm run media` rebuilds and re-records the README GIF and the 1200x630 preview image from the live demo; it needs ffmpeg.
+Set `SITE_URL` (for example `SITE_URL=https://example.pages.dev npm run build`) so the link-preview tags point at an absolute image URL. `npm run media` rebuilds and re-records the README GIF, the README screenshots and the 1200x630 preview image from the live demo; it needs ffmpeg.
 
 
 ## Test it
