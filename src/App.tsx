@@ -403,7 +403,7 @@ export function App() {
   const sceneLabel = `${shownRoom.name}, ${restoredNow ? 'restored' : `${view.candlesLit} of ${view.candlesPerRoom} ${view.candlesPerRoom === 1 ? 'candle' : 'candles'} lit`}. The ghost is ${ghost.mood === 'asleep' ? 'asleep' : ghost.mood === 'watching' ? 'watching you' : 'awake'}.${wispSentence ? ` ${wispSentence}` : ''}`;
 
   return (
-    <div className={`app phase-${timer.phase} ${breathing ? 'is-breathing' : ''} ${demo ? 'is-demo' : ''} ${showPlain ? 'is-unmasked' : ''}`} data-phase={timer.phase} data-status={timer.status}>
+    <div className={`app phase-${timer.phase} ${breathing ? 'is-breathing' : ''} ${demo ? `is-demo demo-${demoKind}` : ''} ${showPlain ? 'is-unmasked' : ''}`} data-phase={timer.phase} data-status={timer.status}>
       <a className="skip-link" href="#timer">
         Skip to the timer
       </a>
@@ -413,10 +413,19 @@ export function App() {
           <span className="demo-text">
             <strong>Demo house.</strong>
             <span className="demo-long">
-              {demoKind === 'finale' ? ' The last room. One 20 second focus finishes the book. Your own house is untouched.' : ' A 20 second focus, then a 10 second break. Your own house is untouched.'}
+              {demoKind === 'finale'
+                ? ' The last room. One 20 second focus finishes the book. Your own house is untouched.'
+                : demoKind === 'week'
+                  ? ' Two made-up weeks of history. Your own house is untouched.'
+                  : ' A 20 second focus, then a 10 second break. Your own house is untouched.'}
             </span>
             <span className="demo-short"> Yours is untouched.</span>
           </span>
+          {demoKind === 'week' && (
+            <a className="btn btn-small demo-jump" href="#hearth-title">
+              See the week
+            </a>
+          )}
           <button type="button" className="btn btn-small demo-leave" onClick={() => setDemoUrl(false)}>
             <CloseIcon width={14} height={14} />
             <span>

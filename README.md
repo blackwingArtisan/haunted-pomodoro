@@ -6,14 +6,14 @@ A real Pomodoro timer wearing a haunted house. Every focus session lights a cand
 
 ![The demo in thirteen seconds: the drapes part on a haunted parlor, a candle is lit, the ghost wakes when the tab is left and greets the person on return, and a warm sweep restores the room](docs/media/hero.gif)
 
-**Kiro at a glance:** 2 specs · 170 EARS criteria, 161 traced to tests · 9 hooks on 6 triggers · 5 steering files · 2 MCP servers · 1 custom agent · 1 logged Kiro session (16.02 credits) that caught a spec bug and built two features. [Built with Kiro](#built-with-kiro) · [KIRO-LOG.md](KIRO-LOG.md)
+**Kiro at a glance:** 2 specs · 172 EARS criteria, 163 traced to tests · 9 hooks on 6 triggers · 5 steering files · 2 MCP servers · 1 custom agent · 1 logged Kiro session (16.02 credits) that caught a spec bug and built two features. [Built with Kiro](#built-with-kiro) · [KIRO-LOG.md](KIRO-LOG.md)
 
 > **Judges: 60 seconds.** Run `npm ci && npm run dev` and open `http://localhost:3180/?demo=1` (sound on).
 > 1. Press **Light a candle**.
 > 2. Switch to another tab for 5 seconds, then come back: the ghost says so kindly, and a will-o'-wisp stays in the room.
 > 3. Wait for 0:00: the parlor is restored.
 > 4. Press **U** to take the costume off (the same timer as a plain Pomodoro), and **U** again to put it back.
-> 5. Press **H** for the house map and the ghost's journal. For the ending, open `/?demo=finale`.
+> 5. Press **H** for the house map and the ghost's journal. For the ending, open `/?demo=finale`; for a week of history and its postcard, `/?demo=week`.
 
 ## What it does that focus apps usually don't
 *It doesn't count your distractions. It counts your comebacks.*
@@ -39,7 +39,7 @@ Take the costume off and every part still works as a timer: the candle is the pr
 | Specs | [`haunted-focus-timer`](.kiro/specs/haunted-focus-timer/) and [`house-sync`](.kiro/specs/house-sync/) | Kiro rewrote every criterion in EARS form, caught house-sync 4.1 saying 404 where the Worker answers 405, unchecked two tasks no test backed and opened a task for each gap. |
 | Spec-driven build | `src/core/house-file.ts`, `src/adapters/notify.ts` and their tests | Kiro built house export and import and the opt-in phase-end notification from its own criteria, with unit and Playwright tests (11 min 44 s, 16.02 credits). |
 | Steering | [`.kiro/steering/`](.kiro/steering/): 3 always, 2 by file match | "Never punish" is non-negotiable: nothing removes a lit candle or a restored room. |
-| Traceability | [`traceability.md`](.kiro/specs/haunted-focus-timer/traceability.md), `npm run trace` | 161 of 170 criteria are named by a test; a unit test fails if the table is stale. |
+| Traceability | [`traceability.md`](.kiro/specs/haunted-focus-timer/traceability.md), `npm run trace` | 163 of 172 criteria are named by a test; a unit test fails if the table is stale. |
 | Hooks | [`.kiro/hooks/`](.kiro/hooks/): nine `v1` hooks | Save: unit tests and the never-punish and accessibility guards. Stop: the full check. PreToolUse: blocks dependency changes, `git push` and deploys. PostTaskExec: the trace. SessionStart: open tasks. Manual: demo-ready. Each command is verified with Kiro's event payload ([`hook-checks.txt`](docs/kiro/hook-checks.txt)). |
 | Agent and MCP | [`ghost-reviewer`](.kiro/agents/ghost-reviewer.json), [`mcp.json`](.kiro/settings/mcp.json) | A read-only reviewer of every line the ghost says; Playwright MCP and Context7 at pinned versions. Both join the next Kiro session. |
 

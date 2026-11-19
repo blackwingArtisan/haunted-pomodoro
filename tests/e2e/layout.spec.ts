@@ -172,7 +172,7 @@ test('small capitals are at least 13 px, and the ghost speaks clear of the portr
   await page.clock.install();
   await page.goto('/?demo=1');
   const sizes = await page.evaluate(() =>
-    ['.room-number', '.unmask-toggle', '.phase-label', '.working-on label', '.tool'].map((s) => [s, parseFloat(getComputedStyle(document.querySelector(s)!).fontSize)] as const),
+    ['.room-number', '.unmask-toggle', '.phase-label', '.working-on label', '.tool', '.stats dt', '.diary footer', '.mini-day', '.title-card span'].map((s) => [s, parseFloat(getComputedStyle(document.querySelector(s)!).fontSize)] as const),
   );
   for (const [selector, size] of sizes) expect(size, selector).toBeGreaterThanOrEqual(13);
 

@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest';
 import { createDemoModel, demoKindFrom } from '../../src/app/demo';
 import { lightCandle, viewHouse } from '../../src/core/house';
 import { createModel } from '../../src/core/model';
-import { journalFor } from '../../src/core/story';
+import { journalFor, weeklyReflection } from '../../src/core/story';
+import { dayKey, lastDays } from '../../src/core/dates';
 
 const now = Date.UTC(2026, 9, 31, 18, 0);
 const settings = createModel(now).settings;
@@ -14,6 +15,7 @@ describe('demo kinds', () => {
     expect(demoKindFrom('1')).toBe('arc');
     expect(demoKindFrom('')).toBe('arc');
     expect(demoKindFrom('finale')).toBe('finale');
+    expect(demoKindFrom('week')).toBe('week');
   });
 
   // Req 9.4
@@ -47,5 +49,20 @@ describe('demo kinds', () => {
     expect(finale.tasks).toEqual(arc.tasks);
     expect(finale.days).toEqual(arc.days);
     expect(finale.house.candlesPerRoom).toBe(1);
+  });
+
+  // Req 9.9
+  it('the week demo has two rooms restored and two invented weeks in which comebacks and time away fall', () => {
+    const model = createDemoModel(now, settings, 'week');
+    expect(viewHouse(model.house).roomsInThisHouse).toBe(2);
+    const today = dayKey(now);
+    const fortnight = lastDays(today, 14);
+    expect(Object.keys(model.days).every((d) => fortnight.includes(d))).toBe(true);
+    expect(Object.keys(model.days).length).toBeGreaterThanOrEqual(10);
+    expect(model.days[today]?.sessions).toBeGreaterThan(0);
+    const week = weeklyReflection(model.days, today)!;
+    expect(week.wanderings).toBeLessThan(week.previousWanderings!);
+    expect(week.awayMs).toBeLessThan(week.previousAwayMs!);
+    expect(week.text).toContain('time away fell from 55 min to 13 min');
   });
 });

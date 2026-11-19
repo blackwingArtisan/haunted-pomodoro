@@ -171,6 +171,7 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 6. WHEN the person chooses "Leave the demo", THE SYSTEM SHALL open the person's own house.
 7. WHEN the page is opened with `?demo=finale`, THE SYSTEM SHALL start the demo house with five rooms restored and the Observatory still dark, so one 20 second focus restores the last room and finishes the house.
 8. WHEN the last room of a house is restored, THE SYSTEM SHALL open the house map about five seconds later on a card with the journal's last page and a line about the new house down the lane, unless another window is open, and SHALL show the finished house with every window lit beside the new one.
+9. WHEN the page is opened with `?demo=week`, THE SYSTEM SHALL start a demo house with two rooms restored and two invented weeks of history in which comebacks and time away fall, SHALL put the Hearth first in the side column, and SHALL offer a "See the week" link in the demo banner.
 
 ## Requirement 10: Phase-end notification
 **User story:** As someone who works in another tab, I want an optional notification when a phase ends, so that I notice without watching the timer.
@@ -221,3 +222,4 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 8. THE SYSTEM SHALL compute the journal, the ghost's lines, the diary and the reflection with pure functions that take the day as an argument and use no network.
 9. WHEN a whole house is restored, THE SYSTEM SHALL keep the journal's last page in the house map, and SHALL keep the room heading on the finished house while its last room is on show.
 10. WHERE the seven days before logged time away AND this week's time away is lower in whole minutes, THE SYSTEM SHALL say in the weekly reflection that time away fell, with both totals; otherwise it SHALL say only what was kept.
+11. WHILE the week has at least one session, THE SYSTEM SHALL offer in the Hearth to save the week as a 1200x630 PNG postcard showing the house from outside with a lamp in every restored window and the ghost in the window of a room lit today, the week's candles and comebacks, the fall in time away when there was one, and a line from the ghost.

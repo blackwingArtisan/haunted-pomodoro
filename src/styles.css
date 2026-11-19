@@ -944,7 +944,7 @@ input[type='number'],
 }
 .stats dt {
   font-family: var(--font-numeral);
-  font-size: 10.5px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.18em;
   text-transform: uppercase;
@@ -1452,7 +1452,7 @@ input[type='number'],
 .diary footer {
   margin-top: 4px;
   font-family: var(--font-numeral);
-  font-size: 10.5px;
+  font-size: 13px;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   color: var(--bone-dim);
@@ -1463,6 +1463,17 @@ input[type='number'],
   border-top: 1px solid var(--hairline);
   color: var(--bone);
   font-variant-numeric: lining-nums tabular-nums;
+}
+.postcard-button {
+  margin-top: 10px;
+}
+/* The week demo is about the Hearth, so it comes first in the side column. */
+.app.demo-week .side .hearth {
+  order: -1;
+}
+.demo-jump {
+  text-decoration: none;
+  white-space: nowrap;
 }
 
 /* ------------------------------------------------------------------ The scene */
@@ -2084,7 +2095,7 @@ input[type='number'],
 }
 .title-card span {
   font-family: var(--font-numeral);
-  font-size: clamp(11px, 1.1vw, 14px);
+  font-size: clamp(13px, 1.1vw, 15px);
   font-weight: 700;
   letter-spacing: 0.45em;
   text-transform: uppercase;

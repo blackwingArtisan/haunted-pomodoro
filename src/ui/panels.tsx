@@ -4,6 +4,8 @@ import { ROOMS, viewHouse, type HouseState } from '../core/house';
 import { SETTING_LIMITS, type AppAction, type AppModel, type DayLog, type Settings } from '../core/model';
 import type { Streak } from '../core/streak';
 import { BOOK_TITLE, JOURNAL_FINALE, diaryLine, journalFor, weeklyReflection } from '../core/story';
+import { postcardFor } from '../core/postcard';
+import { savePostcard } from './postcard';
 import { remainingAt, type TimerState } from '../core/timer';
 import { CandleIcon, CloseIcon, ResetIcon, SkipIcon, TrashIcon } from './icons';
 import { MANTEL_CANDLES, mantelCandles } from './candles';
@@ -270,9 +272,14 @@ export function Hearth({ streak, days, today, house, roomId }: { streak: Streak;
         </div>
       </dl>
       {weekly && (
-        <p className="weekly" data-testid="weekly">
-          {weekly.text}
-        </p>
+        <>
+          <p className="weekly" data-testid="weekly">
+            {weekly.text}
+          </p>
+          <button type="button" className="btn btn-quiet btn-small postcard-button" onClick={() => void savePostcard(postcardFor(days, today, house))}>
+            Save this week’s postcard
+          </button>
+        </>
       )}
     </section>
   );
