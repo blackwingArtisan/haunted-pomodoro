@@ -7,11 +7,26 @@ What Kiro was asked to do on this project, what it produced, and what it cost. E
 - **Kiro refused to take the checklist on trust.** It unchecked two tasks no test backed (9, the Hearth panel's values; 11, the ambient wind wiring) and logged every gap it found as an open task: 24 to 30 here, 3.1 and 8 to 10 in house-sync.
 - **Kiro built two features with their tests in one pass:** house export and import, and the opt-in phase-end notification (kiro-cli v3, 11 min 44 s, 16.02 credits). Afterwards: typecheck clean, Vitest 101 of 101, Playwright 23 of 23.
 - **Kiro tightened every acceptance criterion into EARS form** and converted the one old-format hook to `v1`.
-- Disclosure: the steering, the first two specs and the first hooks were drafted by hand in Kiro's formats before the first Kiro session; "Before the Kiro pass" says exactly what.
+- Disclosure: the steering, the first two specs and the first hooks were drafted with Claude Code (Anthropic's coding agent) in Kiro's formats before the first Kiro session; "Before the Kiro pass" says exactly what.
 - Work done since then without Kiro is listed under "Work outside Kiro" with its commits, so nothing here is credited to Kiro that it did not do.
 
+## Kiro features at a glance
+
+| Feature | First real use | Session | Evidence |
+|---|---|---|---|
+| Specs: review against the code | Rewrote all criteria in EARS form; corrected house-sync 4.1 from 404 to 405; unchecked tasks 9 and 11 because no test backed them; opened tasks 24 to 30 and house-sync 3.1 and 8 to 10 | Kiro pass 1, 2026-11-19 | `cdabc10`: `.kiro/specs/*/requirements.md`, `tasks.md` |
+| Specs: spec-driven build | Export and import (Requirement 11) and the phase-end notification (Requirement 10): criteria, design note and sub-tasks first, then code and tests | Kiro pass 1 | `cdabc10`: `src/core/house-file.ts`, `src/adapters/notify.ts`, `tests/unit/house-file.test.ts`, `tests/unit/notifications.test.ts`, `tests/e2e/house-file.spec.ts` |
+| Steering (always included) | Read `product.md`, `tech.md` and `structure.md` first, followed the forward-only rule in the import merge, and updated all three for its features | Kiro pass 1 | `cdabc10`: `.kiro/steering/` |
+| Hooks: format | Checked every hook against the `v1` format and converted the IDE-format hook into `core-tests.json` | Kiro pass 1 | `cdabc10`: `.kiro/hooks/` |
+| Hooks: firing inside Kiro | Planned for the next session. Each command hook has been run with the event payload Kiro sends | Next session | [`docs/kiro/hook-checks.txt`](docs/kiro/hook-checks.txt), `tests/unit/kiro-guard.test.ts` |
+| Steering (file match) | Planned for the next session, which touches `src/ui/` | Next session | `.kiro/steering/scene-art.md`, `audio.md` |
+| MCP: Context7 and Playwright | Planned for the next session | Next session | `.kiro/settings/mcp.json` |
+| Custom agent: `ghost-reviewer` | Planned for the next session | Next session | `.kiro/agents/ghost-reviewer.json` |
+
+Commits Kiro makes from now on carry a `Kiro-Session: <session id>` trailer, so `git log --grep Kiro-Session` lists Kiro's share directly. Earlier commits are not rewritten; this log attributes them.
+
 ## Before the Kiro pass
-The steering files (`.kiro/steering/product.md`, `tech.md`, `structure.md`), the two specs (`.kiro/specs/haunted-focus-timer/` and `.kiro/specs/house-sync/`, each with EARS requirements, a design and a task list) and the agent hooks (`.kiro/hooks/`) were drafted by hand in Kiro's formats before any Kiro session, alongside the first working build. Kiro had not been run on this repository at that point.
+The steering files (`.kiro/steering/product.md`, `tech.md`, `structure.md`), the two specs (`.kiro/specs/haunted-focus-timer/` and `.kiro/specs/house-sync/`, each with EARS requirements, a design and a task list) and the agent hooks (`.kiro/hooks/`) were drafted with Claude Code in Kiro's formats before any Kiro session, alongside the first working build. Kiro had not been run on this repository at that point.
 
 The first build implements tasks 1 to 16 of `haunted-focus-timer` and tasks 1 to 6 of `house-sync`. Open tasks (`[ ]`) are left for the Kiro pass.
 
@@ -24,7 +39,7 @@ Hooks drafted:
 
 Hook formats: the four `.json` files were drafted in the `v1` format and `core-tests.kiro.hook` in the older IDE format. The Kiro pass checked every file against the current `v1` format, converted the IDE file and deleted it; see "Kiro pass 1 (kiro-cli v3): spec review, export and import, notifications" below.
 
-Later changes made before the Kiro pass (tasks 21 and 22, also by hand): the sound check page with measured level limits, and the first-view layout fit. Task 23, a listening review of each sound, is open.
+Later changes made before the Kiro pass (tasks 21 and 22, also with Claude Code): the sound check page with measured level limits, and the first-view layout fit. Task 23, a listening review of each sound, is open.
 
 ## Kiro pass 1 (kiro-cli v3): spec review, export and import, notifications
 
@@ -111,7 +126,7 @@ One non-interactive session, four jobs in order: spec review, tasks 19 and 20, h
 
 ## Work outside Kiro
 
-Everything below was written without a Kiro session (by hand, with another coding assistant), tested with the same Vitest and Playwright suites, and recorded in the task list like Kiro's work. None of it is counted in the Kiro credits above.
+Everything below was written without a Kiro session, with Claude Code, tested with the same Vitest and Playwright suites, and recorded in the task list like Kiro's work. None of it is counted in the Kiro credits above.
 
 | Commits | Tasks | What changed |
 |---|---|---|
@@ -137,3 +152,4 @@ Everything below was written without a Kiro session (by hand, with another codin
 - Schema check: trigger names, matcher rules, exit-code behavior and agent fields were checked against the v3.5.0 agent engine that ships with kiro-cli. Exit code 2 blocks only on PreToolUse, PreTaskExec, PermissionRequest, UserPromptSubmit and PreCompact, so the PostTaskExec trace hook reports to the agent and cannot block. `tests/unit/kiro-config.test.ts` checks every hook, agent, steering and MCP file, and `tests/unit/kiro-guard.test.ts` runs the guard the way Kiro does.
 - Not yet seen inside Kiro: these hooks have not fired in a Kiro session. `docs/kiro/hook-checks.txt` records each hook command run by hand with the event Kiro sends, and its output; a fire inside Kiro will be logged here when it happens.
 
+Later work outside Kiro is listed in [`CHANGELOG.md`](CHANGELOG.md) and in the task list.

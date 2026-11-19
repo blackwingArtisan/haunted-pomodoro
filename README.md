@@ -6,6 +6,8 @@ A real Pomodoro timer wearing a haunted house: every focus session lights a cand
 
 ![The demo in thirteen seconds: the drapes part on a haunted parlor, a candle is lit, the ghost wakes when the tab is left and greets the person on return, and a warm sweep restores the room](docs/media/hero.gif)
 
+**Kiro at a glance:** 2 specs · 161 EARS criteria, 152 traced to tests · 9 hooks on 6 triggers · 5 steering files · 2 MCP servers · 1 custom agent · 1 logged Kiro session (16.02 credits) that caught a spec bug and built two features. [Built with Kiro](#built-with-kiro) · [KIRO-LOG.md](KIRO-LOG.md)
+
 | Haunted | You wandered off | Restored |
 |---|---|---|
 | ![The parlor, still haunted, with cobwebs and a staring portrait](docs/screenshots/haunted.jpg) | ![The ghost has drifted closer and says: there you are, I kept your candle lit](docs/screenshots/ghost.jpg) | ![The parlor restored: warm colors, the portrait asleep, the Restored caption on the rug](docs/screenshots/restored.jpg) |
