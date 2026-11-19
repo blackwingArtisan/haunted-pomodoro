@@ -99,6 +99,8 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 22. WHEN a room is restored, THE SYSTEM SHALL keep the portrait and the fireplace clear of the Restored caption and of the ghost's words.
 23. WHEN a room is restored, THE SYSTEM SHALL hold the ghost's words until the restoration sweep has finished (about 2.5 s).
 24. WHILE a room is still haunted, THE SYSTEM SHALL keep at least 8% of the room's color, so the haunted room reads as moonlit rather than muddy.
+25. WHILE a focus session runs, THE SYSTEM SHALL spread a warm pool of candlelight from the mantel across the wall and the rug in step with the session's progress, from barely there at the strike to its full reach at the end, and SHALL leave it lit in a restored room; WHEN a candle is struck, THE SYSTEM SHALL flare its flame visibly larger before it settles.
+26. WHILE a room is still haunted, THE SYSTEM SHALL darken the room's edges in step with how haunted it is and SHALL flash lightning in the window and along the moonbeam about every 19 seconds, never more than twice in a row; WHERE the person prefers reduced motion, THE SYSTEM SHALL show no lightning.
 
 ## Requirement 5: The Hearth (streak)
 **User story:** As someone building a habit, I want a streak that encourages without punishing, so that one bad day does not erase my progress.

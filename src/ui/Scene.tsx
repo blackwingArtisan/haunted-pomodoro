@@ -26,6 +26,8 @@ export interface SceneProps {
   /** 0 to 1: how warm the hearth fire burns, from the streak. */
   hearth: number;
   label: string;
+  /** 0 to 1: how far the focus session in progress has run; the candle's light pool grows with it. */
+  session?: number;
   /** Will-o'-wisps the ghost has left today, one per return from a wandering (see src/core/wisps.ts). */
   wisps?: readonly Wisp[];
   trackPointer?: boolean;
@@ -48,7 +50,7 @@ export const GHOST_SPOTS: ReadonlyArray<[number, number, number]> = [
 const NO_WISPS: readonly Wisp[] = [];
 
 export function Scene(props: SceneProps) {
-  const { room, restore, candlesLit, burning, restored, ghost, rattling, breathing, hearth, label, wisps = NO_WISPS, trackPointer = true } = props;
+  const { room, restore, candlesLit, burning, restored, ghost, rattling, breathing, hearth, label, wisps = NO_WISPS, trackPointer = true, session: progress = 0 } = props;
   const uid = useId().replace(/:/g, '');
   const svgRef = useRef<SVGSVGElement>(null);
   const pupilsRef = useRef<SVGGElement>(null);
@@ -76,7 +78,9 @@ export function Scene(props: SceneProps) {
   const spot = GHOST_SPOTS[Math.min(3, Math.max(0, Math.round(ghost.closeness)))]!;
   const ghostStyle: CSSProperties = { transform: `translate(${spot[0]}px, ${spot[1]}px) scale(${spot[2]})` };
   const r = restored ? 1 : Math.min(1, Math.max(RESTORE_FLOOR, restore));
-  const sceneStyle = { '--restore': r, '--hearth': hearth, '--lit': (candlesLit + (burning ? 1 : 0)) / MANTEL_CANDLES } as CSSProperties;
+  // How far the session has run: the warm pool from the mantel grows with it.
+  const session = restored ? 1 : Math.min(1, Math.max(0, progress));
+  const sceneStyle = { '--restore': r, '--hearth': hearth, '--lit': (candlesLit + (burning ? 1 : 0)) / MANTEL_CANDLES, '--session': session } as CSSProperties;
   const [paper, motif] = room.paper;
 
   return (
@@ -141,6 +145,15 @@ export function Scene(props: SceneProps) {
           <stop offset="0.6" stopColor="#ffe6b0" stopOpacity="0.55" />
           <stop offset="1" stopColor="#ffd98a" stopOpacity="0" />
         </linearGradient>
+        <radialGradient id={`pool-${uid}`} cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#ffd690" stopOpacity="0.85" />
+          <stop offset="0.45" stopColor="#ffab55" stopOpacity="0.38" />
+          <stop offset="1" stopColor="#ff9d3d" stopOpacity="0" />
+        </radialGradient>
+        <radialGradient id={`haunt-vignette-${uid}`} cx="0.5" cy="0.42" r="0.7">
+          <stop offset="0.35" stopColor="#020208" stopOpacity="0" />
+          <stop offset="1" stopColor="#020208" stopOpacity="0.9" />
+        </radialGradient>
         <filter id={`soft-${uid}`} x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="18" />
         </filter>
@@ -181,6 +194,21 @@ export function Scene(props: SceneProps) {
       {/* Cold moonlit cast while the room is haunted; it lifts as the room is restored. */}
       <rect width="1200" height="700" fill="#1b2a5a" className="haunt-cast" pointerEvents="none" />
       <ellipse cx="600" cy="270" rx="520" ry="360" fill={`url(#glow-${uid})`} className="candle-warmth" />
+      {/* The burning candle's light: a pool on the wall and the rug that spreads as the session runs. */}
+      <g className="light-pool" aria-hidden="true" data-testid="light-pool">
+        <ellipse cx="600" cy="300" rx="430" ry="250" fill={`url(#pool-${uid})`} />
+        <ellipse cx="600" cy="610" rx="470" ry="110" fill={`url(#pool-${uid})`} />
+      </g>
+      {!restored && (
+        <>
+          {/* Haunted only: the corners close in, and now and then lightning whitens the window. */}
+          <rect width="1200" height="700" fill={`url(#haunt-vignette-${uid})`} className="haunt-vignette" pointerEvents="none" />
+          <g className="lightning" aria-hidden="true" data-testid="lightning">
+            <rect x="80" y="60" width="220" height="330" fill="#e8eeff" clipPath={`url(#window-${uid})`} />
+            <polygon points="120,190 300,190 780,700 250,700" fill="#dfe7ff" className="lightning-beam" filter={`url(#soft-${uid})`} />
+          </g>
+        </>
+      )}
       <g className="motes" aria-hidden="true">
         {[
           [260, 300],
@@ -355,7 +383,7 @@ function Candle({ uid, x, state, melt }: { uid: string; x: number; state: 'lit' 
       <rect x={x - 9} y={top} width="18" height={height} rx="3" fill="#efe3c4" />
       <path d={`M${x - 9} ${top + 6} q4 10 0 16`} stroke="#d8c89f" strokeWidth="3" fill="none" />
       <line x1={x} x2={x} y1={top} y2={top - 7} stroke="#2a1a10" strokeWidth="2" />
-      {state === 'burning' && <circle className="flare" cx={x} cy={top - 16} r="70" fill={`url(#glow-${uid})`} style={{ transformOrigin: `${x}px ${top - 16}px` }} />}
+      {state === 'burning' && <circle className="flare" cx={x} cy={top - 16} r="120" fill={`url(#glow-${uid})`} style={{ transformOrigin: `${x}px ${top - 16}px` }} />}
       {state !== 'unlit' && (
         <g className="flame-group" style={{ transformOrigin: `${x}px ${top - 4}px` }}>
           <circle cx={x} cy={top - 16} r="26" fill="#ffbf5a" opacity="0.18" />

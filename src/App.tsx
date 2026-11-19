@@ -532,6 +532,7 @@ export function App() {
               trackPointer={!reducedMotion}
               label={sceneLabel}
               wisps={wisps}
+              session={restoredNow ? 1 : sessionProgress}
             />
             {strikes > 0 && <div key={strikes} className="strike-bloom" aria-hidden="true" data-testid="strike-bloom" />}
             {restoredNow && (

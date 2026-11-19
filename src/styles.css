@@ -1519,6 +1519,40 @@ input[type='number'],
 .scene.is-restored .haunt-cast {
   opacity: 0;
 }
+.scene .light-pool {
+  mix-blend-mode: screen;
+  transform-box: view-box;
+  transform-origin: 600px 340px;
+  /* Barely there at the strike; by the end of the session the warmth reaches the walls and the rug. */
+  opacity: calc(var(--session) * 0.7);
+  scale: calc(0.45 + var(--session) * 0.65);
+  transition:
+    opacity 1.5s linear,
+    scale 1.5s linear;
+}
+.scene.is-restored .light-pool {
+  opacity: 0.45;
+}
+.scene[data-ghost='calling'] .light-pool {
+  opacity: calc(var(--session) * 0.25);
+}
+.scene .haunt-vignette {
+  opacity: calc((1 - var(--restore)) * 0.9);
+  transition: opacity 1.4s var(--ease);
+}
+/* Lightning: two quick flashes about every 19 seconds, in the window and along the moonbeam. */
+.scene .lightning {
+  opacity: 0;
+  mix-blend-mode: screen;
+  animation: lightning 19s linear 4s infinite;
+}
+.scene .lightning-beam {
+  opacity: 0.28;
+}
+[data-motion='reduced'] .scene .lightning {
+  animation: none;
+  opacity: 0;
+}
 .scene[data-ghost='calling'] .candle-warmth {
   opacity: 0.06;
 }
@@ -1896,14 +1930,29 @@ input[type='number'],
     rotate: 2.5deg;
   }
 }
+@keyframes lightning {
+  0%,
+  90%,
+  91.2%,
+  92.4%,
+  100% {
+    opacity: 0;
+  }
+  90.5% {
+    opacity: 0.85;
+  }
+  91.8% {
+    opacity: 0.55;
+  }
+}
 @keyframes ignite {
   0% {
     opacity: 0;
     scale: 0.2;
   }
-  60% {
+  55% {
     opacity: 1;
-    scale: 1.25;
+    scale: 1.7;
   }
   100% {
     opacity: 1;
