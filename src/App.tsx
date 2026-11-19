@@ -13,7 +13,7 @@ import { pageForRoom, returnLine } from './core/story';
 import { computeStreak } from './core/streak';
 import { focusInProgress, progressAt, remainingAt } from './core/timer';
 import { CloseIcon, GearIcon, HouseIcon, KeysIcon, MoonIcon, SoundIcon } from './ui/icons';
-import { Dialog, formatClock, Hearth, IntroCard, HouseMap, PHASE_LABEL, SettingsForm, ShortcutList, TaskLedger, TimerPlaque } from './ui/panels';
+import { Dialog, formatClock, Hearth, IntroCard, IntroStrip, HouseMap, useIntroDismissed, PHASE_LABEL, SettingsForm, ShortcutList, TaskLedger, TimerPlaque } from './ui/panels';
 import { MANTEL_CANDLES, mantelCandles } from './ui/candles';
 import { GHOST_SPOTS, Scene, type GhostView } from './ui/Scene';
 
@@ -33,8 +33,13 @@ function downloadTextFile(fileName: string, text: string): void {
   URL.revokeObjectURL(url);
 }
 
-/** Places the ghost's speech above wherever the ghost is floating, kept inside the stage. */
-function ghostLineStyle(closeness: number): CSSProperties {
+/**
+ * Places the ghost's speech above wherever the ghost is floating, kept inside the stage. In a
+ * restored room the line sits beside the resting ghost by the window, clear of the portrait, the
+ * fireplace and the Restored caption, and only after the restoration sweep has finished.
+ */
+function ghostLineStyle(closeness: number, restored: boolean): CSSProperties {
+  if (restored) return { left: '19%', top: '40%' };
   const [x, y, scale] = GHOST_SPOTS[Math.min(3, Math.max(0, Math.round(closeness)))]!;
   const left = Math.min(72, Math.max(28, (x / 1200) * 100));
   const top = Math.max(9, ((y - 110 * scale) / 700) * 100 - 9);
@@ -102,8 +107,11 @@ export function App() {
   const [ghostAwakeUntil, setGhostAwakeUntil] = useState(0);
   const [rattleUntil, setRattleUntil] = useState(0);
   const [showcase, setShowcase] = useState<RoomDef | null>(null);
+  // Bumped on every candle strike, so the warm bloom over the stage plays once per strike.
+  const [strikes, setStrikes] = useState(0);
   const [notifyNote, setNotifyNote] = useState('');
   const [hidden, setHidden] = useState(() => document.visibilityState === 'hidden');
+  const [introDismissed, dismissIntro] = useIntroDismissed();
   const taskInput = useRef<HTMLInputElement>(null);
   const settingsRef = useRef(model.settings);
   settingsRef.current = model.settings;
@@ -168,6 +176,7 @@ export function App() {
           switch (cue.kind) {
             case 'candleLit':
               sound.play('candle');
+              setStrikes((n) => n + 1);
               setShowcase(null);
               setGhostLine(null);
               break;
@@ -190,7 +199,7 @@ export function App() {
                 `${cue.room.name} is restored. ${cue.room.restored} A page of the ghost's journal came back: ${pageForRoom(cue.room.id)?.title ?? cue.room.name}.${cue.houseRestored ? ' The whole house is restored and the book is finished.' : ''}`,
               );
               setGhostLine(
-                cue.houseRestored ? 'Every room is warm and my book is finished. Thank you for staying. I can rest now.' : `${cue.room.name} is mine to rest in now. A page of my book came back. It is in the house map.`,
+                cue.houseRestored ? 'Every room is warm and my book is finished. I can rest now.' : 'A page of my book came back. It is in the house map.',
               );
               break;
             case 'breakStarted':
@@ -330,6 +339,7 @@ export function App() {
       .map(([k]) => k),
     today,
   );
+  const showIntro = !demo && streak.activeDays === 0 && !introDismissed;
   const inSession = inFocus && focusInProgress(timer);
   const sessionProgress = inSession ? progressAt(timer, now) : 0;
   const shownRoom = showcase ?? view.room;
@@ -419,7 +429,7 @@ export function App() {
           {!demo && (
             <button type="button" className="tool tool-demo" onClick={() => setDemoUrl(true)}>
               <MoonIcon />
-              <span>30 s demo</span>
+              <span>Try the 30 s demo</span>
             </button>
           )}
         </nav>
@@ -427,6 +437,7 @@ export function App() {
 
       <main className="stage-grid">
         <section className="stage" aria-labelledby="room-title">
+          <IntroStrip show={showIntro} />
           <div className="room-heading">
             <p className="room-number">
               Room {roomNumber} of {ROOMS.length}
@@ -460,6 +471,7 @@ export function App() {
               trackPointer={!reducedMotion}
               label={sceneLabel}
             />
+            {strikes > 0 && <div key={strikes} className="strike-bloom" aria-hidden="true" data-testid="strike-bloom" />}
             {restoredNow && (
               <div className="restored-banner" data-testid="restored-banner">
                 <span className="restored-kicker">Restored</span>
@@ -468,7 +480,7 @@ export function App() {
             )}
           </div>
             {ghostLine && (
-              <p className="ghost-line" data-testid="ghost-line" style={ghostLineStyle(restoredNow ? 0 : ghost.closeness)}>
+              <p className={restoredNow ? 'ghost-line is-after-restore' : 'ghost-line'} data-testid="ghost-line" style={ghostLineStyle(ghost.closeness, restoredNow)}>
                 {ghostLine}
               </p>
             )}
@@ -477,7 +489,7 @@ export function App() {
         </section>
 
         <aside className="side">
-          <IntroCard show={!demo && streak.activeDays === 0} onDemo={() => setDemoUrl(true)} />
+          <IntroCard show={showIntro} onDemo={() => setDemoUrl(true)} onDismiss={dismissIntro} />
           <TaskLedger model={model} dispatch={controller.dispatch} inputRef={taskInput} />
           <Hearth streak={streak} days={model.days} today={today} house={house} roomId={view.room.id} />
         </aside>

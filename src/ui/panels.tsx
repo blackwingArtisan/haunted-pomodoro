@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
+import { useCallback, useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
 import { addDays, dayKey, lastDays, weekdayName, type DayKey } from '../core/dates';
 import { ROOMS, viewHouse, type HouseState } from '../core/house';
 import { SETTING_LIMITS, type AppAction, type AppModel, type DayLog, type Settings } from '../core/model';
@@ -532,7 +532,8 @@ export function HouseMap({ house, reducedMotion }: { house: HouseState; reducedM
             const x = 78 + col * 76;
             const y = 144 + row * 66;
             return (
-              <g key={r.id} className={`facade-window ${s}`} onClick={() => setSelected(i)}>
+              // The room list below is the keyboard and screen-reader way to pick a room; the windows are a pointer shortcut.
+              <g key={r.id} className={`facade-window ${s}`} onClick={() => setSelected(i)} aria-hidden="true">
                 {s === 'restored' && <circle cx={x + 24} cy={y + 24} r="34" fill="#ffbf5a" opacity="0.16" />}
                 <path d={`M${x} ${y + 50} V${y + 22} A24 22 0 0 1 ${x + 48} ${y + 22} V${y + 50} Z`} className="pane" />
                 <path d={`M${x + 24} ${y} V${y + 50} M${x} ${y + 28} H${x + 48}`} stroke="#0b0910" strokeWidth="3" />
@@ -633,17 +634,33 @@ function readIntroDismissed(): boolean {
   }
 }
 
-export function IntroCard({ show, onDemo }: { show: boolean; onDemo: () => void }) {
+/** Whether this browser has dismissed the first-visit guide, and a way to dismiss it. */
+export function useIntroDismissed(): [boolean, () => void] {
   const [dismissed, setDismissed] = useState(readIntroDismissed);
-  if (!show || dismissed) return null;
-  const dismiss = () => {
+  const dismiss = useCallback(() => {
     setDismissed(true);
     try {
       localStorage.setItem(INTRO_KEY, '1');
     } catch {
       // Per-browser convenience only; showing it again is harmless.
     }
-  };
+  }, []);
+  return [dismissed, dismiss];
+}
+
+/** On phones the guide sits below the timer, so a one-line strip above the room says what the house is. */
+export function IntroStrip({ show }: { show: boolean }) {
+  if (!show) return null;
+  return (
+    <p className="intro-strip" data-testid="intro-strip">
+      <span>This ghost keeps your candle lit.</span> <a href="#intro-title">How it works</a>
+    </p>
+  );
+}
+
+export function IntroCard({ show, onDemo, onDismiss }: { show: boolean; onDemo: () => void; onDismiss: () => void }) {
+  if (!show) return null;
+  const dismiss = onDismiss;
   return (
     <section className="card intro" aria-labelledby="intro-title" data-testid="intro">
       <h2 id="intro-title">How the house works</h2>

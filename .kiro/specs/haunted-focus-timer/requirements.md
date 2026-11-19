@@ -92,6 +92,10 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 18. WHEN a room is restored, THE SYSTEM SHALL sweep a band of warm light across the room and burst the dust off it, in about 2 seconds.
 19. THE SYSTEM SHALL show four candlesticks on the mantel whatever the room's size, lighting them in step with the room's progress.
 20. WHERE the person prefers reduced motion, THE SYSTEM SHALL show the drapes open and the restored room as a still, with no title card, flare, sweep or dust animation.
+21. WHEN a focus session starts, THE SYSTEM SHALL wash the whole stage in one warm bloom lasting about 600 ms, shown as a plain fade without growth where the person prefers reduced motion.
+22. WHEN a room is restored, THE SYSTEM SHALL keep the portrait and the fireplace clear of the Restored caption and of the ghost's words.
+23. WHEN a room is restored, THE SYSTEM SHALL hold the ghost's words until the restoration sweep has finished (about 2.5 s).
+24. WHILE a room is still haunted, THE SYSTEM SHALL keep at least 8% of the room's color, so the haunted room reads as moonlit rather than muddy.
 
 ## Requirement 5: The Hearth (streak)
 **User story:** As someone building a habit, I want a streak that encourages without punishing, so that one bad day does not erase my progress.
@@ -134,6 +138,9 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 15. WHEN the viewport is 720 px wide or narrower, THE SYSTEM SHALL show the ghost's words as a caption below the scene, never over the Restored banner.
 16. WHEN the viewport is 720 px wide or narrower, THE SYSTEM SHALL keep an accessible name on every icon-only toolbar button and keep zero axe A/AA violations at 390 px.
 17. WHEN the viewport is 720 px wide or narrower in demo mode, THE SYSTEM SHALL fit the demo banner on one line.
+18. WHEN the viewport is 480 px wide or narrower, THE SYSTEM SHALL show the masthead's mark and name on one line without the tagline, and label the demo button "Try the 30 s demo" in words.
+19. WHEN a first-time visitor opens the main screen on a viewport 720 px wide or narrower, THE SYSTEM SHALL show a one-line introduction above the room that links to the full guide.
+20. THE SYSTEM SHALL give every task checkbox and footer link a target at least 24 px tall, and SHALL keep the house map's decorative windows out of the accessibility tree, with the room list as the keyboard way to choose a room.
 
 ## Requirement 8: Offline and privacy
 1. THE SYSTEM SHALL store all data in the browser's localStorage by default.

@@ -1,6 +1,9 @@
 # Changelog
 
 ## Unreleased
+- **A clear payoff frame.** After a restoration the Restored caption sits on the rug and the ghost speaks beside the window only once the sweep has finished, so the portrait and the fireplace stay in view. The timer plaque overlaps the stage by 24 px instead of 64. Lighting a candle washes the whole stage in a 600 ms warm bloom (a plain fade under reduced motion), the mantel candles are drawn 1.6x larger, and the haunted room keeps 8% of its color so it reads as moonlit rather than muddy.
+- **Phone first view.** At 480 px and narrower the masthead is one line, the demo button reads "Try the 30 s demo", and a first visit shows a one-line introduction above the room that links to the full guide.
+- **Accessibility.** Task checkboxes and footer links are at least 24 px tall, and the house map's decorative windows are hidden from assistive technology (the room list is the keyboard way to choose a room).
 - **Pitch.** The README and the first-visit card lead with the forgiveness stance; the README adds sourced research, a comparison with Forest and Focus Friend, the Costume Contest fit and a plan beyond the hackathon. `docs/demo-video.md` follows the new beat sheet; `docs/submission.md` holds the submission copy.
 - **Records.** The task list and the Kiro log record the measured end-to-end results (23 of 23; the house-file test 10 of 10 repeated runs) instead of "written, not run".
 - **Phone layout.** At 720 px and narrower the ghost speaks in a caption under the scene, the demo banner fits one line with a short Leave button, and toolbar labels are visually hidden rather than removed, so every icon button keeps its name. A new axe scan runs at 390 px. Stats, streak and number inputs use lining tabular numerals.

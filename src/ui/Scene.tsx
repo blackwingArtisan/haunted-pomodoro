@@ -29,7 +29,11 @@ export interface SceneProps {
   className?: string;
 }
 
-const CANDLE_X = [446, 496, 704, 754] as const;
+const CANDLE_X = [424, 480, 720, 776] as const;
+/** The mantel candles are drawn at this scale around their base, so lighting one reads from across the room. */
+const CANDLE_SCALE = 1.6;
+/** The haunted room never drops below this much color, so it reads as moonlit rather than muddy. */
+export const RESTORE_FLOOR = 0.08;
 export const GHOST_SPOTS: ReadonlyArray<[number, number, number]> = [
   [186, 250, 0.42],
   [340, 330, 0.72],
@@ -66,7 +70,7 @@ export function Scene(props: SceneProps) {
 
   const spot = GHOST_SPOTS[Math.min(3, Math.max(0, Math.round(ghost.closeness)))]!;
   const ghostStyle: CSSProperties = { transform: `translate(${spot[0]}px, ${spot[1]}px) scale(${spot[2]})` };
-  const r = restored ? 1 : Math.min(1, Math.max(0, restore));
+  const r = restored ? 1 : Math.min(1, Math.max(RESTORE_FLOOR, restore));
   const sceneStyle = { '--restore': r, '--hearth': hearth, '--lit': (candlesLit + (burning ? 1 : 0)) / MANTEL_CANDLES } as CSSProperties;
   const [paper, motif] = room.paper;
 
@@ -275,9 +279,9 @@ function Fireplace() {
         <path className="flame f3" d="M618 512 C612 486 630 476 628 452 C650 474 652 494 640 512 Z" fill="#ff8a3d" />
         <rect x="548" y="508" width="104" height="10" rx="5" fill="#3a2015" />
       </g>
-      {/* Mantel shelf */}
-      <rect x="420" y="300" width="360" height="20" rx="3" fill="#4a2f1f" />
-      <rect x="430" y="318" width="340" height="6" fill="#2a1a10" />
+      {/* Mantel shelf, wide enough for the four large candlesticks */}
+      <rect x="388" y="300" width="424" height="20" rx="3" fill="#4a2f1f" />
+      <rect x="398" y="318" width="404" height="6" fill="#2a1a10" />
     </g>
   );
 }
@@ -323,13 +327,13 @@ function Candle({ uid, x, state, melt }: { uid: string; x: number; state: 'lit' 
   const height = state === 'burning' ? 56 - melt * 30 : state === 'lit' ? 40 : 56;
   const top = 296 - height;
   return (
-    <g className={`candle candle-${state}`} data-candle={state}>
+    <g className={`candle candle-${state}`} data-candle={state} transform={`translate(${x} 298) scale(${CANDLE_SCALE}) translate(${-x} -298)`}>
       <ellipse cx={x} cy="298" rx="18" ry="5" fill="#c9a25a" />
       <rect x={x - 4} y="288" width="8" height="10" fill="#a8843f" />
       <rect x={x - 9} y={top} width="18" height={height} rx="3" fill="#efe3c4" />
       <path d={`M${x - 9} ${top + 6} q4 10 0 16`} stroke="#d8c89f" strokeWidth="3" fill="none" />
       <line x1={x} x2={x} y1={top} y2={top - 7} stroke="#2a1a10" strokeWidth="2" />
-      {state === 'burning' && <circle className="flare" cx={x} cy={top - 16} r="56" fill={`url(#glow-${uid})`} style={{ transformOrigin: `${x}px ${top - 16}px` }} />}
+      {state === 'burning' && <circle className="flare" cx={x} cy={top - 16} r="70" fill={`url(#glow-${uid})`} style={{ transformOrigin: `${x}px ${top - 16}px` }} />}
       {state !== 'unlit' && (
         <g className="flame-group" style={{ transformOrigin: `${x}px ${top - 4}px` }}>
           <circle cx={x} cy={top - 16} r="26" fill="#ffbf5a" opacity="0.18" />

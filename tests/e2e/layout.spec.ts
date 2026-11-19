@@ -64,3 +64,46 @@ test('on a phone the demo banner is one line and the ghost speaks in a caption u
   expect(caption.right).toBeLessThanOrEqual(390);
   await context.close();
 });
+
+// Req 7.18, 7.19
+test('a first visit on a phone: one-line masthead, a labelled demo button and a one-line introduction above the room', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await context.newPage();
+  await page.goto('/');
+  await expect(page.locator('.tagline')).toBeHidden();
+  const title = await page.locator('.brand h1').evaluate((el) => ({ height: el.getBoundingClientRect().height, line: parseFloat(getComputedStyle(el).lineHeight) || parseFloat(getComputedStyle(el).fontSize) }));
+  expect(title.height).toBeLessThanOrEqual(title.line * 1.3);
+  const demo = page.getByRole('button', { name: 'Try the 30 s demo' });
+  await expect(demo).toBeVisible();
+  expect(await demo.evaluate((el) => (el.querySelector('span') as HTMLElement).getBoundingClientRect().width)).toBeGreaterThan(60);
+  const strip = page.getByTestId('intro-strip');
+  await expect(strip).toBeVisible();
+  await expect(strip.getByRole('link', { name: 'How it works' })).toHaveAttribute('href', '#intro-title');
+  const [stripBox, roomBox] = await Promise.all([strip.boundingBox(), page.getByTestId('room-title').boundingBox()]);
+  expect(stripBox!.y + stripBox!.height).toBeLessThanOrEqual(roomBox!.y);
+  expect(stripBox!.height).toBeLessThanOrEqual(44);
+  // Once the guide is dismissed, the strip goes too.
+  await page.getByRole('button', { name: 'Enter the house' }).click();
+  await expect(strip).toBeHidden();
+  await context.close();
+});
+
+// Req 7.19
+test('the one-line introduction is for phones only; desktops show the full guide beside the room', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByTestId('intro')).toBeVisible();
+  await expect(page.getByTestId('intro-strip')).toBeHidden();
+});
+
+// Req 7.20
+test('task checkboxes and footer links are at least 24 px tall, and the house map windows are decorative', async ({ page }) => {
+  await page.goto('/?demo=1');
+  const heights = await page.locator('.task input[type="checkbox"], .footer-links a').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
+  expect(heights.length).toBeGreaterThanOrEqual(5);
+  for (const h of heights) expect(h).toBeGreaterThanOrEqual(24);
+  await page.keyboard.press('h');
+  const windows = page.locator('.facade-window');
+  await expect(windows).toHaveCount(6);
+  for (const w of await windows.all()) await expect(w).toHaveAttribute('aria-hidden', 'true');
+  await expect(page.locator('.room-btn')).toHaveCount(6);
+});
