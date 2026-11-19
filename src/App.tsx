@@ -10,7 +10,7 @@ import { createModel, demoConfigFor, timerConfig, type Cue } from './core/model'
 import { computeStreak } from './core/streak';
 import { focusInProgress, progressAt, remainingAt } from './core/timer';
 import { GearIcon, HouseIcon, KeysIcon, MoonIcon, SoundIcon } from './ui/icons';
-import { Dialog, formatClock, Hearth, HouseMap, PHASE_LABEL, SettingsForm, ShortcutList, TaskLedger, TimerPlaque } from './ui/panels';
+import { Dialog, formatClock, Hearth, IntroCard, HouseMap, PHASE_LABEL, SettingsForm, ShortcutList, TaskLedger, TimerPlaque } from './ui/panels';
 import { GHOST_SPOTS, Scene, type GhostView } from './ui/Scene';
 
 const RETURN_LINES = [
@@ -436,6 +436,7 @@ export function App() {
         </section>
 
         <aside className="side">
+          <IntroCard show={!demo && streak.activeDays === 0} onDemo={() => setDemoUrl(true)} />
           <TaskLedger model={model} dispatch={controller.dispatch} inputRef={taskInput} />
           <Hearth streak={streak} days={model.days} today={today} house={house} />
         </aside>

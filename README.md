@@ -4,7 +4,9 @@
 
 Built for Kiroween 2026 (Costume Contest) by Stubborn Otter Software.
 
-![The parlor, haunted](docs/screenshots/parlor-haunted.png)
+| Haunted | You wandered off | Restored |
+|---|---|---|
+| ![The parlor, still haunted, with cobwebs and a staring portrait](docs/screenshots/haunted.jpg) | ![The ghost has drifted closer and says: there you are, I kept your candle lit](docs/screenshots/ghost.jpg) | ![The parlor restored: warm colors, the portrait asleep, the Restored banner](docs/screenshots/restored.jpg) |
 
 ## Who it is for
 - Students and knowledge workers who use Pomodoro timers but drift away from them, or drift into other tabs.

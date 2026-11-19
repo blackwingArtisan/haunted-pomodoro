@@ -852,6 +852,38 @@ input[type='number'] {
   font-size: 15px;
 }
 
+.intro {
+  border-color: rgba(143, 245, 210, 0.4);
+}
+.intro h2::after {
+  background: linear-gradient(90deg, var(--ecto), transparent);
+}
+.intro-steps {
+  margin: 0 0 14px;
+  padding-left: 22px;
+  display: grid;
+  gap: 6px;
+  font-size: 17px;
+  color: var(--bone-dim);
+}
+.intro-steps strong {
+  color: var(--bone);
+  font-weight: 700;
+}
+.intro-steps li::marker {
+  font-family: var(--font-numeral);
+  color: var(--ecto);
+}
+.intro-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 14px;
+}
+.intro-actions .link-btn {
+  margin-top: 0;
+}
+
 /* ------------------------------------------------------------------ Dialogs */
 
 .dialog {
@@ -1202,9 +1234,6 @@ input[type='number'] {
 .scene .flame-group {
   animation: candle-flicker 2.4s ease-in-out infinite;
 }
-.scene .candle-burning .flame-group {
-  animation-duration: 1.6s;
-}
 .scene .smoke {
   animation: smoke 4s ease-in-out infinite;
 }
@@ -1319,6 +1348,15 @@ input[type='number'] {
 .scene .restore-flash {
   opacity: 0;
   mix-blend-mode: screen;
+}
+.scene .candle-burning .flame-group {
+  animation:
+    ignite 0.9s var(--ease) 1 both,
+    candle-flicker 1.6s ease-in-out 0.9s infinite;
+}
+.scene .embers-rise circle {
+  opacity: 0;
+  animation: ember-rise 3.4s ease-out infinite;
 }
 .scene.is-restored .restore-flash {
   animation: restore-flash 2.6s ease-out 1;
@@ -1519,6 +1557,33 @@ input[type='number'] {
   }
   50% {
     rotate: 2.5deg;
+  }
+}
+@keyframes ignite {
+  0% {
+    opacity: 0;
+    scale: 0.2;
+  }
+  60% {
+    opacity: 1;
+    scale: 1.25;
+  }
+  100% {
+    opacity: 1;
+    scale: 1;
+  }
+}
+@keyframes ember-rise {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    translate: 18px -420px;
   }
 }
 @keyframes restore-flash {

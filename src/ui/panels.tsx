@@ -421,23 +421,43 @@ export function HouseMap({ house, reducedMotion }: { house: HouseState; reducedM
   return (
     <div className="house-map">
       <div className="facade-wrap">
-        <svg className="facade" viewBox="0 0 360 300" role="img" aria-label={`The house: ${view.roomsInThisHouse} of ${ROOMS.length} rooms restored`}>
-          <path d="M30 120 L180 30 L330 120 Z" fill="#1d1626" stroke="#c9a25a" strokeOpacity="0.5" strokeWidth="2" />
-          <rect x="250" y="40" width="22" height="50" fill="#1d1626" />
-          <rect x="44" y="118" width="272" height="170" fill="#16111d" stroke="#c9a25a" strokeOpacity="0.5" strokeWidth="2" />
+        <svg className="facade" viewBox="0 0 360 320" role="img" aria-label={`The house: ${view.roomsInThisHouse} of ${ROOMS.length} rooms restored`}>
+          <rect width="360" height="320" rx="12" fill="#0d1226" />
+          <circle cx="300" cy="52" r="24" fill="#f3efd8" opacity="0.9" />
+          <circle cx="290" cy="46" r="24" fill="#0d1226" opacity="0.25" />
+          {[
+            [40, 40],
+            [90, 70],
+            [200, 24],
+            [250, 90],
+            [330, 120],
+          ].map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="1.4" fill="#fff" opacity="0.8" />
+          ))}
+          <path d="M0 300 Q90 270 180 292 T360 286 V320 H0 Z" fill="#070912" />
+          <path d="M22 300 v-70 m0 26 l-16 -18 m16 6 l14 -22 m-14 44 l20 -10" stroke="#070912" strokeWidth="5" fill="none" strokeLinecap="round" />
+          <path d="M44 128 L180 52 L316 128 Z" fill="#1d1626" stroke="#c9a25a" strokeOpacity="0.55" strokeWidth="2" strokeLinejoin="round" />
+          <rect x="250" y="62" width="20" height="44" fill="#1d1626" stroke="#c9a25a" strokeOpacity="0.4" />
+          <circle cx="180" cy="100" r="12" fill={view.roomsInThisHouse === ROOMS.length - 1 ? '#ffbf5a' : '#0a0810'} stroke="#c9a25a" strokeOpacity="0.5" strokeWidth="2" />
+          <rect x="56" y="126" width="248" height="170" fill="#16111d" stroke="#c9a25a" strokeOpacity="0.5" strokeWidth="2" />
           {ROOMS.map((r, i) => {
             const col = i % 3;
             const row = Math.floor(i / 3);
             const s = status(i);
+            const x = 78 + col * 76;
+            const y = 144 + row * 66;
             return (
               <g key={r.id} className={`facade-window ${s}`} onClick={() => setSelected(i)}>
-                <rect x={70 + col * 80} y={136 + row * 66} width="50" height="48" rx="24" ry="24" className="pane" />
-                <path d={`M${95 + col * 80} ${136 + row * 66} V${184 + row * 66} M${70 + col * 80} ${162 + row * 66} H${120 + col * 80}`} stroke="#0b0910" strokeWidth="3" />
+                {s === 'restored' && <circle cx={x + 24} cy={y + 24} r="34" fill="#ffbf5a" opacity="0.16" />}
+                <path d={`M${x} ${y + 50} V${y + 22} A24 22 0 0 1 ${x + 48} ${y + 22} V${y + 50} Z`} className="pane" />
+                <path d={`M${x + 24} ${y} V${y + 50} M${x} ${y + 28} H${x + 48}`} stroke="#0b0910" strokeWidth="3" />
+                {s === 'haunted' && <path d={`M${x + 2} ${y + 6} l14 14 M${x + 46} ${y + 6} l-12 12`} stroke="#e8e4f0" strokeOpacity="0.35" strokeWidth="1" />}
               </g>
             );
           })}
-          <rect x="164" y="236" width="32" height="52" rx="16" fill="#2a1a10" />
-          <circle cx="188" cy="264" r="2" fill="#c9a25a" />
+          <path d="M164 296 V262 A16 16 0 0 1 196 262 V296 Z" fill="#2a1a10" stroke="#c9a25a" strokeOpacity="0.5" />
+          <circle cx="189" cy="280" r="2" fill="#c9a25a" />
+          <path d="M150 296 H210" stroke="#c9a25a" strokeOpacity="0.4" strokeWidth="3" />
         </svg>
         {view.housesRestored > 0 && (
           <p className="note">
@@ -482,4 +502,56 @@ export function HouseMap({ house, reducedMotion }: { house: HouseState; reducedM
 
 export function todayKey(now: number): DayKey {
   return dayKey(now);
+}
+
+/* ------------------------------------------------------------------ First visit */
+
+const INTRO_KEY = 'haunted-pomodoro/intro-dismissed';
+
+function readIntroDismissed(): boolean {
+  try {
+    return localStorage.getItem(INTRO_KEY) === '1';
+  } catch {
+    return false;
+  }
+}
+
+export function IntroCard({ show, onDemo }: { show: boolean; onDemo: () => void }) {
+  const [dismissed, setDismissed] = useState(readIntroDismissed);
+  if (!show || dismissed) return null;
+  const dismiss = () => {
+    setDismissed(true);
+    try {
+      localStorage.setItem(INTRO_KEY, '1');
+    } catch {
+      // Per-browser convenience only; showing it again is harmless.
+    }
+  };
+  return (
+    <section className="card intro" aria-labelledby="intro-title" data-testid="intro">
+      <h2 id="intro-title">How the house works</h2>
+      <ol className="intro-steps">
+        <li>
+          <strong>Light a candle</strong> to start a focus session. Finish it and the candle stays lit.
+        </li>
+        <li>
+          <strong>Four candles</strong> restore a room. Six rooms restore the house.
+        </li>
+        <li>
+          <strong>Wander to another tab</strong> and the ghost wakes. It is lonely, not angry.
+        </li>
+        <li>
+          <strong>Miss a day?</strong> The hearth forgives one, and nothing you restore is ever lost.
+        </li>
+      </ol>
+      <div className="intro-actions">
+        <button type="button" className="btn btn-small" onClick={dismiss}>
+          Enter the house
+        </button>
+        <button type="button" className="link-btn" onClick={onDemo}>
+          Or watch the 30 second demo
+        </button>
+      </div>
+    </section>
+  );
 }

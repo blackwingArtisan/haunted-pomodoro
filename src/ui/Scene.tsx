@@ -174,6 +174,13 @@ export function Scene(props: SceneProps) {
 
       <rect width="1200" height="700" fill={`url(#vignette-${uid})`} pointerEvents="none" />
       <rect width="1200" height="700" className="restore-flash" fill="#ffd98a" pointerEvents="none" />
+      {restored && (
+        <g className="embers-rise" aria-hidden="true">
+          {Array.from({ length: 18 }, (_, i) => (
+            <circle key={i} cx={120 + ((i * 397) % 960)} cy={560 + ((i * 53) % 120)} r={2 + (i % 3)} fill={i % 2 ? '#ffd98a' : '#fff4dc'} style={{ animationDelay: `${(i % 6) * 0.35}s` }} />
+          ))}
+        </g>
+      )}
     </svg>
   );
 }
@@ -418,14 +425,23 @@ function Prop({ prop, restored }: { prop: RoomProp; restored: boolean }) {
     case 'horse':
       return (
         <g className="prop prop-horse">
-          <g className={restored ? 'horse' : 'horse rocking'} style={{ transformOrigin: '1010px 520px' }}>
-            <path d="M900 500 Q1010 560 1120 500" stroke="#7a4a20" strokeWidth="12" fill="none" strokeLinecap="round" />
-            <path d="M940 500 L960 430 M1080 500 L1060 430" stroke="#5a3418" strokeWidth="10" />
-            <path d="M940 440 Q1010 410 1070 430 L1090 380 Q1100 350 1080 330 L1050 330 Q1040 370 1020 380 Q980 390 950 400 Q930 410 940 440 Z" fill="#d9c8a6" />
-            <path d="M1060 332 Q1076 300 1070 290 L1084 300 Q1096 320 1086 340 Z" fill="#d9c8a6" />
-            <path d="M1046 330 Q1030 350 1040 372 M1050 336 Q1036 360 1046 380" stroke="#6b2a2a" strokeWidth="8" fill="none" />
-            <circle cx="1078" cy="314" r="4" fill="#1a1010" />
-            <path d="M950 400 Q920 420 924 456" stroke="#6b2a2a" strokeWidth="10" fill="none" strokeLinecap="round" />
+          <g className={restored ? 'horse' : 'horse rocking'} style={{ transformOrigin: '1005px 520px' }}>
+            <path d="M890 498 Q1005 548 1120 498" stroke="#7a4a20" strokeWidth="12" fill="none" strokeLinecap="round" />
+            <g stroke="#a8875a" strokeWidth="9" strokeLinecap="round">
+              <line x1="955" y1="430" x2="935" y2="500" />
+              <line x1="975" y1="436" x2="968" y2="510" />
+              <line x1="1035" y1="436" x2="1042" y2="510" />
+              <line x1="1052" y1="430" x2="1072" y2="500" />
+            </g>
+            <path d="M935 410 Q905 420 900 470" stroke="#8a2a2a" strokeWidth="10" fill="none" strokeLinecap="round" />
+            <ellipse cx="1004" cy="414" rx="72" ry="30" fill="#e3d4b4" />
+            <path d="M1046 404 Q1060 370 1072 344 L1094 352 Q1080 384 1072 414 Z" fill="#e3d4b4" />
+            <ellipse cx="1096" cy="346" rx="30" ry="15" fill="#e3d4b4" transform="rotate(22 1096 346)" />
+            <path d="M1074 332 l4 -18 l10 14 Z" fill="#e3d4b4" />
+            <path d="M1064 344 Q1050 372 1046 400 M1070 350 Q1060 376 1058 396" stroke="#8a2a2a" strokeWidth="7" fill="none" strokeLinecap="round" />
+            <circle cx="1094" cy="340" r="3.5" fill="#1a1010" />
+            <rect x="986" y="384" width="40" height="16" rx="5" fill="#8a2a2a" />
+            <path d="M1006 400 v26" stroke="#c9a25a" strokeWidth="3" />
           </g>
           <rect x="900" y="170" width="200" height="120" rx="8" fill="#3a2c1a" opacity="0.7" />
           <path d="M920 250 l30 -50 l30 50 l30 -40 l30 40 l30 -60 l30 60" stroke="#c9a25a" strokeWidth="3" fill="none" opacity="0.7" />

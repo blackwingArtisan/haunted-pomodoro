@@ -65,3 +65,14 @@ test('the house map lists every room and the shortcut list opens with ?', async 
   await page.keyboard.press('?');
   await expect(page.getByRole('dialog', { name: 'Keyboard shortcuts' })).toContainText('Light a candle, pause or resume');
 });
+
+test('first visit explains the house once', async ({ page }) => {
+  await page.goto('/');
+  const intro = page.getByTestId('intro');
+  await expect(intro).toContainText('Four candles');
+  await intro.getByRole('button', { name: 'Enter the house' }).click();
+  await expect(intro).toBeHidden();
+  await page.reload();
+  await expect(page.getByRole('heading', { name: 'Haunted Pomodoro' })).toBeVisible();
+  await expect(page.getByTestId('intro')).toBeHidden();
+});
