@@ -78,6 +78,7 @@ npx playwright install chromium   # once
 npm run test:e2e   # Playwright against the production build on port 3182 (set PW_PORT to change it)
 npm run check      # all three
 npm run trace      # map every acceptance criterion to its tests
+LIVE_URL=https://example.pages.dev npm run smoke   # three checks against a deployed copy
 ```
 Each test names the acceptance criteria it checks (`// Req 3.2`), and [`traceability.md`](.kiro/specs/haunted-focus-timer/traceability.md) lists the tests behind every criterion: 138 of the 147 criteria are covered, and the rest are listed by number and open as task 38.
 

@@ -18,6 +18,7 @@
     "trace": "node scripts/trace.mjs",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "smoke": "playwright test -c playwright.smoke.config.ts",
     "check": "npm run typecheck && npm test && npm run test:e2e",
     "media": "npm run build && node scripts/record-media.mjs"
   },
