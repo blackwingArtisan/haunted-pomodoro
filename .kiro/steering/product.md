@@ -28,3 +28,6 @@ A focus timer that lives in a haunted house. It is a real, daily-use Pomodoro ti
 
 ## Tone
 Gothic, warm and a little funny. The ghost is lonely, not hostile. Copy is short, uses sentence case, and never shames.
+
+## The story
+The ghost is Ottilie Vane, the house's last owner, who never finished her book, *A Lamp for Every Window*. Each restored room gives back one page; six rooms finish the book, she rests, and a new house begins. Her lines, the Hearth diary and the weekly reflection live in `src/core/story.ts` as data and pure functions. They report and thank; they never mention what went wrong.

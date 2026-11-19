@@ -81,3 +81,28 @@ test('the ghost comes right up to the glass after three wanderings, and its colo
   await expect(page.getByTestId('ghost')).toHaveAttribute('style', /scale\(1\.8\)/);
   await expect(page.getByTestId('ghost-vignette')).toHaveCSS('opacity', '0.85', { timeout: 5_000 });
 });
+
+test('restoring a room gives back a page of the ghost’s journal, and the Hearth keeps a diary', async ({ page }) => {
+  await page.clock.install();
+  await page.goto('/?demo=1');
+  // The demo house has a few earlier days, so the diary and the weekly reflection already speak.
+  await expect(page.getByTestId('diary')).toContainText('Yesterday you lit one candle and left me once.');
+  await expect(page.getByTestId('weekly')).toHaveText(/^This week: 10 candles, 4 h 10 min focused, 4 wanderings/);
+
+  await page.keyboard.press('h');
+  const journal = page.getByTestId('journal');
+  await expect(journal).toContainText('0 of 6 pages back');
+  await expect(journal.locator('[data-unlocked="true"]')).toHaveCount(0);
+  await page.keyboard.press('Escape');
+
+  await page.getByRole('button', { name: 'Light a candle' }).click();
+  await page.clock.runFor(21_000);
+  await expect(page.getByTestId('ghost-line')).toContainText('A page of my book came back');
+  await expect(page.getByTestId('announcer')).toContainText('I. The Parlor');
+
+  await page.getByRole('button', { name: 'House', exact: true }).click();
+  await expect(journal).toContainText('1 of 6 pages back');
+  await expect(journal.locator('[data-unlocked="true"]')).toHaveCount(1);
+  await expect(journal.locator('[data-unlocked="true"]')).toContainText('I began this book the winter the lamps went out.');
+  await expect(page.getByTestId('weekly')).toHaveText(/^This week: 11 candles/);
+});

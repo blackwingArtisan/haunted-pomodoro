@@ -1218,6 +1218,98 @@ input[type='number'],
   margin-right: 6px;
 }
 
+/* ------------------------------------------------------------------ The ghost's journal */
+
+.journal {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--hairline);
+  padding-top: 14px;
+}
+.journal h3 {
+  margin: 0 0 4px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 24px;
+  color: var(--bone);
+}
+.journal-book {
+  display: block;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 16px;
+  color: var(--candle);
+}
+.journal-pages {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.journal-page {
+  padding: 12px 14px;
+  border: 1px dashed var(--hairline);
+  border-radius: 8px;
+  background: #0c0910;
+}
+.journal-page.is-open {
+  border-style: solid;
+  border-color: rgba(201, 162, 90, 0.55);
+  background: linear-gradient(180deg, #2a2016, #1a130d);
+}
+.journal-page h4 {
+  margin: 0 0 6px;
+  font-family: var(--font-numeral);
+  font-size: 13px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--brass-bright);
+}
+.journal-page p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--bone);
+}
+.journal-page .journal-locked {
+  color: var(--bone-dim);
+  font-style: italic;
+}
+.journal-finale {
+  grid-column: 1 / -1;
+  border-color: var(--ecto);
+}
+
+/* ------------------------------------------------------------------ Hearth diary and weekly reflection */
+
+.diary {
+  margin: 10px 0 14px;
+  padding: 8px 12px;
+  border-left: 3px solid var(--ecto);
+  background: rgba(143, 245, 210, 0.06);
+}
+.diary p {
+  margin: 0;
+  font-style: italic;
+  color: var(--bone);
+}
+.diary footer {
+  margin-top: 4px;
+  font-family: var(--font-numeral);
+  font-size: 10.5px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bone-dim);
+}
+.weekly {
+  margin: 12px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--hairline);
+  color: var(--bone);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
 /* ------------------------------------------------------------------ The scene */
 
 .scene .room {

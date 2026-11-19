@@ -3,6 +3,7 @@ import { addDays, dayKey, lastDays, weekdayName, type DayKey } from '../core/dat
 import { ROOMS, viewHouse, type HouseState } from '../core/house';
 import { SETTING_LIMITS, type AppAction, type AppModel, type DayLog, type Settings } from '../core/model';
 import type { Streak } from '../core/streak';
+import { BOOK_TITLE, JOURNAL_FINALE, diaryLine, journalFor, weeklyReflection } from '../core/story';
 import { remainingAt, type TimerState } from '../core/timer';
 import { CandleIcon, CloseIcon, ResetIcon, SkipIcon, TrashIcon } from './icons';
 import { MANTEL_CANDLES, mantelCandles } from './candles';
@@ -196,7 +197,9 @@ function friendlyDay(key: DayKey, today: DayKey): string {
   return weekdayName(key);
 }
 
-export function Hearth({ streak, days, today, house }: { streak: Streak; days: Record<DayKey, DayLog>; today: DayKey; house: HouseState }) {
+export function Hearth({ streak, days, today, house, roomId }: { streak: Streak; days: Record<DayKey, DayLog>; today: DayKey; house: HouseState; roomId: string }) {
+  const diary = diaryLine(days, today, roomId);
+  const weekly = weeklyReflection(days, today);
   const fortnight = lastDays(today, 14);
   const max = Math.max(4, ...fortnight.map((d) => days[d]?.sessions ?? 0));
   const todayLog = days[today] ?? { sessions: 0, focusMs: 0, distractions: 0 };
@@ -219,6 +222,12 @@ export function Hearth({ streak, days, today, house }: { streak: Streak; days: R
         <span>{streak.current === 1 ? 'day warm' : 'days warm'}</span>
       </p>
       <p className="hearth-note">{message}</p>
+      {diary && (
+        <blockquote className="diary" data-testid="diary">
+          <p>{diary}</p>
+          <footer>The ghost’s diary</footer>
+        </blockquote>
+      )}
       <ol className="fortnight" aria-label="Focus sessions, last 14 days">
         {fortnight.map((d) => {
           const n = days[d]?.sessions ?? 0;
@@ -252,6 +261,11 @@ export function Hearth({ streak, days, today, house }: { streak: Streak; days: R
           <dd>{house.roomsRestored}</dd>
         </div>
       </dl>
+      {weekly && (
+        <p className="weekly" data-testid="weekly">
+          {weekly.text}
+        </p>
+      )}
     </section>
   );
 }
@@ -561,7 +575,39 @@ export function HouseMap({ house, reducedMotion }: { house: HouseState; reducedM
           </figcaption>
         </figure>
       </div>
+      <Journal house={house} />
     </div>
+  );
+}
+
+/** The ghost's journal: each restored room gives back one page of the book it never finished. */
+export function Journal({ house }: { house: HouseState }) {
+  const journal = journalFor(house);
+  const unlocked = journal.pages.filter((p) => p.unlocked).length;
+  return (
+    <section className="journal" aria-labelledby="journal-title" data-testid="journal">
+      <h3 id="journal-title">
+        The ghost’s journal <span className="journal-book">{BOOK_TITLE}</span>
+      </h3>
+      <p className="note">
+        {unlocked} of {journal.pages.length} pages back. Restore a room to return its page.
+        {journal.finished && ` Finished ${journal.booksFinished === 1 ? 'once' : `${journal.booksFinished} times`}; this house's pages start again.`}
+      </p>
+      <ol className="journal-pages">
+        {journal.pages.map(({ page, unlocked: open, roomName }) => (
+          <li key={page.roomId} className={open ? 'journal-page is-open' : 'journal-page'} data-unlocked={open}>
+            <h4>{page.title}</h4>
+            {open ? <p>{page.text}</p> : <p className="journal-locked">Still lost somewhere in {roomName}.</p>}
+          </li>
+        ))}
+        {journal.finished && (
+          <li className="journal-page is-open journal-finale" data-testid="journal-finale">
+            <h4>{JOURNAL_FINALE.title}</h4>
+            <p>{JOURNAL_FINALE.text}</p>
+          </li>
+        )}
+      </ol>
+    </section>
   );
 }
 

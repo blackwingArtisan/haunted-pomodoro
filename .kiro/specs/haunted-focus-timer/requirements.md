@@ -186,3 +186,15 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 13. WHILE in demo mode, THE SYSTEM SHALL disable export and import and show the reason.
 14. THE SYSTEM SHALL make the export button and the import file input operable by keyboard and give each an accessible name.
 15. WHEN an import finishes, THE SYSTEM SHALL show its result in a status region and announce it through the polite live region.
+
+## Requirement 12: The house's story and the ghost's voice
+**User story:** As someone coming back every day, I want the house to tell a story as I restore it, so that the progress means something beyond a number.
+
+1. WHEN a room is restored, THE SYSTEM SHALL unlock that room's page of the ghost's journal and say so in the ghost's line and the live region.
+2. WHEN the person opens the house map, THE SYSTEM SHALL show the journal with one page per room, unlocked pages in full and locked pages naming the room that holds them.
+3. WHEN all six rooms of a house are restored, THE SYSTEM SHALL finish the book, show its last page in the journal from then on, and start the next house's pages afresh.
+4. WHEN a wandering is counted, THE SYSTEM SHALL choose the ghost's line from the current room and the session's wander count, from at least fifteen lines.
+5. WHERE an earlier day in the last fourteen has a focus session, THE SYSTEM SHALL show one diary line in the Hearth about the most recent such day, in the ghost's voice.
+6. WHERE the last seven days have a focus session, THE SYSTEM SHALL show a weekly reflection with candles, focus time and wanderings, and, when wanderings fell from the seven days before, the earlier count.
+7. THE SYSTEM SHALL keep every journal page, ghost line, diary line and reflection free of shaming words, and SHALL NOT mention a rise in wanderings.
+8. THE SYSTEM SHALL compute the journal, the ghost's lines, the diary and the reflection with pure functions that take the day as an argument and use no network.

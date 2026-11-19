@@ -9,19 +9,13 @@ import { dayKey } from './core/dates';
 import { decideImport, exportHouse, importSizeProblem } from './core/house-file';
 import { ROOMS, viewHouse, type RoomDef } from './core/house';
 import { createModel, demoConfigFor, timerConfig, type Cue } from './core/model';
+import { pageForRoom, returnLine } from './core/story';
 import { computeStreak } from './core/streak';
 import { focusInProgress, progressAt, remainingAt } from './core/timer';
 import { CloseIcon, GearIcon, HouseIcon, KeysIcon, MoonIcon, SoundIcon } from './ui/icons';
 import { Dialog, formatClock, Hearth, IntroCard, HouseMap, PHASE_LABEL, SettingsForm, ShortcutList, TaskLedger, TimerPlaque } from './ui/panels';
 import { MANTEL_CANDLES, mantelCandles } from './ui/candles';
 import { GHOST_SPOTS, Scene, type GhostView } from './ui/Scene';
-
-const RETURN_LINES = [
-  'There you are. I kept your candle lit.',
-  'Wandering again? The flame waited for you.',
-  'Three times now. Shall we finish this one together?',
-  'I will just sit here, very close, until the candle is done.',
-];
 
 const stores = createStores(import.meta.env);
 const notifier = createBrowserNotifier();
@@ -192,8 +186,12 @@ export function App() {
             case 'roomRestored':
               sound.play('restored');
               setShowcase(cue.room);
-              setAnnouncement(`${cue.room.name} is restored. ${cue.room.restored}${cue.houseRestored ? ' The whole house is restored.' : ''}`);
-              setGhostLine(cue.houseRestored ? 'Every room is warm again. Thank you for staying.' : `${cue.room.name} is mine to rest in now. Thank you.`);
+              setAnnouncement(
+                `${cue.room.name} is restored. ${cue.room.restored} A page of the ghost's journal came back: ${pageForRoom(cue.room.id)?.title ?? cue.room.name}.${cue.houseRestored ? ' The whole house is restored and the book is finished.' : ''}`,
+              );
+              setGhostLine(
+                cue.houseRestored ? 'Every room is warm and my book is finished. Thank you for staying. I can rest now.' : `${cue.room.name} is mine to rest in now. A page of my book came back. It is in the house map.`,
+              );
               break;
             case 'breakStarted':
               sound.play('breath');
@@ -214,7 +212,7 @@ export function App() {
             case 'ghostReturned':
               setGhostAwakeUntil(t + 6_000);
               setRattleUntil(t + 1_400);
-              setGhostLine(RETURN_LINES[Math.min(RETURN_LINES.length - 1, cue.count - 1)]!);
+              setGhostLine(returnLine(viewHouse(controller.getModel().house).room.id, cue.count));
               setAnnouncement(`The ghost noticed you left. Wandered off ${cue.count} ${cue.count === 1 ? 'time' : 'times'} this session.`);
               sound.play('rattle');
               break;
@@ -481,7 +479,7 @@ export function App() {
         <aside className="side">
           <IntroCard show={!demo && streak.activeDays === 0} onDemo={() => setDemoUrl(true)} />
           <TaskLedger model={model} dispatch={controller.dispatch} inputRef={taskInput} />
-          <Hearth streak={streak} days={model.days} today={today} house={house} />
+          <Hearth streak={streak} days={model.days} today={today} house={house} roomId={view.room.id} />
         </aside>
       </main>
 

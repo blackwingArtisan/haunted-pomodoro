@@ -63,6 +63,12 @@ A React single-page app with a pure domain core. Time, storage and the DOM sit a
 - The page hands the merged model to `controller.replace`, which persists it.
 - Settings shows both controls in every mode; in demo mode they are disabled and `aria-describedby` points at the reason (Req 11.13). The result text is in a `role="status"` paragraph and is also sent to the live region (Req 11.15).
 
+### Story and voice (`src/core/story.ts`)
+- The ghost is Ottilie Vane, the house's last owner, whose book *A Lamp for Every Window* was left unfinished. `JOURNAL_PAGES` holds one page per room in room order and `JOURNAL_FINALE` the last page. `journalFor(house)` unlocks the first `roomsInThisHouse` pages and reports `finished` once any whole house is restored (Req 12.1 to 12.3).
+- `returnLine(roomId, count)`: a room-specific line for the first return, then three pools (second, third, later) indexed by the room, 15 lines in all (Req 12.4).
+- `diaryLine(days, today, roomId)` looks back up to 14 days for the latest day with a session; `weeklyReflection(days, today)` sums the last seven days against the seven before and only mentions the earlier count when wanderings went down (Req 12.5, 12.6).
+- A unit test checks every line against a list of shaming words, so the never-punish rule covers the copy too (Req 12.7). Everything is data and pure functions; no network, no randomness (Req 12.8).
+
 ### Sound (`src/audio/sound.ts`)
 - `SoundEngine` creates the AudioContext on the first gesture. Effects: candle, snuff, chime (inharmonic bell partials), restored (arpeggio), breath (filtered noise swell), moan (filtered sawtooth with vibrato), rattle (bandpassed noise clicks), ambient wind (brown noise, LFO-swept lowpass, low drone).
 
