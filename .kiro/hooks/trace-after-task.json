@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Trace criteria after a spec task",
+      "description": "After a spec task finishes, re-run the traceability check. It fails when traceability.md is stale or a test tag names a criterion that does not exist, and it lists every criterion no test names yet, so a task is not reported done without a test that names its requirement. PostTaskExec cannot block; the output goes back to the agent.",
+      "trigger": "PostTaskExec",
+      "action": { "type": "command", "command": "npm run trace -- --check" },
+      "timeout": 60,
+      "enabled": true
+    }
+  ]
+}

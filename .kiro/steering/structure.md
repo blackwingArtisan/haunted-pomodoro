@@ -28,10 +28,16 @@ src/
 worker/            Optional Cloudflare Worker for sync (Workers KV)
 sound-check.html   Second Vite entry for the sound check page
 public/            Manifest and icons
-scripts/           make-icons.mjs renders the PNG icons from icon.svg
+scripts/           trace.mjs (criteria to tests), record-media.mjs (README GIF and preview image)
+scripts/kiro/      guard.mjs (PreToolUse guard) and open-tasks.mjs (SessionStart task list) for Kiro hooks
 tests/unit/        Vitest
 tests/e2e/         Playwright
-.kiro/             Steering, specs and hooks for Kiro
+docs/kiro/         Hook commands run by hand, with their output
+.kiro/steering/    Always: product, tech, structure. File match: scene-art (src/ui, styles, App), audio (src/audio, sound check)
+.kiro/specs/       haunted-focus-timer and house-sync: EARS requirements, design, tasks, traceability
+.kiro/hooks/       v1 hook files: save, stop, PreToolUse guard, PostTaskExec trace, SessionStart task list, Manual demo-ready check
+.kiro/agents/      ghost-reviewer: a read-only copy reviewer for tone and the never-punish rule
+.kiro/settings/    mcp.json: Playwright MCP and Context7, pinned versions
 ```
 
 ## Conventions

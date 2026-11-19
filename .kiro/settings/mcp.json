@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@0.0.84", "--headless", "--isolated"],
+      "disabled": false,
+      "autoApprove": ["browser_navigate", "browser_snapshot", "browser_take_screenshot"]
+    },
+    "context7": {
+      "command": "npx",
+      "args": ["-y", "@upstash/context7-mcp@4.5.0"],
+      "disabled": false,
+      "autoApprove": ["resolve-library-id", "query-docs"]
+    }
+  }
+}

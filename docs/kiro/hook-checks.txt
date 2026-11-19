@@ -1,0 +1,66 @@
+# Hook commands run by hand
+#
+# Each command below is the exact command a Kiro hook runs, fed the JSON event Kiro's agent engine
+# (v3.5.0) sends on stdin. They were run from a terminal, not inside a Kiro session; a fire recorded
+# inside Kiro will be added to KIRO-LOG.md when it happens. tests/unit/kiro-guard.test.ts runs the same cases.
+
+## PreToolUse: guard-dependencies-and-pushes.json blocks npm install
+$ date -u; echo '<event>' | node scripts/kiro/guard.mjs; echo "exit $?"
+2026-11-19T06:42:50Z
+event: {"hook_event_name":"PreToolUse","cwd":"<repo>","session_id":"manual-check","tool_name":"execute_bash","tool_input":{"command":"npm install canvas-confetti"}}
+Blocked: this command adds, removes or upgrades a dependency. Dependencies are pinned and changed by a person; use the packages already in package.json (npm ci is allowed).
+exit 2
+
+## PreToolUse: the same guard blocks an edit to package.json
+2026-11-19T06:42:51Z
+event: {"hook_event_name":"PreToolUse","cwd":"<repo>","session_id":"manual-check","tool_name":"fs_write","tool_input":{"command":"str_replace","path":"package.json","old_str":"\"vite\": \"8.3.8\"","new_str":"\"vite\": \"latest\""}}
+Blocked: package.json pins the dependencies and is changed by a person. Use the packages already installed.
+exit 2
+
+## PreToolUse: an ordinary test run passes through
+2026-11-19T06:42:52Z
+event: {"hook_event_name":"PreToolUse","cwd":"<repo>","session_id":"manual-check","tool_name":"execute_bash","tool_input":{"command":"npm test"}}
+exit 0
+
+## SessionStart: open-tasks-on-start.json
+2026-11-19T06:42:52Z
+$ node scripts/kiro/open-tasks.mjs
+Open spec tasks: 21
+haunted-focus-timer: 15 open
+  9  Timer plaque, ledger, hearth panel, house map, settings, shortcut list (Req 1, 2, 4.7, 4.15, 5.4, 5.6 to 5....
+  9.1  Playwright test of the Hearth panel: fourteen-day chart, today's candles, minutes and wanderings, best stre...
+  11  Web Audio sound engine with volume, mute and ambient wind (Req 6.1 to 6.3, 6.6, 6.7)
+  11.1  Playwright or controller-level test that the A key and the ambient switch turn the wind on and off, and tha...
+  23  Listening review: play every sound on /sound-check.html through laptop speakers and headphones, and retune ...
+  24  Move the scene progress maths (`restore = (candlesLit + session progress) / 4`, the burning candle's melt) ...
+  25  Playwright: reload during a running session resumes at the right time and the end still lands on the origin...
+  26  Playwright: the tab title returns to the timer title after the person comes back, and the live region annou...
+  27  Playwright: every interactive control shows a visible focus indicator when reached by Tab; axe does not che...
+  28  Test that turning off "the ghost calls when you wander off" silences the call while the title still changes...
+  29  Playwright: delete a task, clear finished tasks and choose the active task from the ledger (Req 2.4 to 2.6)
+  30  Notifications on platforms where `new Notification` is not allowed (for example Android Chrome) need a serv...
+  31  Find out why the "," shortcut is sometimes ignored when pressed within about a second of erasing or importi...
+  38  Tests for the criteria the trace lists as not yet named: the ghost's call and the restoration sound (3.9, 4...
+  40  Run `npm run smoke` against the first deploy and record the result here
+house-sync: 6 open
+  3  Sync Worker with id validation, size limit, 409 on older copies, CORS allow-list (Req 4.1 to 4.9)
+  3.1  Test the 256 KB limit. The code compares `text.length` (UTF-16 units), not bytes, so the limit is not exact...
+  7  Per-house secret header and a "link another device" screen with a QR code
+  8  Apply a pulled copy by merging it into the live model. `App.tsx` calls `controller.replace(pulled)`, which ...
+  9  Move the four-second push debounce out of `App.tsx` into a small tested helper (Req 2.4)
+  10  Assert in the merge test that `updatedAt` is the later of the two copies (Req 3.5)
+
+## PostTaskExec: trace-after-task.json
+2026-11-19T06:42:53Z
+$ npm run trace -- --check
+.kiro/specs/haunted-focus-timer/traceability.md is out of date. Run npm run trace.
+145 of 154 criteria named by a test (132 of 173 tests tagged).
+Not yet named: 3.9, 3.11, 4.5, 4.8, 4.12, 6.7, 7.1, 7.12, 9.5
+exit 1
+
+## The same check after regenerating the table (npm run trace)
+2026-11-19T06:43:01Z
+$ npm run trace -- --check
+145 of 154 criteria named by a test (132 of 173 tests tagged).
+Not yet named: 3.9, 3.11, 4.5, 4.8, 4.12, 6.7, 7.1, 7.12, 9.5
+exit 0

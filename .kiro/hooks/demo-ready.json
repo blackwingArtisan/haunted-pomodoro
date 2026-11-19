@@ -1,0 +1,13 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Demo-ready check",
+      "description": "Run by hand before recording or submitting: builds the production bundle and runs the demo arc, the payoff frame, the costume toggle and the axe-core scans in Playwright against it.",
+      "trigger": "Manual",
+      "action": { "type": "command", "command": "npm run demo-ready" },
+      "timeout": 600,
+      "enabled": true
+    }
+  ]
+}
