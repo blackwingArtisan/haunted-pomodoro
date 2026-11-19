@@ -7,6 +7,27 @@
 - `worker/sync-worker.ts`: a Workers module with an exported `handle(request, env)` so it can be tested without the Workers runtime. KV key `house:{uuid}`. Configuration example in `worker/wrangler.toml.example`.
 - The house id is a random UUID and acts as a capability. A later version can add a per-house secret header.
 
+## Saving with a conflict, as a diagram
+```mermaid
+sequenceDiagram
+  participant App as HouseController
+  participant Store as CloudflareHouseStore
+  participant Local as localStorage
+  participant Worker as sync-worker and KV
+  App->>Store: save(model)
+  Store->>Local: saveSync(model), at once
+  Store->>Worker: PUT the house document
+  alt the stored copy is not newer
+    Worker-->>Store: 200 ok
+  else another device wrote a newer copy
+    Worker-->>Store: 409 with the stored copy
+    Store->>Store: mergeModels(model, stored), forward only
+    Store->>Local: saveSync(merged)
+    Store->>Worker: PUT merged, once
+  end
+  Note over Store,Worker: Offline or any network error leaves the local copy saved, and the next save pushes again.
+```
+
 ## Testing
 - The Worker handler is tested with an in-memory KV.
 - The Cloudflare store is tested by routing its `fetch` calls into the Worker handler, covering push, pull and merge, the 409 retry and offline fallback. No real network is used.

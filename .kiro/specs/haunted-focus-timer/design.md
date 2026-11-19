@@ -17,6 +17,38 @@ A React single-page app with a pure domain core. Time, storage and the DOM sit a
                                       ledger, hearth)            ghost lines, tab title
 ```
 
+### The core path, as a diagram
+One input, from the edge to the screen. Everything inside the `src/core` box is pure and takes `now` as an argument.
+
+```mermaid
+flowchart LR
+  subgraph Edges
+    T[250 ms ticker]
+    V[visibilitychange]
+    K[keys and clicks]
+  end
+  C[HouseController.dispatch]
+  subgraph Core["src/core, pure"]
+    R["reduceApp(model, action, now)"]
+    S["step, in timer.ts"]
+    H["lightCandle, in house.ts"]
+    D[day log and tasks]
+    R --> S
+    S -- effects --> R
+    R --> H
+    R --> D
+  end
+  T -- tick --> C
+  V -- hidden or visible --> C
+  K -- start, pause, skip --> C
+  C --> R
+  R -- model and cues --> C
+  C -- model changed --> P[HouseStore.save]
+  C -- cues --> U[React: Scene, plaque, Hearth]
+  C -- cues --> A[SoundEngine, live region, ghost lines, tab title]
+  C -- phase ended while hidden --> N[Notifier.show]
+```
+
 ## Components
 
 ### Timer state machine (`src/core/timer.ts`)
