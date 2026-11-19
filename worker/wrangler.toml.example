@@ -1,0 +1,12 @@
+# Copy to wrangler.toml, create the namespace with `wrangler kv namespace create HOUSES`,
+# paste its id below, then `wrangler deploy`. Free tier is enough for personal use.
+name = "haunted-pomodoro-sync"
+main = "sync-worker.ts"
+compatibility_date = "2026-11-01"
+
+[[kv_namespaces]]
+binding = "HOUSES"
+id = "<your-kv-namespace-id>"
+
+[vars]
+ALLOWED_ORIGINS = "https://haunted-pomodoro.pages.dev"

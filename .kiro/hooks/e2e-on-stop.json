@@ -1,0 +1,12 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Full check on stop",
+      "description": "Before the agent finishes a turn, run the type check, the unit suite and the Playwright suite against the production build, so a change is only reported done when the demo arc still runs end to end.",
+      "trigger": "Stop",
+      "action": { "type": "command", "command": "npm run check" },
+      "timeout": 600
+    }
+  ]
+}

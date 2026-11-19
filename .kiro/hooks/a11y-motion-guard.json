@@ -1,0 +1,15 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Accessible theatre guard",
+      "description": "When the agent edits the scene, styles or panels, check that new animation respects reduced motion and that new controls stay keyboard reachable and labelled.",
+      "trigger": "PostFileSave",
+      "matcher": "^src/(styles\\.css|ui/.*\\.tsx|App\\.tsx)$",
+      "action": {
+        "type": "agent",
+        "prompt": "You just edited UI. Check that any new animation or transition is switched off under [data-motion='reduced'], that new interactive elements are native buttons, inputs or links with an accessible name, that focus stays visible, and that text on the dark theme keeps WCAG AA contrast. Then run `npm run typecheck`."
+      }
+    }
+  ]
+}

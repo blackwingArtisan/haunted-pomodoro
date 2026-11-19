@@ -1,0 +1,14 @@
+{
+  "enabled": true,
+  "name": "Core tests on edit",
+  "description": "Kiro IDE hook: when a file in the pure domain core is edited, ask the agent to run the unit suite and fix any failure before moving on.",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": ["src/core/**/*.ts", "src/adapters/**/*.ts", "worker/**/*.ts"]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "A file in the domain core or an adapter changed. Run `npm test`. If anything fails, fix the code (not the test) unless the requirement in .kiro/specs/haunted-focus-timer/requirements.md says the test is wrong, and say which requirement number applies."
+  }
+}

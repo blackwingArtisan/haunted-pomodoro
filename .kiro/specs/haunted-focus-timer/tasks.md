@@ -1,0 +1,24 @@
+# Tasks: Haunted focus timer
+
+- [x] 1. Clock and day helpers: `Clock`, `ManualClock`, local day keys, DST-safe day arithmetic (Req 5.1)
+- [x] 2. Timer state machine with absolute end times, pause/resume, skip, reset, long-break cycle, auto-start (Req 1.1 to 1.8)
+  - [x] 2.1 Unit tests for every transition, late ticks and cycle reset
+- [x] 3. Distraction tracking in the state machine: hidden, visible, grace period, ghost wake, settle at end of focus (Req 3.1 to 3.7)
+  - [x] 3.1 Unit tests for grace, repeat absences, breaks and pauses, absence still open at the end
+- [x] 4. House progress: candles per room, restoration, new house, score for merging (Req 4.2, 4.3, 4.5, 4.6)
+- [x] 5. Forgiving streak with injectable clock (Req 5.1 to 5.3)
+  - [x] 5.1 Unit tests across days, gaps, grace, duplicates and future days
+- [x] 6. App reducer: tasks, settings clamping, day log, cues, demo lengths (Req 1.10, 2.1 to 2.4, 9.1)
+- [x] 7. Snapshot: serialize, defensive parse, merge; local store with blocked-storage fallback (Req 1.9, 8.1, 8.3)
+  - [x] 7.1 Persistence round-trip and damaged-data unit tests
+- [x] 8. SVG scene: room, window, fireplace, portrait with tracking eyes, candles, six room props, cobwebs, ghost (Req 4.1, 4.3)
+- [x] 9. Timer plaque, ledger, hearth panel, house map, settings, shortcut list (Req 1, 2, 4.7, 5.4, 6.2)
+- [x] 10. Wiring: ticker, Page Visibility, keyboard shortcuts, live region, tab title, ghost lines (Req 3.2, 3.3, 7.2, 7.3)
+- [x] 11. Web Audio sound engine with volume, mute and ambient wind (Req 6.1 to 6.3)
+- [x] 12. Reduced motion (system and in-app) and phone layout (Req 7.4, 7.5)
+- [x] 13. PWA: manifest, icons, generated service worker (Req 8.2)
+- [x] 14. Demo mode with in-memory house and banner (Req 9.1 to 9.3)
+- [x] 15. Erase all data with confirmation (Req 8.4)
+- [x] 16. Playwright: demo arc, demo isolation, reload persistence, shortcuts, sound controls, house map, offline, reduced motion, phone width
+- [ ] 17. Optional browser notification when a phase ends while the tab is hidden (opt-in, off by default)
+- [ ] 18. Export and import the house as a JSON file
