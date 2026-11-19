@@ -79,3 +79,11 @@ test('a keyboard user can Tab to "Light a candle", sees a focus ring, and starts
   await page.keyboard.press('Enter');
   await expect(page.getByRole('button', { name: 'Pause' })).toBeVisible();
 });
+
+// Req 7.5, 7.22
+test('the plain view with the costume off has no WCAG A/AA violations', async ({ page }) => {
+  await page.goto('/?demo=1');
+  await page.getByTestId('unmask').click();
+  await expect(page.getByTestId('plain-stage')).toBeVisible();
+  expect(await scan(page)).toEqual([]);
+});

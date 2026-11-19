@@ -143,6 +143,8 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 18. WHEN the viewport is 480 px wide or narrower, THE SYSTEM SHALL show the masthead's mark and name on one line without the tagline, and label the demo button "Try the 30 s demo" in words.
 19. WHEN a first-time visitor opens the main screen on a viewport 720 px wide or narrower, THE SYSTEM SHALL show a one-line introduction above the room that links to the full guide.
 20. THE SYSTEM SHALL give every task checkbox and footer link a target at least 24 px tall, and SHALL keep the house map's decorative windows out of the accessibility tree, with the room list as the keyboard way to choose a room.
+21. WHEN the person presses U or the Unmask button beside the room heading, THE SYSTEM SHALL switch between the haunted house and a plain Pomodoro view without changing the timer, the tasks, the house or the day history, and SHALL remember the choice in this browser.
+22. WHILE the plain view is shown, THE SYSTEM SHALL show session progress as a named progress bar and the distraction, goal and streak counts as text, each with a note naming the part of the house that stands for it.
 
 ## Requirement 8: Offline and privacy
 1. THE SYSTEM SHALL store all data in the browser's localStorage by default.

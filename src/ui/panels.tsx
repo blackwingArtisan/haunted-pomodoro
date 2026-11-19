@@ -474,6 +474,7 @@ export const SHORTCUTS: ReadonlyArray<[string, string]> = [
   ['A', 'Ambient wind on or off'],
   ['H', 'Open the house'],
   [',', 'Settings'],
+  ['U', 'Unmask: the same timer as a plain Pomodoro'],
   ['?', 'This list'],
   ['Esc', 'Close a window'],
 ];

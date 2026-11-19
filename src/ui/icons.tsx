@@ -82,3 +82,10 @@ export const MoonIcon = (p: IconProps) => (
     <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z" />
   </Icon>
 );
+
+export const MaskIcon = (p: IconProps) => (
+  <Icon {...p}>
+    <path d="M3 7c3-1.5 15-1.5 18 0 0 6-3 10-9 10S3 13 3 7z" />
+    <path d="M7 10.5c1-.8 2.4-.8 3.4 0M13.6 10.5c1-.8 2.4-.8 3.4 0" />
+  </Icon>
+);

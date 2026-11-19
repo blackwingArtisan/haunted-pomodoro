@@ -234,8 +234,8 @@ input[type='range'] {
 
 .room-heading {
   display: grid;
-  grid-template-columns: auto 1fr;
-  grid-template-areas: 'num num' 'title blurb';
+  grid-template-columns: auto 1fr auto;
+  grid-template-areas: 'num num toggle' 'title blurb blurb';
   align-items: baseline;
   column-gap: 18px;
   margin-bottom: 10px;
@@ -264,10 +264,38 @@ input[type='range'] {
   color: var(--bone-dim);
   font-style: italic;
 }
+/* The costume switch sits with the room it changes, so it costs the first view no height. */
+.unmask-toggle {
+  grid-area: toggle;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 26px;
+  /* Hangs over the row edges so the heading is no taller than without it. */
+  margin-block: -6px;
+  padding: 2px 12px;
+  border: 1px solid var(--hairline);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--bone-dim);
+  font: inherit;
+  font-family: var(--font-numeral);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.unmask-toggle:hover,
+.unmask-toggle[aria-pressed='true'] {
+  color: var(--bone);
+  border-color: var(--brass);
+}
 @media (max-width: 720px) {
   .room-heading {
-    grid-template-columns: 1fr;
-    grid-template-areas: 'num' 'title' 'blurb';
+    grid-template-columns: 1fr auto;
+    grid-template-areas: 'num toggle' 'title title' 'blurb blurb';
   }
 }
 
@@ -616,7 +644,8 @@ input[type='number'] {
   color: var(--bone);
 }
 .working-on select {
-  max-width: 320px;
+  min-width: 0;
+  max-width: min(320px, 100%);
 }
 /* Numbers line up and never jiggle as they change. */
 input[type='number'],
@@ -2356,3 +2385,96 @@ input[type='number'],
 [data-motion='reduced'] .scene .wisp-float {
   animation: none !important;
 }
+
+/* ------------------------------------------------------------------ Unmasked: the costume off */
+
+.plain-stage {
+  aspect-ratio: 12 / 7;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: clamp(14px, 2.4vw, 28px);
+  border: 1px solid #3a3a44;
+  border-radius: 12px;
+  background: #15151a;
+  color: #ececf1;
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  overflow: auto;
+}
+.plain-kicker {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #a8a8b8;
+}
+.plain-rows {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  flex: 1;
+}
+.plain-row {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: #1e1e25;
+}
+.plain-row dt {
+  font-size: 13px;
+  color: #a8a8b8;
+}
+.plain-row dd {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+}
+.plain-value {
+  font-size: clamp(17px, 1.6vw, 22px);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.plain-costume {
+  font-size: 13px;
+  color: #b4b4c4;
+  font-style: italic;
+}
+.plain-bar {
+  display: block;
+  height: 10px;
+  border-radius: 5px;
+  background: #2c2c36;
+  overflow: hidden;
+}
+.plain-bar > span {
+  display: block;
+  height: 100%;
+  background: #6aa8ff;
+}
+.app.is-unmasked {
+  --font-display: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-numeral: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-body: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-body);
+}
+.app.is-unmasked .card,
+.app.is-unmasked .plaque {
+  background: #15151a;
+  border-color: #3a3a44;
+  box-shadow: none;
+}
+@media (max-width: 720px) {
+  .plain-stage {
+    aspect-ratio: auto;
+  }
+  .plain-rows {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+

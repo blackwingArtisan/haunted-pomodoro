@@ -23,7 +23,7 @@ src/
   audio/levels.ts  Pure level measurements (peak, RMS, tail) of rendered samples
   audio/render.ts  Renders each sound offline and judges it against the level limits
   sound-check/     The /sound-check.html page: waveform, levels and a Play button per sound
-  ui/              Scene.tsx (the SVG room and ghost), panels.tsx (plaque, ledger, hearth, dialogs, settings with export and import), icons.tsx
+  ui/              Scene.tsx (the SVG room and ghost), Unmasked.tsx (the plain view with the costume off), panels.tsx (plaque, ledger, hearth, dialogs, settings with export and import), icons.tsx
   App.tsx          Wiring: ticker, Page Visibility, keyboard shortcuts, cues to sound and announcements
   styles.css       Tokens, layout, scene animation, reduced-motion overrides
 worker/            Optional Cloudflare Worker for sync (Workers KV)
