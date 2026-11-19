@@ -865,6 +865,13 @@ input[type='number'] {
 .intro h2::after {
   background: linear-gradient(90deg, var(--ecto), transparent);
 }
+.intro-lead {
+  margin: 0 0 12px;
+  font-family: var(--font-display);
+  font-size: 19px;
+  line-height: 1.35;
+  color: var(--bone);
+}
 .intro-steps {
   margin: 0 0 14px;
   padding-left: 22px;

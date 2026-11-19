@@ -70,6 +70,7 @@ test('first visit explains the house once', async ({ page }) => {
   await page.goto('/');
   const intro = page.getByTestId('intro');
   await expect(intro).toContainText('Four candles');
+  await expect(page.getByTestId('intro-lead')).toHaveText('Some focus apps kill your tree when you look away. This ghost keeps your candle lit.');
   await intro.getByRole('button', { name: 'Enter the house' }).click();
   await expect(intro).toBeHidden();
   await page.reload();

@@ -1,6 +1,6 @@
 # Tasks: Haunted focus timer
 
-A task is checked only when code and a test implement it. Tests marked "written, not run" were added in the Kiro pass and still need a Playwright run by the operator.
+A task is checked only when code and a test implement it. The full Playwright suite passes 23 of 23, and `tests/e2e/house-file.spec.ts` passed 10 of 10 repeated runs.
 
 - [x] 1. Clock and day helpers: `Clock`, `ManualClock`, local day keys, DST-safe day arithmetic (Req 5.1)
 - [x] 2. Timer state machine with absolute end times, pause/resume, skip, reset, long-break cycle, auto-start (Req 1.1 to 1.8, 1.11 to 1.15, 1.17, 1.18)
@@ -22,7 +22,7 @@ A task is checked only when code and a test implement it. Tests marked "written,
 - [x] 12. Reduced motion (system and in-app) and phone layout (Req 7.4, 7.12, 7.13)
 - [x] 13. PWA: manifest, icons, generated service worker (Req 8.2)
 - [x] 14. Demo mode with in-memory house and banner (Req 9.1 to 9.6)
-- [x] 15. Erase all data with confirmation (Req 8.4 to 8.6); covered by `tests/e2e/house-file.spec.ts` (written, not run)
+- [x] 15. Erase all data with confirmation (Req 8.4 to 8.6); covered by `tests/e2e/house-file.spec.ts` (passing)
 - [x] 16. Playwright: demo arc, demo isolation, reload persistence, shortcuts, sound controls, house map, offline, reduced motion, phone width
 - [x] 17. First-visit guide card, dismissed once per browser
 - [x] 18. axe-core WCAG 2.1 A/AA scans in the Playwright suite (Req 7.1, 7.5)
@@ -36,8 +36,8 @@ A task is checked only when code and a test implement it. Tests marked "written,
   - [x] 20.1 Pure export and import decision in `src/core/house-file.ts`: versioned envelope, 1 MB limit, defensive parse, merge through `mergeModels` (Req 11.1 to 11.12)
   - [x] 20.2 Settings controls: "Export house" button, "Import house" file input, status message, demo disabled with a reason (Req 11.13 to 11.15)
   - [x] 20.3 Unit tests: export payload, valid file merges forward, older house never lowers progress, damaged JSON, wrong format version, foreign file, too large (Req 11.1 to 11.12)
-  - [x] 20.4 Playwright: export after a one-minute session, erase, import, candle is back, damaged file changes nothing; demo controls disabled (Req 11.1 to 11.13; written, not run)
-  - [x] 20.5 axe scan of settings in a normal house with the new controls (Req 11.14; written, not run)
+  - [x] 20.4 Playwright: export after a one-minute session, erase, import, candle is back, damaged file changes nothing; demo controls disabled (Req 11.1 to 11.13; passing)
+  - [x] 20.5 axe scan of settings in a normal house with the new controls (Req 11.14; passing)
 - [x] 21. Sound check page: offline render of every sound, level limits, waveform, play buttons; unit tests for the level maths and a Playwright check of all eight sounds (Req 6.4, 6.5, 6.8, 6.9)
 - [x] 22. First-view fit: the stage scales with viewport height so the room, digits and primary button fit at 1280x720 and up, demo banner included; Playwright checks three desktop sizes (Req 7.6)
 - [ ] 23. Listening review: play every sound on /sound-check.html through laptop speakers and headphones, and retune any that sound harsh or thin (the level limits are measured; the character of each sound has not been judged by ear yet)

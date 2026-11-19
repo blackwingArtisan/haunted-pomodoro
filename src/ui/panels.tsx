@@ -594,6 +594,9 @@ export function IntroCard({ show, onDemo }: { show: boolean; onDemo: () => void 
   return (
     <section className="card intro" aria-labelledby="intro-title" data-testid="intro">
       <h2 id="intro-title">How the house works</h2>
+      <p className="intro-lead" data-testid="intro-lead">
+        Some focus apps kill your tree when you look away. This ghost keeps your candle lit.
+      </p>
       <ol className="intro-steps">
         <li>
           <strong>Light a candle</strong> to start a focus session. Finish it and the candle stays lit.

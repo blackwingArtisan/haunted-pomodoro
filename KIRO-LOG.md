@@ -2,6 +2,13 @@
 
 What Kiro was asked to do on this project, what it produced, and what it cost. Every call is listed, including any that fail.
 
+**TL;DR**
+- Steering, two EARS specs and five agent hooks set the rules; "never punish" is the one they all guard.
+- Kiro pass 1 (kiro-cli v3, 11 min 44 s, 16.02 credits) reviewed both specs against the code, tightened every criterion into EARS form, and built house export and import plus the opt-in phase-end notification with their tests.
+- After that pass: typecheck clean, Vitest 101 of 101, Playwright 23 of 23, and the new house-file test 10 of 10 on repeated runs.
+- Kiro also converted the one old-format hook to the current `v1` format and recorded every gap it found as an open task.
+- Open work lives in the task lists of `.kiro/specs/`, never in prose.
+
 ## Before the Kiro pass
 The steering files (`.kiro/steering/product.md`, `tech.md`, `structure.md`), the two specs (`.kiro/specs/haunted-focus-timer/` and `.kiro/specs/house-sync/`, each with EARS requirements, a design and a task list) and the agent hooks (`.kiro/hooks/`) were drafted by hand in Kiro's formats before any Kiro session, alongside the first working build. Kiro had not been run on this repository at that point.
 
@@ -14,33 +21,32 @@ Hooks drafted:
 - `e2e-on-stop.json`: runs `npm run check` (types, unit, Playwright) before a turn ends.
 - `core-tests.kiro.hook`: the same core-test rule in the Kiro IDE hook format (converted and removed in the Kiro pass).
 
-Hook formats: the four `.json` files were drafted in the `v1` format and `core-tests.kiro.hook` in the older IDE format. The Kiro pass checked every file against the current `v1` format, converted the IDE file and deleted it; see "Kiro pass (kiro-cli v3, bonus credits)" below.
+Hook formats: the four `.json` files were drafted in the `v1` format and `core-tests.kiro.hook` in the older IDE format. The Kiro pass checked every file against the current `v1` format, converted the IDE file and deleted it; see "Kiro pass 1 (kiro-cli v3): spec review, export and import, notifications" below.
 
 Later changes made before the Kiro pass (tasks 21 and 22, also by hand): the sound check page with measured level limits, and the first-view layout fit. Task 23, a listening review of each sound, is open.
 
-## Kiro pass
-The review and implementation pass ran in kiro-cli v3 and is recorded in the next section, "Kiro pass (kiro-cli v3, bonus credits)".
-
-## Kiro pass (kiro-cli v3, bonus credits)
+## Kiro pass 1 (kiro-cli v3): spec review, export and import, notifications
 
 - **When:** 2026-11-19, 03:56 to 04:08 UTC (11 min 44 s wall time, under a 25-minute cap; exit code 0).
 - **Command** (repo root, stdin closed):
   `kiro-cli chat --v3 --no-interactive --trust-workspace --trust-tools=fs_read,fs_write,run_command "<prompt>" </dev/null`
-- **Credits used:** 16.02 of the 4,000 `kiroween2026` bonus credits (`/usage` read 141.19 before the call and 157.21 after).
+- **Credits used:** 16.02 of the 4,000 `kiroween2026` hackathon credits (`/usage` read 141.19 before the call and 157.21 after).
 - **What Kiro did:** reviewed both specs against the code and tests, rewrote the criteria in EARS form (and corrected
   house-sync 4.1, which said 404 where the Worker answers 405), wrote house export and import (`src/core/house-file.ts`
   and the settings controls), the opt-in phase-end notification (`src/adapters/notify.ts`, `src/core/notice.ts`, the
   controller), their unit tests and a new Playwright file, converted the IDE-format hook, updated the README and
   steering, and ran `npm run typecheck` and `npm test` itself.
-- **After the call (operator):** Vitest 101 of 101 (69 before the pass). Playwright: the new export, erase and import
+- **After the call (by hand):** Vitest 101 of 101 (69 before the pass). Playwright: the new export, erase and import
   test failed in 3 of 4 full-suite runs and passed in isolation. The cause was the test reopening settings with the
-  "," shortcut within about a second of an erase or an import, when the shortcut is sometimes ignored. The operator
-  changed the test to open settings with the toolbar Settings button, as a person would with a pointer; it then passed
+  "," shortcut within about a second of an erase or an import, when the shortcut is sometimes ignored. The test was
+  changed to open settings with the toolbar Settings button, as a person would with a pointer; it then passed
   10 of 10 repeated runs, and the full suite passed 23 of 23 (20 before the pass). The shortcut timing is recorded as
-  open task 31. Before the call the operator made the end-to-end port overridable with `PW_PORT`, so local runs can
+  open task 31. Before the call the maintainer made the end-to-end port overridable with `PW_PORT`, so local runs can
   avoid a busy port.
 
-### Exact prompt
+### Prompt
+
+Quoted as sent, except that one internal role name is shown as [the maintainer] and one heading name is shown in its current form.
 
 > You are working in the Haunted Pomodoro repository (a focus timer in a haunted house; TypeScript, React 19, Vite, Web Audio, Vitest, Playwright with axe-core; an optional Cloudflare Worker for sync in worker/). Read .kiro/steering/product.md, tech.md and structure.md first and follow them, especially the forward-only progress rule (nothing removes a lit candle or a restored room except an explicit erase) and the rule that core functions take the time as an argument instead of reading Date.now(). Work only inside this repository. Do not add, remove or upgrade any npm dependency, do not run npm install, do not use git or wrangler, and do not deploy or call any network service. Keep wording professional and use invented sample data only.
 >
@@ -55,11 +61,11 @@ The review and implementation pass ran in kiro-cli v3 and is recorded in the nex
 >
 > 3. Hooks. Kiro's current hook format is .kiro/hooks/<name>.json with "version": "v1" and a "hooks" array (fields: name, description, trigger in PascalCase such as PostFileSave or Stop, matcher regex against the file path, action with type "command" + command or type "agent" + prompt, timeout in seconds, enabled). Check every file in .kiro/hooks/ against that format and fix anything invalid; add "enabled": true where it is missing. core-tests.kiro.hook is in the older IDE format ("when"/"then", fileEdited, askAgent): convert what it adds beyond test-on-save.json into the current format (either fold it into test-on-save.json or make core-tests.json), then delete the .kiro.hook file. Extend a guard's matcher to the new export/import and notification files where it fits. Update KIRO-LOG.md's hook list and the README so they describe the hooks as they now are.
 >
-> 4. KIRO-LOG.md. Replace the "Hook formats" paragraph and the "## Kiro pass" "Pending." paragraph with the truth in one or two plain sentences each, pointing to the new section, then append a new section "## Kiro pass (kiro-cli v3, bonus credits)" that lists: each spec change (criteria tightened, tasks checked, tasks added), each source and test file you changed and why, the hook changes, and anything you could not do. Leave a line "Credits used: TO BE FILLED" for the operator to fill in.
+> 4. KIRO-LOG.md. Replace the "Hook formats" paragraph and the "## Kiro pass" "Pending." paragraph with the truth in one or two plain sentences each, pointing to the new section, then append a new section "## Kiro pass 1 (kiro-cli v3): spec review, export and import, notifications" that lists: each spec change (criteria tightened, tasks checked, tasks added), each source and test file you changed and why, the hook changes, and anything you could not do. Leave a line "Credits used: TO BE FILLED" for [the maintainer] to fill in.
 >
-> When you finish, run `npm run typecheck` and `npm test` and fix any failures you caused. Do not run the Playwright suite yourself; the operator will (note that the Stop hook runs `npm run check`, which includes Playwright; that is expected).
+> When you finish, run `npm run typecheck` and `npm test` and fix any failures you caused. Do not run the Playwright suite yourself; [the maintainer] will (note that the Stop hook runs `npm run check`, which includes Playwright; that is expected).
 
-One non-interactive session, four jobs in order: spec review, tasks 19 and 20, hooks, this log. `npm run typecheck` passes and `npm test` passes (101 tests in 10 files, two of them new). The Playwright suite was not run in this session; the new end-to-end tests are written and unrun, and the operator runs them.
+One non-interactive session, four jobs in order: spec review, tasks 19 and 20, hooks, this log. `npm run typecheck` passes and `npm test` passes (101 tests in 10 files, two of them new). Kiro did not run Playwright in this session, as the prompt asked; the full suite was run straight after it and passed 23 of 23 (see "After the call").
 
 ### Spec changes
 `haunted-focus-timer/requirements.md`
@@ -85,7 +91,7 @@ One non-interactive session, four jobs in order: spec review, tasks 19 and 20, h
 - `src/App.tsx`: wires the notifier, the download, the import and the permission flow; reconciles the setting at start-up.
 - `src/styles.css`: layout for the data controls and disabled state.
 - `tests/unit/house-file.test.ts` (new), `tests/unit/notifications.test.ts` (new): export payload, valid import, older house never lowers progress, damaged JSON, foreign file, wrong version, too large; fake-notifier tests for off by default, hidden and granted, visible, denied, late ticks, demo, and the browser adapter.
-- `tests/e2e/house-file.spec.ts` (new): export after a one-minute session, erase (keep and confirm), import, damaged file; demo controls disabled. `tests/e2e/a11y.spec.ts`: axe scan of settings in a normal house. Both unrun.
+- `tests/e2e/house-file.spec.ts` (new): export after a one-minute session, erase (keep and confirm), import, damaged file; demo controls disabled. `tests/e2e/a11y.spec.ts`: axe scan of settings in a normal house. Both pass in the full suite run after the session.
 - `README.md` and the three steering files updated for export, import, notifications and the hook list.
 
 ### Hooks
@@ -95,7 +101,7 @@ One non-interactive session, four jobs in order: spec review, tasks 19 and 20, h
 - `e2e-on-stop.json` runs `npm run check`, which includes Playwright; that is expected.
 
 ### Not done
-- The Playwright suite and the build were not run, so the new end-to-end tests are unverified.
+- Kiro did not run Playwright or the build itself; both were run after the session (23 of 23).
 - Nothing was checked in a real browser: the permission prompt, a real notification and a real download.
 - The notification uses `new Notification`, which some mobile browsers refuse; task 30 covers a service-worker path.
 - If a throttled tab completes several phases on successive catch-up ticks, each completion notifies once; they are not merged.
