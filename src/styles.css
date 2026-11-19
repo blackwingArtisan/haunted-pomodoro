@@ -1475,6 +1475,38 @@ input[type='number'],
 .scene .motes circle {
   animation: mote 16s linear infinite;
 }
+/* Will-o'-wisps: one per return today. They arrive with a soft swell, then bob and flicker. */
+.scene .wisp-float {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation:
+    wisp-arrive 1.2s var(--ease) 1 backwards,
+    wisp-float 7s ease-in-out infinite;
+}
+.scene .wisp-halo {
+  mix-blend-mode: screen;
+}
+@keyframes wisp-arrive {
+  from {
+    opacity: 0;
+    transform: scale(0.2);
+  }
+}
+@keyframes wisp-float {
+  0%,
+  100% {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  35% {
+    transform: translate(6px, -10px);
+    opacity: 0.8;
+  }
+  70% {
+    transform: translate(-5px, -4px);
+    opacity: 0.95;
+  }
+}
 .scene .spider {
   animation: spider 9s ease-in-out infinite;
 }
@@ -2318,4 +2350,9 @@ input[type='number'],
   .task-form {
     grid-template-columns: 1fr 56px auto;
   }
+}
+
+/* Reduced motion: the wisps hold still at full brightness. */
+[data-motion='reduced'] .scene .wisp-float {
+  animation: none !important;
 }

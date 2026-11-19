@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type CSSProperties } from 'react';
 import type { RoomDef, RoomProp } from '../core/house';
+import type { Wisp } from '../core/wisps';
 import { MANTEL_CANDLES } from './candles';
 
 export type GhostMood = 'asleep' | 'watching' | 'awake' | 'calling';
@@ -25,6 +26,8 @@ export interface SceneProps {
   /** 0 to 1: how warm the hearth fire burns, from the streak. */
   hearth: number;
   label: string;
+  /** Will-o'-wisps the ghost has left today, one per return from a wandering (see src/core/wisps.ts). */
+  wisps?: readonly Wisp[];
   trackPointer?: boolean;
   className?: string;
 }
@@ -42,8 +45,10 @@ export const GHOST_SPOTS: ReadonlyArray<[number, number, number]> = [
   [600, 430, 1.8],
 ];
 
+const NO_WISPS: readonly Wisp[] = [];
+
 export function Scene(props: SceneProps) {
-  const { room, restore, candlesLit, burning, restored, ghost, rattling, breathing, hearth, label, trackPointer = true } = props;
+  const { room, restore, candlesLit, burning, restored, ghost, rattling, breathing, hearth, label, wisps = NO_WISPS, trackPointer = true } = props;
   const uid = useId().replace(/:/g, '');
   const svgRef = useRef<SVGSVGElement>(null);
   const pupilsRef = useRef<SVGGElement>(null);
@@ -122,6 +127,11 @@ export function Scene(props: SceneProps) {
           <stop offset="0" stopColor="#b9c8ff" stopOpacity="0.28" />
           <stop offset="1" stopColor="#b9c8ff" stopOpacity="0" />
         </linearGradient>
+        <radialGradient id={`wisp-${uid}`} cx="0.5" cy="0.5" r="0.5">
+          <stop offset="0" stopColor="#c9fbe8" stopOpacity="0.85" />
+          <stop offset="0.45" stopColor="#8ff5d2" stopOpacity="0.32" />
+          <stop offset="1" stopColor="#8ff5d2" stopOpacity="0" />
+        </radialGradient>
         <radialGradient id={`ghost-vignette-${uid}`} cx="0.5" cy="0.5" r="0.72">
           <stop offset="0.5" stopColor="#8ff5d2" stopOpacity="0" />
           <stop offset="1" stopColor="#8ff5d2" stopOpacity="0.55" />
@@ -181,6 +191,18 @@ export function Scene(props: SceneProps) {
           [520, 420],
         ].map(([x, y], i) => (
           <circle key={i} cx={x} cy={y} r={i % 2 ? 2 : 3} fill="#ffe8b0" opacity="0.5" style={{ animationDelay: `${i * -2.3}s` }} />
+        ))}
+      </g>
+
+      {/* One small light per return today. Decorative: the scene label says how many. */}
+      <g className="wisps" aria-hidden="true" data-testid="wisps" data-count={wisps.length}>
+        {wisps.map((w, i) => (
+          <g key={i} className="wisp" transform={`translate(${w.x} ${w.y})`}>
+            <g className="wisp-float" style={{ animationDelay: `${w.phase}s` }}>
+              <circle r={w.r * 3.4} fill={`url(#wisp-${uid})`} className="wisp-halo" />
+              <circle r={w.r} fill="#e9fff7" className="wisp-core" />
+            </g>
+          </g>
         ))}
       </g>
 

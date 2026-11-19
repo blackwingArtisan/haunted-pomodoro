@@ -68,6 +68,8 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 15. WHEN the person returns to the tab, THE SYSTEM SHALL restore the tab title to the timer title.
 16. WHEN three or more wanderings have been counted in a focus session, THE SYSTEM SHALL draw the ghost at 1.8 times its base size in front of the mantel.
 17. WHILE the ghost is closer than its sleeping spot, THE SYSTEM SHALL tint the edges of the room in the ghost's color, more strongly the closer it is.
+18. WHEN the person comes back from a wandering that was counted, THE SYSTEM SHALL leave one will-o'-wisp in the upper room for each wandering counted that day, up to eight, SHALL never remove one as the count grows, and SHALL keep them through the end of the session and a reload.
+19. WHILE any will-o'-wisp is shown, THE SYSTEM SHALL describe the wisps in the scene's accessible label as the times the person came back, without counting the leaving.
 
 ## Requirement 4: The house
 **User story:** As a returning user, I want my focus to visibly restore something, so that the work feels like it adds up.

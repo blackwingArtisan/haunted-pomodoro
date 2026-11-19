@@ -5,10 +5,10 @@
       "name": "Never-punish guard",
       "description": "When the agent edits house, streak, merge, reducer or house-file import code, restate the product's forward-only progress rule and ask for a matching unit test before it continues.",
       "trigger": "PostFileSave",
-      "matcher": "^src/core/(house|streak|snapshot|model|house-file)\\.ts$",
+      "matcher": "^src/core/(house|streak|snapshot|model|house-file|wisps)\\.ts$",
       "action": {
         "type": "agent",
-        "prompt": "You just edited progress logic. Confirm that no code path removes a lit candle or a restored room (only an explicit erase may), that an import of a house file can only merge forward through mergeModels, that the streak still forgives one missed day and keeps the best streak, that mergeModels keeps the house with the higher houseScore, and that every function still takes the time as an argument instead of reading Date.now(). Add or update a unit test under tests/unit for any rule you changed, then run `npm test`."
+        "prompt": "You just edited progress logic. Confirm that no code path removes a lit candle or a restored room (only an explicit erase may), that an import of a house file can only merge forward through mergeModels, that the streak still forgives one missed day and keeps the best streak, that mergeModels keeps the house with the higher houseScore, that the will-o'-wisps for a count always keep every wisp of a smaller count, and that every function still takes the time as an argument instead of reading Date.now(). Add or update a unit test under tests/unit for any rule you changed, then run `npm test`."
       },
       "timeout": 300,
       "enabled": true

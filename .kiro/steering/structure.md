@@ -10,6 +10,7 @@ src/
     dates.ts       Local day keys and DST-safe day arithmetic
     timer.ts       Timer state machine (focus, short break, long break, pause, skip, reset, distractions)
     house.ts       Rooms, candles per room, restoration progress
+    wisps.ts       Will-o'-wisps: one light per return from a wandering, never removed
     streak.ts      The Hearth: forgiving streak math
     model.ts       App model, settings, tasks, reducer, cues, demo timer lengths
     snapshot.ts    Serialize, defensive parse, merge of two copies

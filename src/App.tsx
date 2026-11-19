@@ -10,6 +10,7 @@ import { decideImport, exportHouse, importSizeProblem } from './core/house-file'
 import { ROOMS, viewHouse, type RoomDef } from './core/house';
 import { createModel, demoConfigFor, timerConfig, type Cue } from './core/model';
 import { pageForRoom, returnLine } from './core/story';
+import { wispLine, wispsFor } from './core/wisps';
 import { computeStreak } from './core/streak';
 import { focusInProgress, progressAt, remainingAt } from './core/timer';
 import { CloseIcon, GearIcon, HouseIcon, KeysIcon, MoonIcon, SoundIcon } from './ui/icons';
@@ -350,7 +351,11 @@ export function App() {
   const breathing = !inFocus && running;
   const rattling = now < rattleUntil;
   const roomNumber = (restoredNow ? ROOMS.indexOf(shownRoom) : view.roomIndex) + 1;
-  const sceneLabel = `${shownRoom.name}, ${restoredNow ? 'restored' : `${view.candlesLit} of ${view.candlesPerRoom} ${view.candlesPerRoom === 1 ? 'candle' : 'candles'} lit`}. The ghost is ${ghost.mood === 'asleep' ? 'asleep' : ghost.mood === 'watching' ? 'watching you' : 'awake'}.`;
+  // Every return from a wandering today leaves a will-o'-wisp: forgiveness the person can see.
+  const returnsToday = model.days[today]?.distractions ?? 0;
+  const wisps = wispsFor(returnsToday);
+  const wispSentence = wispLine(returnsToday);
+  const sceneLabel = `${shownRoom.name}, ${restoredNow ? 'restored' : `${view.candlesLit} of ${view.candlesPerRoom} ${view.candlesPerRoom === 1 ? 'candle' : 'candles'} lit`}. The ghost is ${ghost.mood === 'asleep' ? 'asleep' : ghost.mood === 'watching' ? 'watching you' : 'awake'}.${wispSentence ? ` ${wispSentence}` : ''}`;
 
   return (
     <div className={`app phase-${timer.phase} ${breathing ? 'is-breathing' : ''} ${demo ? 'is-demo' : ''}`} data-phase={timer.phase} data-status={timer.status}>
@@ -470,6 +475,7 @@ export function App() {
               hearth={Math.min(1, 0.2 + streak.current * 0.16)}
               trackPointer={!reducedMotion}
               label={sceneLabel}
+              wisps={wisps}
             />
             {strikes > 0 && <div key={strikes} className="strike-bloom" aria-hidden="true" data-testid="strike-bloom" />}
             {restoredNow && (
