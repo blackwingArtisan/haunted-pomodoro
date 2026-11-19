@@ -4,7 +4,7 @@
 
 A real Pomodoro timer wearing a haunted house. Every focus session lights a candle. Wander to another tab and a lonely ghost wakes, calls you back and counts the comeback, without taking anything away. Finished sessions restore the house room by room. Built for Kiroween 2026 (Costume Contest) by Stubborn Otter Software.
 
-![The demo in thirteen seconds: the drapes part on a haunted parlor, a candle is lit, the ghost wakes when the tab is left and greets the person on return, and a warm sweep restores the room](docs/media/hero.gif)
+![The demo in twelve seconds: a candle is lit in a haunted parlor, the ghost wakes when the tab is left while the tab title reads Come back, 14 seconds left, she greets the person on return, the room warms as the session runs, and a warm sweep restores it](docs/media/hero.gif)
 
 **Kiro at a glance:** 2 specs · 172 EARS criteria, 163 traced to tests · 9 hooks on 6 triggers · 5 steering files · 2 MCP servers · 1 custom agent · 1 logged Kiro session (16.02 credits) that caught a spec bug and built two features. [Built with Kiro](#built-with-kiro) · [KIRO-LOG.md](KIRO-LOG.md)
 
@@ -26,9 +26,9 @@ A real Pomodoro timer wearing a haunted house. Every focus session lights a cand
 |---|---|---|
 | ![The parlor, still haunted, with cobwebs and a staring portrait](docs/screenshots/haunted.jpg) | ![The ghost has drifted closer and says: there you are, I kept your candle lit](docs/screenshots/ghost.jpg) | ![The parlor restored: warm colors, the portrait asleep, the Restored caption on the rug](docs/screenshots/restored.jpg) |
 
-| Costume off (press U) | The last page (`?demo=finale`) |
-|---|---|
-| ![The same session as a plain Pomodoro: a progress bar, distraction counts, sessions toward the goal and the streak, each labelled with the part of the house behind it](docs/screenshots/costume-off.jpg) | ![The house map opened on the journal's last page, a new dark house in front and the finished house lit up the hill](docs/screenshots/finale.jpg) |
+| Costume off (press U) | The last page (`?demo=finale`) | The week's postcard (`?demo=week`) |
+|---|---|---|
+| ![The same session as a plain Pomodoro: a progress bar, comeback counts, sessions toward the goal and the streak, each labelled with the part of the house behind it](docs/screenshots/costume-off.jpg) | ![The house map opened on the journal's last page, a new dark house in front and the finished house lit up the hill](docs/screenshots/finale.jpg) | ![A postcard of the house at night with two windows lit and the ghost in a third: 16 candles, 8 comebacks, time away fell from 55 min to 13 min](docs/screenshots/postcard.jpg) |
 
 ## Why this is a costume
 Take the costume off and every part still works as a timer: the candle is the progress bar, the ghost is the comeback counter, the Hearth is the streak, the house map is the long-term record, and breaks are the house breathing. Leaving the tab *is* what wakes the ghost. Press **U** and the costume really comes off.

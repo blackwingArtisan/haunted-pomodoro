@@ -23,6 +23,36 @@ async function setTabHidden(page, hidden) {
   }, hidden);
 }
 
+/**
+ * Film only: a small browser tab drawn over the stage's top corner, showing the page's real title and
+ * icon, so the haunting in the tab reads without sound. It follows the title with a MutationObserver,
+ * because the film runs on Playwright's fake clock.
+ */
+async function addTabInset(page) {
+  await page.evaluate(() => {
+    const stage = document.querySelector('.proscenium');
+    if (!stage) return;
+    const tab = document.createElement('div');
+    tab.className = 'film-tab';
+    tab.setAttribute('aria-hidden', 'true');
+    tab.style.cssText =
+      'position:absolute;z-index:40;left:5%;top:5%;display:flex;align-items:center;gap:10px;padding:9px 18px 9px 12px;border-radius:11px 11px 0 0;background:#2b2a33;color:#f2f1f7;font:600 21px/1.2 system-ui,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.55);max-width:62%;white-space:nowrap;overflow:hidden;text-overflow:ellipsis';
+    const icon = document.createElement('img');
+    icon.src = '/icon.svg';
+    icon.width = 22;
+    icon.height = 22;
+    const text = document.createElement('span');
+    tab.append(icon, text);
+    stage.append(tab);
+    const show = () => {
+      text.textContent = document.title;
+      tab.style.background = document.title.startsWith('Come back') ? '#3b2f52' : '#2b2a33';
+    };
+    show();
+    new MutationObserver(show).observe(document.querySelector('title'), { childList: true, characterData: true, subtree: true });
+  });
+}
+
 /** Saves a full-window screenshot as a README JPEG through ffmpeg (quality 3 of 31). */
 async function still(page, work, name) {
   // Kept apart from the film's restored.png, which the link-preview image is cut from.
@@ -51,13 +81,19 @@ async function recordStills(browser, work) {
   await page.waitForTimeout(1_600);
   await still(page, work, 'ghost');
   await page.clock.runFor(4_000);
+  // The costume change: the drapes close, the view swaps on a timer, and they open again.
   await page.keyboard.press('u');
-  await page.waitForTimeout(400);
+  await page.clock.runFor(1_200);
+  await page.waitForTimeout(1_600);
   await still(page, work, 'costume-off');
   await page.keyboard.press('u');
-  // Run the focus just past its end, then let the sweep play in real time; the 10-second break leaves room on a busy machine.
-  await page.clock.runFor(8_400);
+  await page.clock.runFor(1_200);
+  await page.waitForTimeout(1_200);
+  // Run the focus just past its end (the fake clock also moves during the real waits above), then let the
+  // sweep play in real time; the 10-second break leaves room on a busy machine.
+  await page.clock.runFor(3_600);
   await page.waitForTimeout(4_000);
+  await page.getByTestId('restored-banner').waitFor();
   await still(page, work, 'restored');
   await context.close();
 
@@ -73,6 +109,16 @@ async function recordStills(browser, work) {
   await last.waitForTimeout(1_500);
   await still(last, work, 'finale');
   await finale.close();
+
+  // The week's postcard, saved from the Hearth in the week demo.
+  const week = await browser.newContext({ viewport, acceptDownloads: true });
+  const hearth = await week.newPage();
+  await hearth.goto(`${BASE}/?demo=week`);
+  const [download] = await Promise.all([hearth.waitForEvent('download'), hearth.getByRole('button', { name: 'Save this week’s postcard' }).click()]);
+  const card = join(work, 'postcard.png');
+  await download.saveAs(card);
+  execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', card, '-q:v', '3', join(shotsDir, 'postcard.jpg')]);
+  await week.close();
 }
 
 async function waitForServer(url, ms = 20_000) {
@@ -102,6 +148,7 @@ try {
   // The drapes part over the title card, then a beat on the fully haunted parlor.
   await page.waitForTimeout(3_000);
   await page.mouse.move(720, 300);
+  await addTabInset(page);
   await page.waitForTimeout(600);
   await page.getByTestId('primary').click();
   // The 20-second session, compressed: one second of demo time every 140 ms of film.
@@ -125,8 +172,8 @@ try {
   await page.waitForTimeout(3_200);
   const filmSeconds = (Date.now() - filmStart) / 1000;
   const box = await page.locator('.proscenium').boundingBox();
-  // For the still, hide the ghost's words so the restored room is unobstructed.
-  await page.addStyleTag({ content: '[data-testid="ghost-line"] { visibility: hidden !important; }' });
+  // For the still, hide the ghost's words and the tab inset so the restored room is unobstructed.
+  await page.addStyleTag({ content: '[data-testid="ghost-line"], .film-tab { visibility: hidden !important; }' });
   await page.waitForTimeout(100);
   await page.locator('.proscenium').screenshot({ path: join(work, 'restored.png') });
   await context.close();
@@ -135,10 +182,12 @@ try {
 
   const video = (await readdir(work)).find((f) => f.endsWith('.webm'));
   if (!video || !box) throw new Error('No recording was made');
-  // The timer plaque overlaps the bottom of the stage, so keep the top 86 percent of it.
-  const crop = `crop=${Math.round(box.width)}:${Math.round(box.height * 0.86)}:${Math.round(box.x)}:${Math.round(box.y)}`;
-  // Skip the first 0.4 s of blank page and stop before the still; 10 fps, 560 px wide, one shared palette.
-  const filters = `${crop},fps=10,scale=560:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle`;
+  // The whole stage: the timer sits beside it now, so nothing covers the rug.
+  const even = (n) => Math.round(n / 2) * 2;
+  const crop = `crop=${even(box.width)}:${even(box.height)}:${Math.round(box.x)}:${Math.round(box.y)}`;
+  // Skip the first 0.4 s of blank page and stop before the still; 10 fps, GIF_WIDTH px wide (default 800), one shared palette.
+  const gifWidth = Number(process.env.GIF_WIDTH ?? 800);
+  const filters = `${crop},fps=10,scale=${gifWidth}:-1:flags=lanczos,split[a][b];[a]palettegen=max_colors=96:stats_mode=diff[p];[b][p]paletteuse=dither=bayer:bayer_scale=5:diff_mode=rectangle`;
   const length = Math.max(1, filmSeconds - 0.6).toFixed(2);
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-ss', '0.4', '-t', length, '-i', join(work, video), '-filter_complex', filters, '-loop', '0', gifOut]);
   // 1200x630: the top of the restored stage, scaled to 1200 wide, with the Restored banner near the bottom.
