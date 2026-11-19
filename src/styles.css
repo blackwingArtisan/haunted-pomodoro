@@ -2478,3 +2478,39 @@ input[type='number'],
   }
 }
 
+/* ------------------------------------------------------------------ The finale: the last page */
+
+.finale {
+  margin: 0 0 18px;
+  padding: 18px 22px;
+  border: 1px solid var(--brass);
+  border-radius: var(--radius);
+  background: radial-gradient(120% 90% at 50% 0, rgba(255, 191, 90, 0.16), transparent 70%), #140f19;
+  scroll-margin-top: 12px;
+}
+.finale-kicker {
+  margin: 0;
+  font-family: var(--font-numeral);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--brass-bright);
+}
+.finale h3 {
+  margin: 4px 0 8px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px, 3vw, 36px);
+}
+.finale-text {
+  margin: 0 0 10px;
+  font-size: 19px;
+  font-style: italic;
+  line-height: 1.45;
+}
+.finale-next {
+  margin: 0;
+  color: var(--bone-dim);
+}
+

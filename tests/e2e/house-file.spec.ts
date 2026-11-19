@@ -38,10 +38,8 @@ test('export, erase and import brings the lit candle back, and a damaged file ch
   await expect(dialog).toBeHidden();
   await expect(scene).toHaveAttribute('aria-label', /0 of 4 candles lit/);
 
-  // Import the file: the candle comes back. Reopen settings with the toolbar button: right after an erase the
-  // "," shortcut is sometimes ignored (open task 31 in tasks.md).
-  const openSettings = page.getByRole('navigation', { name: 'House tools' }).getByRole('button', { name: 'Settings' });
-  await openSettings.click();
+  // Import the file: the candle comes back. The "," shortcut works straight after the erase closes settings.
+  await page.keyboard.press(',');
   await expect(dialog).toBeVisible();
   await dialog.getByLabel('Import house').setInputFiles(saved);
   await expect(dialog.getByRole('status').filter({ hasText: 'House imported' })).toBeVisible();
@@ -49,7 +47,7 @@ test('export, erase and import brings the lit candle back, and a damaged file ch
   await expect(scene).toHaveAttribute('aria-label', /1 of 4 candles lit/);
 
   // A damaged file is refused with a message and the candle stays.
-  await openSettings.click();
+  await page.keyboard.press(',');
   await expect(dialog).toBeVisible();
   await dialog.getByLabel('Import house').setInputFiles({ name: 'broken.json', mimeType: 'application/json', buffer: Buffer.from('{"format": "haunted') });
   await expect(dialog.getByRole('status').filter({ hasText: 'not valid JSON' })).toBeVisible();

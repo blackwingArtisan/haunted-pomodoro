@@ -161,6 +161,8 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 4. WHEN the page is opened with `?demo=1`, THE SYSTEM SHALL start in a fully haunted parlor that a single candle restores (the demo house's room size is one candle, kept in memory only).
 5. WHILE in demo mode, THE SYSTEM SHALL use the person's saved settings and SHALL NOT save changes to them.
 6. WHEN the person chooses "Leave the demo", THE SYSTEM SHALL open the person's own house.
+7. WHEN the page is opened with `?demo=finale`, THE SYSTEM SHALL start the demo house with five rooms restored and the Observatory still dark, so one 20 second focus restores the last room and finishes the house.
+8. WHEN the last room of a house is restored, THE SYSTEM SHALL open the house map about five seconds later on a card with the journal's last page and a line about the new house down the lane, unless another window is open, and SHALL show the finished house with every window lit beside the new one.
 
 ## Requirement 10: Phase-end notification
 **User story:** As someone who works in another tab, I want an optional notification when a phase ends, so that I notice without watching the timer.
@@ -209,3 +211,4 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 6. WHERE the last seven days have a focus session, THE SYSTEM SHALL show a weekly reflection with candles, focus time and wanderings, and, when wanderings fell from the seven days before, the earlier count.
 7. THE SYSTEM SHALL keep every journal page, ghost line, diary line and reflection free of shaming words, and SHALL NOT mention a rise in wanderings.
 8. THE SYSTEM SHALL compute the journal, the ghost's lines, the diary and the reflection with pure functions that take the day as an argument and use no network.
+9. WHEN a whole house is restored, THE SYSTEM SHALL keep the journal's last page in the house map, and SHALL keep the room heading on the finished house while its last room is on show.

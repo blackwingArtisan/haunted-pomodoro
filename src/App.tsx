@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore
 import { createBrowserNotifier } from './adapters/notify';
 import { createStores } from './adapters/store';
 import { HouseController } from './app/controller';
-import { createDemoModel } from './app/demo';
+import { createDemoModel, demoKindFrom, type DemoKind } from './app/demo';
 import { SoundEngine } from './audio/sound';
 import { systemClock } from './core/clock';
 import { dayKey } from './core/dates';
@@ -22,6 +22,8 @@ import { GHOST_SPOTS, Scene, type GhostView } from './ui/Scene';
 const stores = createStores(import.meta.env);
 const notifier = createBrowserNotifier();
 const isTabHidden = () => document.visibilityState === 'hidden';
+/** After the last room is restored, the house map opens on the book's last page once the sweep has played. */
+const FINALE_DELAY_MS = 5_000;
 
 /** Hands a text file to the browser as a download. */
 function downloadTextFile(fileName: string, text: string): void {
@@ -48,8 +50,8 @@ function ghostLineStyle(closeness: number, restored: boolean): CSSProperties {
   return { left: `${left}%`, top: `${top}%` };
 }
 
-function isDemoUrl(): boolean {
-  return new URLSearchParams(window.location.search).has('demo');
+function demoFromUrl(): DemoKind | null {
+  return demoKindFrom(new URLSearchParams(window.location.search).get('demo'));
 }
 
 function setDemoUrl(on: boolean): void {
@@ -59,11 +61,11 @@ function setDemoUrl(on: boolean): void {
   window.location.assign(url.toString());
 }
 
-function buildController(demo: boolean): HouseController {
+function buildController(demoKind: DemoKind | null): HouseController {
   const now = systemClock.now();
-  if (demo) {
+  if (demoKind) {
     const settings = stores.local.loadSync()?.settings;
-    const initial = createDemoModel(now, settings ?? createModel(now).settings);
+    const initial = createDemoModel(now, settings ?? createModel(now).settings, demoKind);
     return new HouseController({ initial, clock: systemClock, configFor: demoConfigFor, notifier, isHidden: isTabHidden });
   }
   const initial = stores.local.loadSync() ?? createModel(now);
@@ -98,14 +100,17 @@ function useSystemReducedMotion(): boolean {
 type DialogName = 'house' | 'settings' | 'shortcuts' | null;
 
 export function App() {
-  const demo = useMemo(isDemoUrl, []);
-  const controller = useMemo(() => buildController(demo), [demo]);
+  const demoKind = useMemo(demoFromUrl, []);
+  const demo = demoKind !== null;
+  const controller = useMemo(() => buildController(demoKind), [demoKind]);
   const model = useSyncExternalStore(controller.subscribe, controller.getModel);
   const sound = useMemo(() => new SoundEngine(), []);
   const [now, setNow] = useState(() => systemClock.now());
   const [dialog, setDialog] = useState<DialogName>(null);
   const [announcement, setAnnouncement] = useState('');
   const [ghostLine, setGhostLine] = useState<string | null>(null);
+  const [finaleAt, setFinaleAt] = useState<number | null>(null);
+  const [finaleOpen, setFinaleOpen] = useState(false);
   const [ghostAwakeUntil, setGhostAwakeUntil] = useState(0);
   const [rattleUntil, setRattleUntil] = useState(0);
   const [showcase, setShowcase] = useState<RoomDef | null>(null);
@@ -146,6 +151,17 @@ export function App() {
     }, 250);
     return () => window.clearInterval(id);
   }, [controller]);
+
+  // The finale: open the house on the last page, unless another window is already open.
+  useEffect(() => {
+    if (finaleAt === null || now < finaleAt) return;
+    setFinaleAt(null);
+    setDialog((d) => {
+      if (d !== null) return d;
+      setFinaleOpen(true);
+      return 'house';
+    });
+  }, [finaleAt, now]);
 
   // Wandering off: the Page Visibility API tells us when the tab is hidden.
   useEffect(() => {
@@ -204,6 +220,8 @@ export function App() {
               setGhostLine(
                 cue.houseRestored ? 'Every room is warm and my book is finished. I can rest now.' : 'A page of my book came back. It is in the house map.',
               );
+              // The whole house: once the sweep has played, open the house on the book's last page.
+              if (cue.houseRestored) setFinaleAt(t + FINALE_DELAY_MS);
               break;
             case 'breakStarted':
               sound.play('breath');
@@ -357,6 +375,8 @@ export function App() {
   const breathing = !inFocus && running;
   const rattling = now < rattleUntil;
   const roomNumber = (restoredNow ? ROOMS.indexOf(shownRoom) : view.roomIndex) + 1;
+  // While the last room of a house is on show, the heading still belongs to the house just finished.
+  const houseNumber = view.housesRestored + (restoredNow && roomNumber === ROOMS.length && view.roomsInThisHouse === 0 ? 0 : 1);
   // Every return from a wandering today leaves a will-o'-wisp: forgiveness the person can see.
   const returnsToday = model.days[today]?.distractions ?? 0;
   const wisps = wispsFor(returnsToday);
@@ -381,7 +401,9 @@ export function App() {
           <MoonIcon />
           <span className="demo-text">
             <strong>Demo house.</strong>
-            <span className="demo-long"> A 20 second focus, then a 10 second break. Your own house is untouched.</span>
+            <span className="demo-long">
+              {demoKind === 'finale' ? ' The last room. One 20 second focus finishes the book. Your own house is untouched.' : ' A 20 second focus, then a 10 second break. Your own house is untouched.'}
+            </span>
             <span className="demo-short"> Yours is untouched.</span>
           </span>
           <button type="button" className="btn btn-small demo-leave" onClick={() => setDemoUrl(false)}>
@@ -460,7 +482,7 @@ export function App() {
           <div className="room-heading">
             <p className="room-number">
               {unmasked ? 'Goal' : 'Room'} {roomNumber} of {ROOMS.length}
-              {view.housesRestored > 0 && ` · ${unmasked ? 'Round' : 'House'} ${view.housesRestored + 1}`}
+              {houseNumber > 1 && ` · ${unmasked ? 'Round' : 'House'} ${houseNumber}`}
             </p>
             <button type="button" className="unmask-toggle" aria-pressed={unmasked} onClick={toggleUnmasked} aria-keyshortcuts="U" data-testid="unmask">
               <MaskIcon width={16} height={16} />
@@ -532,8 +554,16 @@ export function App() {
         </p>
       </footer>
 
-      <Dialog open={dialog === 'house'} onClose={() => closeDialog('house')} title="The House" wide>
-        <HouseMap house={house} reducedMotion={reducedMotion} />
+      <Dialog
+        open={dialog === 'house'}
+        onClose={() => {
+          closeDialog('house');
+          setFinaleOpen(false);
+        }}
+        title="The House"
+        wide
+      >
+        <HouseMap house={house} reducedMotion={reducedMotion} finale={finaleOpen} />
       </Dialog>
       <Dialog open={dialog === 'settings'} onClose={() => closeDialog('settings')} title="Settings">
         <SettingsForm

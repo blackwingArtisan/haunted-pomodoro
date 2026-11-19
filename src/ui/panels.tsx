@@ -287,7 +287,18 @@ export function Dialog({ open, onClose, title, children, wide }: { open: boolean
     if (!open && d.open) d.close();
   }, [open]);
   return (
-    <dialog ref={ref} className={wide ? 'dialog dialog-wide' : 'dialog'} onClose={onClose} aria-labelledby={`${title}-title`.replace(/\s+/g, '-')}>
+    <dialog
+      ref={ref}
+      className={wide ? 'dialog dialog-wide' : 'dialog'}
+      // Escape fires "cancel" at once but "close" only in a later task. Closing on "cancel" lets a shortcut
+      // pressed straight after Escape open a window again, and a late "close" is ignored when the dialog
+      // has been reopened in the meantime, so it cannot shut the new one.
+      onCancel={onClose}
+      onClose={() => {
+        if (!ref.current?.open) onClose();
+      }}
+      aria-labelledby={`${title}-title`.replace(/\s+/g, '-')}
+    >
       <div className="dialog-head">
         <h2 id={`${title}-title`.replace(/\s+/g, '-')}>{title}</h2>
         <button type="button" className="icon-btn" onClick={onClose} aria-label="Close">
@@ -496,8 +507,12 @@ export function ShortcutList() {
 
 /* ------------------------------------------------------------------ House map */
 
-export function HouseMap({ house, reducedMotion }: { house: HouseState; reducedMotion: boolean }) {
+export function HouseMap({ house, reducedMotion, finale = false }: { house: HouseState; reducedMotion: boolean; finale?: boolean }) {
   const view = viewHouse(house);
+  const finaleRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (finale) finaleRef.current?.scrollIntoView({ block: 'start', behavior: reducedMotion ? 'auto' : 'smooth' });
+  }, [finale, reducedMotion]);
   const [selected, setSelected] = useState(view.roomIndex);
   const room = ROOMS[selected]!;
   const isRestored = selected < view.roomsInThisHouse;
@@ -506,8 +521,21 @@ export function HouseMap({ house, reducedMotion }: { house: HouseState; reducedM
 
   return (
     <div className="house-map">
+      {finale && (
+        <div className="finale" ref={finaleRef} data-testid="finale">
+          <p className="finale-kicker">The book is finished</p>
+          <h3>{JOURNAL_FINALE.title}</h3>
+          <p className="finale-text">{JOURNAL_FINALE.text}</p>
+          <p className="finale-next">A new house waits down the lane, every window dark. The house you finished keeps its lamps lit up the hill.</p>
+        </div>
+      )}
       <div className="facade-wrap" style={{ '--lit-rooms': view.roomsInThisHouse } as CSSProperties}>
-        <svg className="facade" viewBox="0 0 360 320" role="img" aria-label={`The house: ${view.roomsInThisHouse} of ${ROOMS.length} rooms restored`}>
+        <svg
+          className="facade"
+          viewBox="0 0 360 320"
+          role="img"
+          aria-label={`The house: ${view.roomsInThisHouse} of ${ROOMS.length} rooms restored${view.housesRestored > 0 ? `. Up the hill, ${view.housesRestored === 1 ? 'the house you finished keeps every window lit' : `${view.housesRestored} finished houses keep every window lit`}` : ''}`}
+        >
           {/* The sky comes from the surrounding band, so the house sits in one continuous night. */}
           <circle cx="300" cy="52" r="24" fill="#f3efd8" opacity="0.9" />
           <circle cx="290" cy="46" r="24" fill="#0b1124" opacity="0.25" />
@@ -520,6 +548,21 @@ export function HouseMap({ house, reducedMotion }: { house: HouseState; reducedM
           ].map(([x, y], i) => (
             <circle key={i} cx={x} cy={y} r="1.4" fill="#fff" opacity="0.8" />
           ))}
+          {view.housesRestored > 0 && (
+            // Up the hill: the house already finished, small with distance, every window lit.
+            <g className="finished-house" data-testid="finished-house" aria-hidden="true">
+              <path d="M0 100 Q36 84 92 96 L60 120 H0 Z" fill="#0b0d1a" />
+              <circle cx="34" cy="74" r="30" fill="#ffbf5a" opacity="0.1" />
+              <g transform="translate(-6 30) scale(0.22)">
+              <path d="M44 128 L180 52 L316 128 Z" fill="#241a2c" stroke="#c9a25a" strokeOpacity="0.6" strokeWidth="8" strokeLinejoin="round" />
+              <rect x="56" y="126" width="248" height="170" fill="#1d1626" stroke="#c9a25a" strokeOpacity="0.6" strokeWidth="8" />
+              {ROOMS.map((r, i) => (
+                <rect key={r.id} x={78 + (i % 3) * 76} y={144 + Math.floor(i / 3) * 66} width="48" height="50" rx="20" fill="#ffbf5a" />
+              ))}
+              <circle cx="180" cy="100" r="12" fill="#ffbf5a" />
+              </g>
+            </g>
+          )}
           <path d="M0 300 Q90 270 180 292 T360 286 V320 H0 Z" fill="#070912" />
           <path d="M22 300 v-70 m0 26 l-16 -18 m16 6 l14 -22 m-14 44 l20 -10" stroke="#070912" strokeWidth="5" fill="none" strokeLinecap="round" />
           <path d="M44 128 L180 52 L316 128 Z" fill="#1d1626" stroke="#c9a25a" strokeOpacity="0.55" strokeWidth="2" strokeLinejoin="round" />
