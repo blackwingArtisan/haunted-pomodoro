@@ -1,6 +1,7 @@
 # Changelog
 
 ## Unreleased
+- **Unmask is a costume change.** The drapes close over the stage while the ghost tugs her sheet, and open on the plain view about 1.1 s later; putting the costume back on drops the sheet and ends on a candle strike. Reduced motion swaps at once. In the plain view the timer loses its glow, brass ornaments and engraved labels and sits below the view instead of over it, the tiles are sized to their content with the session's progress as one wide card, and the whole timer fits the first view at 1440x900.
 - **Comebacks, not wanderings.** The timer reads "Came back N times", the Hearth counts comebacks today, and the plain view names the ghost as the comeback counter. Each day now logs its time away (older saves simply have none), and the weekly reflection reports the number that should fall, time away: "6 comebacks; time away fell from 14 min to 6 min."
 - **A shorter README.** About 1,000 words: the Judges box, what sets it apart, the costume, Built with Kiro, the audience and its research, the Forest comparison with a desk-scope line (Forest's Chrome extension, checked November 2026), and a plan led by a study-hall house for groups, priced against Forest's current subscription. The full feature list moved to `docs/FEATURES.md`.
 - **The Kiro write-up.** `docs/submission.md` gains "How we used Kiro", by feature; the README gains a one-line Kiro summary; `KIRO-LOG.md` gains a feature table (first real use, session, evidence) and names Claude Code as the tool behind the work done outside Kiro.

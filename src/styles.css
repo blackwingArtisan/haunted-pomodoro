@@ -2398,11 +2398,10 @@ input[type='number'],
 /* ------------------------------------------------------------------ Unmasked: the costume off */
 
 .plain-stage {
-  aspect-ratio: 12 / 7;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding: clamp(14px, 2.4vw, 28px);
+  padding: clamp(14px, 1.6vw, 20px);
   border: 1px solid #3a3a44;
   border-radius: 12px;
   background: #15151a;
@@ -2418,17 +2417,17 @@ input[type='number'],
   text-transform: uppercase;
   color: #a8a8b8;
 }
+/* Tiles are as tall as their content; the session's progress gets the whole first row. */
 .plain-rows {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  align-content: start;
   gap: 10px;
   margin: 0;
-  flex: 1;
 }
 .plain-row {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   gap: 4px;
   padding: 10px 14px;
   border-radius: 8px;
@@ -2454,6 +2453,17 @@ input[type='number'],
   color: #b4b4c4;
   font-style: italic;
 }
+.plain-row.is-wide {
+  grid-column: 1 / -1;
+  padding: 14px 18px;
+}
+.plain-row.is-wide .plain-value {
+  font-size: clamp(20px, 2vw, 26px);
+}
+.plain-row.is-wide .plain-bar {
+  height: 14px;
+  border-radius: 7px;
+}
 .plain-bar {
   display: block;
   height: 10px;
@@ -2478,12 +2488,197 @@ input[type='number'],
   border-color: #3a3a44;
   box-shadow: none;
 }
+/* The timer loses its costume too: no glow, no brass ornaments, no engraved small caps, and it sits below the plain view instead of over it. */
+.app.is-unmasked .plaque {
+  margin-top: 14px;
+  border-radius: 12px;
+}
+.app.is-unmasked .plaque::before,
+.app.is-unmasked .plaque::after {
+  content: none;
+}
+.app.is-unmasked .phase-label {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: #a8a8b8;
+}
+.app.is-unmasked .wanderings {
+  font-style: normal;
+  color: #b4b4c4;
+}
+.app.is-unmasked .digits {
+  font-weight: 600;
+  letter-spacing: 0;
+  color: #ececf1;
+  text-shadow: none;
+}
+.app.is-unmasked .wick {
+  height: 6px;
+  background: #2c2c36;
+}
+.app.is-unmasked .wick span {
+  background: #6aa8ff;
+  box-shadow: none;
+}
+.app.is-unmasked .btn {
+  letter-spacing: 0.02em;
+}
+.app.is-unmasked .btn-primary {
+  border-color: #6aa8ff;
+  background: #6aa8ff;
+  color: #0b1220;
+  box-shadow: none;
+}
+.app.is-unmasked .working-on label {
+  letter-spacing: 0.02em;
+}
+
+/* ------------------------------------------------------------------ The costume change */
+
+.costume-stage {
+  position: relative;
+}
+.costume-curtain {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+  border-radius: 14px;
+  pointer-events: none;
+}
+.costume-drape {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 50.5%;
+  background: repeating-linear-gradient(90deg, #4a1222 0 10px, #6b1e31 10px 18px, #3a0d1a 18px 26px);
+  box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+}
+.costume-drape-left {
+  left: 0;
+  transform-origin: left center;
+}
+.costume-drape-right {
+  right: 0;
+  transform-origin: right center;
+}
+.is-closing .costume-drape {
+  animation: costume-drape-close 0.55s var(--ease) both;
+}
+.is-opening .costume-drape {
+  animation: costume-drape-close 0.55s var(--ease) reverse both;
+}
+.costume-ghost {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: min(30%, 180px);
+  translate: -50% -50%;
+  overflow: visible;
+}
+.costume-plain {
+  fill: none;
+  stroke: #ececf1;
+  stroke-width: 4;
+  opacity: 0;
+}
+.costume-sheet,
+.costume-hand {
+  transform-box: view-box;
+  transform-origin: 58px 70px;
+}
+.is-closing .costume-ghost {
+  animation: costume-ghost-in 0.55s var(--ease) both;
+}
+/* Taking the costume off: she tugs the hem as the drapes close, and the sheet lifts away as they open. */
+.to-plain.is-closing .costume-sheet {
+  animation: sheet-tug 0.55s var(--ease) both;
+}
+.to-plain.is-opening .costume-sheet {
+  animation: sheet-off 0.55s var(--ease) both;
+}
+.to-plain.is-opening .costume-plain {
+  animation: plain-show 0.55s var(--ease) both;
+}
+.to-plain.is-opening .costume-hand,
+.to-plain.is-opening .costume-ghost {
+  animation: costume-ghost-out 0.55s var(--ease) both;
+}
+/* Putting it back on: the sheet drops over her as the drapes close, and the house returns with a candle strike. */
+.to-costume.is-closing .costume-sheet {
+  animation: sheet-off 0.55s var(--ease) reverse both;
+}
+.to-costume.is-opening .costume-ghost {
+  animation: costume-ghost-out 0.55s var(--ease) both;
+}
+@keyframes costume-drape-close {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+@keyframes costume-ghost-in {
+  from {
+    opacity: 0;
+    translate: -50% -40%;
+  }
+  to {
+    opacity: 1;
+    translate: -50% -50%;
+  }
+}
+@keyframes costume-ghost-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+@keyframes sheet-tug {
+  0%,
+  45% {
+    transform: none;
+  }
+  65% {
+    transform: rotate(-6deg) translateY(-6px);
+  }
+  80% {
+    transform: rotate(3deg);
+  }
+  100% {
+    transform: rotate(-9deg) translateY(-10px);
+  }
+}
+@keyframes sheet-off {
+  from {
+    transform: rotate(-9deg) translateY(-10px);
+    opacity: 1;
+  }
+  to {
+    transform: rotate(-24deg) translate(40px, -150px);
+    opacity: 0;
+  }
+}
+@keyframes plain-show {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 0.9;
+  }
+}
+[data-motion='reduced'] .costume-curtain {
+  display: none;
+}
 @media (max-width: 720px) {
   .plain-stage {
     aspect-ratio: auto;
   }
   .plain-rows {
-    grid-template-columns: minmax(0, 1fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 

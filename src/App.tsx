@@ -14,7 +14,7 @@ import { wispLine, wispsFor } from './core/wisps';
 import { computeStreak } from './core/streak';
 import { focusInProgress, progressAt, remainingAt } from './core/timer';
 import { CloseIcon, GearIcon, HouseIcon, KeysIcon, MaskIcon, MoonIcon, SoundIcon } from './ui/icons';
-import { UnmaskedStage, useUnmasked, type PlainRow } from './ui/Unmasked';
+import { CostumeCurtain, UnmaskedStage, useCostumeChange, type PlainRow } from './ui/Unmasked';
 import { Dialog, formatClock, Hearth, IntroCard, IntroStrip, HouseMap, useIntroDismissed, PHASE_LABEL, SettingsForm, ShortcutList, TaskLedger, TimerPlaque } from './ui/panels';
 import { MANTEL_CANDLES, mantelCandles } from './ui/candles';
 import { GHOST_SPOTS, Scene, type GhostView } from './ui/Scene';
@@ -119,13 +119,17 @@ export function App() {
   const [notifyNote, setNotifyNote] = useState('');
   const [hidden, setHidden] = useState(() => document.visibilityState === 'hidden');
   const [introDismissed, dismissIntro] = useIntroDismissed();
-  const [unmasked, toggleUnmasked] = useUnmasked();
   const taskInput = useRef<HTMLInputElement>(null);
   const settingsRef = useRef(model.settings);
   settingsRef.current = model.settings;
   const systemReduced = useSystemReducedMotion();
   const { settings, timer, house } = model;
   const reducedMotion = settings.motion === 'reduced' || (settings.motion === 'system' && systemReduced);
+  // The costume change: putting the costume back on ends on a candle strike.
+  const onCostumeSwap = useCallback((to: 'plain' | 'costume') => {
+    if (to === 'costume') setStrikes((n) => n + 1);
+  }, []);
+  const { unmasked, shown: showPlain, change: costumeChange, toggle: toggleUnmasked } = useCostumeChange(reducedMotion, onCostumeSwap);
 
   // Pull a synced copy once at start when cloud sync is configured.
   useEffect(() => {
@@ -383,7 +387,7 @@ export function App() {
   const wispSentence = wispLine(returnsToday);
   const plainRows: PlainRow[] = [
     { label: 'Session progress', value: inSession ? `${Math.round(sessionProgress * 100)}% of this focus session` : 'No focus session running', costume: 'the candle burning down on the mantel', progress: sessionProgress },
-    { label: 'Comebacks this session', value: String(timer.distractions), costume: 'the ghost, the comeback counter, drifting closer' },
+    { label: 'Comebacks this session', value: String(timer.distractions), costume: 'the ghost, the comeback counter' },
     { label: 'Comebacks today', value: String(returnsToday), costume: "the will-o'-wisps near the ceiling" },
     { label: 'Sessions toward this goal', value: `${view.candlesLit} of ${view.candlesPerRoom}`, costume: `candles lit in ${view.room.name}` },
     { label: 'Goals finished', value: String(house.roomsRestored), costume: 'rooms restored, and pages of the journal' },
@@ -392,7 +396,7 @@ export function App() {
   const sceneLabel = `${shownRoom.name}, ${restoredNow ? 'restored' : `${view.candlesLit} of ${view.candlesPerRoom} ${view.candlesPerRoom === 1 ? 'candle' : 'candles'} lit`}. The ghost is ${ghost.mood === 'asleep' ? 'asleep' : ghost.mood === 'watching' ? 'watching you' : 'awake'}.${wispSentence ? ` ${wispSentence}` : ''}`;
 
   return (
-    <div className={`app phase-${timer.phase} ${breathing ? 'is-breathing' : ''} ${demo ? 'is-demo' : ''} ${unmasked ? 'is-unmasked' : ''}`} data-phase={timer.phase} data-status={timer.status}>
+    <div className={`app phase-${timer.phase} ${breathing ? 'is-breathing' : ''} ${demo ? 'is-demo' : ''} ${showPlain ? 'is-unmasked' : ''}`} data-phase={timer.phase} data-status={timer.status}>
       <a className="skip-link" href="#timer">
         Skip to the timer
       </a>
@@ -481,21 +485,23 @@ export function App() {
           <IntroStrip show={showIntro} />
           <div className="room-heading">
             <p className="room-number">
-              {unmasked ? 'Goal' : 'Room'} {roomNumber} of {ROOMS.length}
-              {houseNumber > 1 && ` · ${unmasked ? 'Round' : 'House'} ${houseNumber}`}
+              {showPlain ? 'Goal' : 'Room'} {roomNumber} of {ROOMS.length}
+              {houseNumber > 1 && ` · ${showPlain ? 'Round' : 'House'} ${houseNumber}`}
             </p>
             <button type="button" className="unmask-toggle" aria-pressed={unmasked} onClick={toggleUnmasked} aria-keyshortcuts="U" data-testid="unmask">
               <MaskIcon width={16} height={16} />
               <span>{unmasked ? 'Costume on' : 'Unmask'}</span>
             </button>
             <h2 id="room-title" data-testid="room-title">
-              {unmasked ? 'Focus timer' : shownRoom.name}
+              {showPlain ? 'Focus timer' : shownRoom.name}
             </h2>
             <p className="room-blurb" data-testid="room-blurb">
-              {unmasked ? 'Costume off. Same timer, same tasks, same history. Press U to put it back on.' : restoredNow ? shownRoom.restored : shownRoom.haunted}
+              {showPlain ? 'Costume off. Same timer, same tasks, same history. Press U to put it back on.' : restoredNow ? shownRoom.restored : shownRoom.haunted}
             </p>
           </div>
-          {unmasked ? (
+          <div className="costume-stage">
+          <CostumeCurtain change={costumeChange} />
+          {showPlain ? (
             <UnmaskedStage rows={plainRows} />
           ) : (
           <div className="stage-frame">
@@ -535,6 +541,7 @@ export function App() {
             )}
           </div>
           )}
+          </div>
           <TimerPlaque timer={timer} now={now} house={house} model={model} dispatch={controller.dispatch} onGesture={unlock} showcaseName={showcase?.name ?? null} />
         </section>
 
