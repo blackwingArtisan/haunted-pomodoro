@@ -50,7 +50,7 @@ The first build and most of the visual work were written with Claude Code. [`KIR
 
 We drift constantly: Gloria Mark's logging studies put the average stretch on one screen at about 47 seconds ([APA](https://www.apa.org/news/podcasts/speaking-of-psychology/attention-spans)). Punishing the drift does not help either: students who forgave themselves for procrastinating before one exam procrastinated less before the next ([Wohl, Pychyl and Bennett, 2010](https://doi.org/10.1016/j.paid.2010.01.029)). So this timer notices every wandering and forgives it.
 
-*A scenario, for illustration (not a user quote):* a student deletes Forest after the fifth dead tree in a week. Here she wanders off twice, comes back to "There you are. I kept your candle lit.", and the parlor's color comes back anyway.
+People say so in their own words. Of Focus Friend's 500 most recent US App Store reviews, 8 single out that it never makes them feel guilty: "I don’t have the guilt of them dying or losing health." Of Forest's 500, 4 describe a tree killed during a session they never left: "I’m completing my focus sessions, and you’re still randomly killing my trees." ([Method and counts, 19 November 2026](docs/review-count.md))
 
 ## Why not Forest?
 | | When you look away mid-session | What you keep |

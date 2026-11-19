@@ -4,7 +4,7 @@ Recorded at 1440 x 900 with sound on, from `/?demo=1` and `/?demo=finale`. Every
 
 | Time | Beat | On screen | Voice-over and sound |
 |---|---|---|---|
-| 0:00-0:08 | Stakes | The fully haunted parlor in cold moonlight, the portrait staring. Both citations shown briefly. | "We switch screens about every 47 seconds. Forest's answer, used by more than 60 million people: kill your tree." |
+| 0:00-0:08 | Stakes | The fully haunted parlor in cold moonlight, the portrait staring. Both citations shown briefly. | "We switch screens about every 47 seconds. Forest's answer: open another app, and the tree dies. The reviews that gentle focus apps get keep thanking them for one thing: no guilt." |
 | 0:08-0:14 | The turn | The drapes part over the brass title card. | "This ghost keeps your candle lit." |
 | 0:14-0:24 | The strike | **Light a candle**: a warm bloom washes the whole stage and color starts to seep back into the room. | A match strike and a soft organ note. "It's a real Pomodoro timer, wearing a haunted house." |
 | 0:24-0:40 | The haunting follows you | Switch to another tab. The ghost wakes, the room rattles, and the tab title reads "Come back… 00:14 left". | A faint moan. "Wander off and the house notices." |
