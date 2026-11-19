@@ -21,6 +21,9 @@ test('reduced motion stills the house', async ({ browser }) => {
   await page.goto('/');
   await expect(page.locator('html')).toHaveAttribute('data-motion', 'reduced');
   await expect(page.locator('.ghost-body').first()).toHaveCSS('animation-name', 'none');
+  // The opening drapes and title card are stills: drapes at rest, title card out of view.
+  await expect(page.locator('.drape-left')).toHaveCSS('animation-name', 'none');
+  await expect(page.locator('.title-card')).toHaveCSS('opacity', '0');
 
   // The person can ask for the full theatre anyway.
   await page.keyboard.press(',');

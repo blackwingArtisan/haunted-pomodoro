@@ -66,6 +66,8 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 13. WHEN a wandering is counted, THE SYSTEM SHALL add it to that day's wanderings.
 14. WHEN a new focus session starts, THE SYSTEM SHALL send the ghost back to sleep.
 15. WHEN the person returns to the tab, THE SYSTEM SHALL restore the tab title to the timer title.
+16. WHEN three or more wanderings have been counted in a focus session, THE SYSTEM SHALL draw the ghost at 1.8 times its base size in front of the mantel.
+17. WHILE the ghost is closer than its sleeping spot, THE SYSTEM SHALL tint the edges of the room in the ghost's color, more strongly the closer it is.
 
 ## Requirement 4: The house
 **User story:** As a returning user, I want my focus to visibly restore something, so that the work feels like it adds up.
@@ -85,6 +87,11 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 13. WHEN the restored room's break ends or the next focus session starts, THE SYSTEM SHALL open the next room.
 14. WHEN a house is restored, THE SYSTEM SHALL start a new house and keep the count of rooms restored.
 15. WHEN the person selects a room in the house map, THE SYSTEM SHALL show a preview of that room.
+16. WHEN the main screen opens, THE SYSTEM SHALL part the stage drapes over a title card naming the current room.
+17. WHEN a focus session starts, THE SYSTEM SHALL flare the new candle's light once.
+18. WHEN a room is restored, THE SYSTEM SHALL sweep a band of warm light across the room and burst the dust off it, in about 2 seconds.
+19. THE SYSTEM SHALL show four candlesticks on the mantel whatever the room's size, lighting them in step with the room's progress.
+20. WHERE the person prefers reduced motion, THE SYSTEM SHALL show the drapes open and the restored room as a still, with no title card, flare, sweep or dust animation.
 
 ## Requirement 5: The Hearth (streak)
 **User story:** As someone building a habit, I want a streak that encourages without punishing, so that one bad day does not erase my progress.
@@ -140,7 +147,7 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 1. WHEN the page is opened with `?demo=1`, THE SYSTEM SHALL run a 20 second focus and 10 second breaks.
 2. WHILE in demo mode, THE SYSTEM SHALL NOT read or write the person's tasks, days or house.
 3. WHILE in demo mode, THE SYSTEM SHALL show a demo banner.
-4. WHEN the page is opened with `?demo=1`, THE SYSTEM SHALL start in a house whose parlor is one candle from restored.
+4. WHEN the page is opened with `?demo=1`, THE SYSTEM SHALL start in a fully haunted parlor that a single candle restores (the demo house's room size is one candle, kept in memory only).
 5. WHILE in demo mode, THE SYSTEM SHALL use the person's saved settings and SHALL NOT save changes to them.
 6. WHEN the person chooses "Leave the demo", THE SYSTEM SHALL open the person's own house.
 

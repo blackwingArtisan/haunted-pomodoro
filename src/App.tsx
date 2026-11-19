@@ -7,12 +7,13 @@ import { SoundEngine } from './audio/sound';
 import { systemClock } from './core/clock';
 import { dayKey } from './core/dates';
 import { decideImport, exportHouse, importSizeProblem } from './core/house-file';
-import { CANDLES_PER_ROOM, ROOMS, viewHouse, type RoomDef } from './core/house';
+import { ROOMS, viewHouse, type RoomDef } from './core/house';
 import { createModel, demoConfigFor, timerConfig, type Cue } from './core/model';
 import { computeStreak } from './core/streak';
 import { focusInProgress, progressAt, remainingAt } from './core/timer';
 import { CloseIcon, GearIcon, HouseIcon, KeysIcon, MoonIcon, SoundIcon } from './ui/icons';
 import { Dialog, formatClock, Hearth, IntroCard, HouseMap, PHASE_LABEL, SettingsForm, ShortcutList, TaskLedger, TimerPlaque } from './ui/panels';
+import { MANTEL_CANDLES, mantelCandles } from './ui/candles';
 import { GHOST_SPOTS, Scene, type GhostView } from './ui/Scene';
 
 const RETURN_LINES = [
@@ -183,7 +184,7 @@ export function App() {
             case 'sessionComplete': {
               sound.play('chime');
               const v = viewHouse(controller.getModel().house);
-              setAnnouncement(cue.distractions === 0 ? 'Session complete without a single wander. A candle stays lit.' : `Session complete. A candle stays lit. ${v.candlesLit} of ${CANDLES_PER_ROOM} in ${v.room.name}.`);
+              setAnnouncement(cue.distractions === 0 ? 'Session complete without a single wander. A candle stays lit.' : `Session complete. A candle stays lit. ${v.candlesLit} of ${v.candlesPerRoom} in ${v.room.name}.`);
               if (cue.distractions === 0) setGhostLine('Not a single wander. Even I am impressed.');
               else setGhostLine(null);
               break;
@@ -331,15 +332,17 @@ export function App() {
       .map(([k]) => k),
     today,
   );
-  const sessionProgress = inFocus && focusInProgress(timer) ? progressAt(timer, now) : 0;
+  const inSession = inFocus && focusInProgress(timer);
+  const sessionProgress = inSession ? progressAt(timer, now) : 0;
   const shownRoom = showcase ?? view.room;
   const restoredNow = showcase !== null;
-  const restore = restoredNow ? 1 : (view.candlesLit + sessionProgress) / CANDLES_PER_ROOM;
-  const burning = !restoredNow && inFocus && focusInProgress(timer) ? { index: view.candlesLit, melt: sessionProgress } : null;
+  // The room's color moves continuously through each session, not only when a candle is earned.
+  const restore = restoredNow ? 1 : (view.candlesLit + sessionProgress) / view.candlesPerRoom;
+  const mantel = restoredNow ? { lit: MANTEL_CANDLES, burning: null } : mantelCandles(view.candlesLit, view.candlesPerRoom, sessionProgress, inSession);
   const breathing = !inFocus && running;
   const rattling = now < rattleUntil;
   const roomNumber = (restoredNow ? ROOMS.indexOf(shownRoom) : view.roomIndex) + 1;
-  const sceneLabel = `${shownRoom.name}, ${restoredNow ? 'restored' : `${view.candlesLit} of ${CANDLES_PER_ROOM} candles lit`}. The ghost is ${ghost.mood === 'asleep' ? 'asleep' : ghost.mood === 'watching' ? 'watching you' : 'awake'}.`;
+  const sceneLabel = `${shownRoom.name}, ${restoredNow ? 'restored' : `${view.candlesLit} of ${view.candlesPerRoom} ${view.candlesPerRoom === 1 ? 'candle' : 'candles'} lit`}. The ghost is ${ghost.mood === 'asleep' ? 'asleep' : ghost.mood === 'watching' ? 'watching you' : 'awake'}.`;
 
   return (
     <div className={`app phase-${timer.phase} ${breathing ? 'is-breathing' : ''} ${demo ? 'is-demo' : ''}`} data-phase={timer.phase} data-status={timer.status}>
@@ -442,11 +445,15 @@ export function App() {
           <div className="proscenium">
             <div className="drape drape-left" aria-hidden="true" />
             <div className="drape drape-right" aria-hidden="true" />
+            <div className="title-card" aria-hidden="true">
+              <span>Haunted Pomodoro</span>
+              <strong>{view.room.name}</strong>
+            </div>
             <Scene
               room={shownRoom}
               restore={restore}
-              candlesLit={restoredNow ? CANDLES_PER_ROOM : view.candlesLit}
-              burning={burning}
+              candlesLit={mantel.lit}
+              burning={mantel.burning}
               restored={restoredNow}
               ghost={ghost}
               rattling={rattling}

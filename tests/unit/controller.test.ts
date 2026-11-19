@@ -35,10 +35,10 @@ describe('HouseController', () => {
 });
 
 describe('demo house', () => {
-  it('starts one candle from a restored parlor with a warm streak and demo lengths', () => {
+  it('starts with a fully haunted parlor that one candle restores, a warm streak and demo lengths', () => {
     const now = new Date(2026, 10, 18, 12).getTime();
     const m = createDemoModel(now, { ...DEFAULT_SETTINGS, autoStartBreaks: false });
-    expect(m.house).toEqual({ candlesLit: 3, roomsRestored: 0 });
+    expect(m.house).toEqual({ candlesLit: 0, roomsRestored: 0, candlesPerRoom: 1 });
     expect(m.timer.durationMs).toBe(20_000);
     expect(m.settings.autoStartBreaks).toBe(true);
     expect(Object.keys(m.days)).toHaveLength(4);

@@ -1,5 +1,6 @@
 import { useEffect, useId, useRef, type CSSProperties } from 'react';
-import { CANDLES_PER_ROOM, type RoomDef, type RoomProp } from '../core/house';
+import type { RoomDef, RoomProp } from '../core/house';
+import { MANTEL_CANDLES } from './candles';
 
 export type GhostMood = 'asleep' | 'watching' | 'awake' | 'calling';
 
@@ -12,8 +13,9 @@ export interface SceneProps {
   room: RoomDef;
   /** 0 haunted to 1 restored; includes progress through the burning candle. */
   restore: number;
+  /** Candlesticks lit on the mantel, 0 to 4 (see mantelCandles), not the room's candle count. */
   candlesLit: number;
-  /** The candle lit for the focus session in progress, and how far it has burned (0 to 1). */
+  /** The candlestick burning now, and how far it has burned (0 to 1). */
   burning: { index: number; melt: number } | null;
   /** Fully restored: the portrait sleeps, the cobwebs are gone. */
   restored: boolean;
@@ -32,7 +34,8 @@ export const GHOST_SPOTS: ReadonlyArray<[number, number, number]> = [
   [186, 250, 0.42],
   [340, 330, 0.72],
   [860, 300, 1],
-  [600, 410, 1.6],
+  // Closest: the ghost drifts toward the camera and fills the room.
+  [600, 430, 1.8],
 ];
 
 export function Scene(props: SceneProps) {
@@ -64,7 +67,7 @@ export function Scene(props: SceneProps) {
   const spot = GHOST_SPOTS[Math.min(3, Math.max(0, Math.round(ghost.closeness)))]!;
   const ghostStyle: CSSProperties = { transform: `translate(${spot[0]}px, ${spot[1]}px) scale(${spot[2]})` };
   const r = restored ? 1 : Math.min(1, Math.max(0, restore));
-  const sceneStyle = { '--restore': r, '--hearth': hearth, '--lit': (candlesLit + (burning ? 1 : 0)) / CANDLES_PER_ROOM } as CSSProperties;
+  const sceneStyle = { '--restore': r, '--hearth': hearth, '--lit': (candlesLit + (burning ? 1 : 0)) / MANTEL_CANDLES } as CSSProperties;
   const [paper, motif] = room.paper;
 
   return (
@@ -114,6 +117,15 @@ export function Scene(props: SceneProps) {
         <linearGradient id={`beam-${uid}`} x1="0" y1="0" x2="1" y2="1">
           <stop offset="0" stopColor="#b9c8ff" stopOpacity="0.28" />
           <stop offset="1" stopColor="#b9c8ff" stopOpacity="0" />
+        </linearGradient>
+        <radialGradient id={`ghost-vignette-${uid}`} cx="0.5" cy="0.5" r="0.72">
+          <stop offset="0.5" stopColor="#8ff5d2" stopOpacity="0" />
+          <stop offset="1" stopColor="#8ff5d2" stopOpacity="0.55" />
+        </radialGradient>
+        <linearGradient id={`sweep-${uid}`} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#ffd98a" stopOpacity="0" />
+          <stop offset="0.6" stopColor="#ffe6b0" stopOpacity="0.55" />
+          <stop offset="1" stopColor="#ffd98a" stopOpacity="0" />
         </linearGradient>
         <filter id={`soft-${uid}`} x="-20%" y="-20%" width="140%" height="140%">
           <feGaussianBlur stdDeviation="18" />
@@ -173,7 +185,30 @@ export function Scene(props: SceneProps) {
       </g>
 
       <rect width="1200" height="700" fill={`url(#vignette-${uid})`} pointerEvents="none" />
+      {/* The closer the ghost, the more the room's edges glow its color. */}
+      <rect width="1200" height="700" fill={`url(#ghost-vignette-${uid})`} className="ghost-vignette" pointerEvents="none" data-testid="ghost-vignette" />
       <rect width="1200" height="700" className="restore-flash" fill="#ffd98a" pointerEvents="none" />
+      {restored && (
+        <g className="restore-sweep" aria-hidden="true" data-testid="restore-sweep">
+          <rect x="-520" y="0" width="520" height="700" fill={`url(#sweep-${uid})`} className="sweep-band" />
+          <g className="dust-burst">
+            {Array.from({ length: 16 }, (_, i) => {
+              const a = (i / 16) * Math.PI * 2;
+              const reach = 140 + (i % 4) * 45;
+              return (
+                <circle
+                  key={i}
+                  cx="600"
+                  cy="300"
+                  r={2 + (i % 3)}
+                  fill="#f3e2bd"
+                  style={{ '--dx': `${Math.cos(a) * reach}px`, '--dy': `${Math.sin(a) * reach * 0.7}px` } as CSSProperties}
+                />
+              );
+            })}
+          </g>
+        </g>
+      )}
       {restored && (
         <g className="embers-rise" aria-hidden="true">
           {Array.from({ length: 18 }, (_, i) => (
@@ -294,6 +329,7 @@ function Candle({ x, state, melt }: { x: number; state: 'lit' | 'burning' | 'unl
       <rect x={x - 9} y={top} width="18" height={height} rx="3" fill="#efe3c4" />
       <path d={`M${x - 9} ${top + 6} q4 10 0 16`} stroke="#d8c89f" strokeWidth="3" fill="none" />
       <line x1={x} x2={x} y1={top} y2={top - 7} stroke="#2a1a10" strokeWidth="2" />
+      {state === 'burning' && <circle className="flare" cx={x} cy={top - 16} r="70" fill="#ffcf7a" style={{ transformOrigin: `${x}px ${top - 16}px` }} />}
       {state !== 'unlit' && (
         <g className="flame-group" style={{ transformOrigin: `${x}px ${top - 4}px` }}>
           <circle cx={x} cy={top - 16} r="26" fill="#ffbf5a" opacity="0.18" />

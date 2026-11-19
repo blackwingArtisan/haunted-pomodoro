@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { addDays, dayKey, lastDays, weekdayName, type DayKey } from '../core/dates';
-import { CANDLES_PER_ROOM, ROOMS, viewHouse, type HouseState } from '../core/house';
+import { ROOMS, viewHouse, type HouseState } from '../core/house';
 import { SETTING_LIMITS, type AppAction, type AppModel, type DayLog, type Settings } from '../core/model';
 import type { Streak } from '../core/streak';
 import { remainingAt, type TimerState } from '../core/timer';
 import { CandleIcon, CloseIcon, ResetIcon, SkipIcon, TrashIcon } from './icons';
+import { MANTEL_CANDLES, mantelCandles } from './candles';
 import { Scene } from './Scene';
 
 type Dispatch = (action: AppAction) => void;
@@ -51,7 +52,7 @@ export function TimerPlaque(props: {
   const primary =
     timer.status === 'running' ? 'Pause' : timer.status === 'paused' ? 'Resume' : isFocus ? 'Light a candle' : timer.phase === 'long' ? 'Begin the long rest' : 'Begin break';
   const sub = isFocus
-    ? `Candle ${view.candlesLit + 1} of ${CANDLES_PER_ROOM} in ${view.room.name}`
+    ? `Candle ${view.candlesLit + 1} of ${view.candlesPerRoom} in ${view.room.name}`
     : props.showcaseName
       ? `${props.showcaseName} is restored. The house breathes.`
       : timer.phase === 'long'
@@ -535,7 +536,7 @@ export function HouseMap({ house, reducedMotion }: { house: HouseState; reducedM
             <li key={r.id}>
               <button type="button" className={`room-btn ${status(i)}`} aria-pressed={selected === i} onClick={() => setSelected(i)}>
                 <span className="room-name">{r.name}</span>
-                <span className="room-status">{status(i) === 'restored' ? 'Restored' : status(i) === 'current' ? `${view.candlesLit} of ${CANDLES_PER_ROOM} candles` : 'Still haunted'}</span>
+                <span className="room-status">{status(i) === 'restored' ? 'Restored' : status(i) === 'current' ? `${view.candlesLit} of ${view.candlesPerRoom} ${view.candlesPerRoom === 1 ? 'candle' : 'candles'}` : 'Still haunted'}</span>
               </button>
             </li>
           ))}
@@ -543,8 +544,8 @@ export function HouseMap({ house, reducedMotion }: { house: HouseState; reducedM
         <figure className="room-preview">
           <Scene
             room={room}
-            restore={isRestored ? 1 : isCurrent ? view.candlesLit / CANDLES_PER_ROOM : 0}
-            candlesLit={isRestored ? CANDLES_PER_ROOM : isCurrent ? view.candlesLit : 0}
+            restore={isRestored ? 1 : isCurrent ? view.candlesLit / view.candlesPerRoom : 0}
+            candlesLit={isRestored ? MANTEL_CANDLES : isCurrent ? mantelCandles(view.candlesLit, view.candlesPerRoom, 0, false).lit : 0}
             burning={null}
             restored={isRestored}
             ghost={{ closeness: 0, mood: 'asleep' }}

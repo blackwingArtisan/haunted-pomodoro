@@ -34,8 +34,8 @@ This is an entry for the **Costume Contest**: a real, daily-use Pomodoro timer w
 
 ## What works today
 - **A real Pomodoro timer.** Configurable focus, short and long breaks, long break every N sessions, auto-start options, pause, resume, skip and reset. Time is kept as an absolute end time, so background tabs never drift, and a reload resumes exactly where you were.
-- **Candles and rooms.** Starting focus lights a candle that melts as the session runs while the room's color returns and the cobwebs thin. Four finished candles restore a room: the portrait stops staring and closes its eyes, the cobwebs fall, the clock starts ticking. Six rooms per house, each with its own prop (grandfather clock, library, conservatory, piano, rocking horse, telescope).
-- **The ghost.** Switch tabs during focus (Page Visibility API) and the ghost wakes after a short grace period, drifts closer, rattles the room and changes the tab title to call you back. Come back and it says something kind. Wanderings are counted per session and per day.
+- **Candles and rooms.** The drapes part over a brass title card when the house opens. Starting focus strikes a candle with a warm flare; it melts as the session runs while the room's color returns and the cobwebs thin. Four finished candles restore a room: the portrait stops staring and closes its eyes, the cobwebs fall, the clock starts ticking, and a band of warm light sweeps the wallpaper while the dust bursts off the room. Six rooms per house, each with its own prop (grandfather clock, library, conservatory, piano, rocking horse, telescope).
+- **The ghost.** Switch tabs during focus (Page Visibility API) and the ghost wakes after a short grace period, drifts closer (by the third wandering it fills the room and its green glow gathers at the edges), rattles the room and changes the tab title to call you back. Come back and it says something kind. Wanderings are counted per session and per day.
 - **Breaks let the house breathe.** The room slowly swells and the curtains sway; the UI turns ghost-green.
 - **The Hearth.** A streak that forgives one missed day between active days and never takes away a restored room. Fourteen-day candle chart, today's minutes, wanderings, best streak.
 - **Task ledger.** Add tasks with planned candles, pick the active one, see candles spent, mark done, clear finished.
@@ -48,7 +48,7 @@ This is an entry for the **Costume Contest**: a real, daily-use Pomodoro timer w
 - **Private by default.** Everything lives in localStorage. Optional sync to a Cloudflare Worker is written and tested against a stub, and off unless configured.
 - **Export and import.** Settings has "Export house", which downloads `haunted-house-YYYY-MM-DD.json`, and "Import house", which merges a saved file into the current house. The house with more candles wins, so an import never removes a candle or a room. Files over 1 MB, damaged files and files from another format version are refused with a message and change nothing. Both are disabled in demo mode.
 - **Optional phase-end notification.** Off by default. "Notify me when a phase ends while this tab is hidden" asks for browser permission when you turn it on, turns itself off with a reason if permission is denied, and shows one notification per phase end only while the tab is hidden.
-- **Demo mode.** `/?demo=1` runs a 20 second focus and a 10 second break in a house whose parlor is one candle from restored, without touching your own data.
+- **Demo mode.** `/?demo=1` runs a 20 second focus and a 10 second break in a demo house whose fully haunted parlor is restored by a single candle, without touching your own data.
 
 ## Beyond Kiroween
 Focus apps are a proven market: Forest says more than 60 million people have used it since 2014 ([forestapp.cc](https://forestapp.cc/), checked November 2026). Haunted Pomodoro takes the opposite stance on distraction, and the plan keeps it cheap to run:

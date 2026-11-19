@@ -72,10 +72,21 @@ export const ROOMS: readonly RoomDef[] = [
 ];
 
 export interface HouseState {
-  /** Candles lit in the current room, 0 to CANDLES_PER_ROOM - 1. */
+  /** Candles lit in the current room, 0 to candlesPerRoom - 1. */
   candlesLit: number;
   /** Rooms restored over all time, across every house. */
   roomsRestored: number;
+  /**
+   * Candles that restore one room. Absent means CANDLES_PER_ROOM; only the in-memory demo house
+   * sets it (to 1), so a single short session shows a whole restoration. Never saved.
+   */
+  candlesPerRoom?: number;
+}
+
+/** Candles needed to restore a room in this house. */
+export function candlesPerRoom(house: HouseState): number {
+  const n = house.candlesPerRoom;
+  return n !== undefined && Number.isInteger(n) && n >= 1 ? n : CANDLES_PER_ROOM;
 }
 
 export const EMPTY_HOUSE: HouseState = { candlesLit: 0, roomsRestored: 0 };
@@ -88,6 +99,8 @@ export interface HouseView {
   housesRestored: number;
   /** Rooms restored in the house currently being worked on. */
   roomsInThisHouse: number;
+  /** Candles needed to restore a room. */
+  candlesPerRoom: number;
 }
 
 export function viewHouse(house: HouseState): HouseView {
@@ -98,6 +111,7 @@ export function viewHouse(house: HouseState): HouseView {
     candlesLit: house.candlesLit,
     housesRestored: Math.floor(house.roomsRestored / ROOMS.length),
     roomsInThisHouse: roomIndex,
+    candlesPerRoom: candlesPerRoom(house),
   };
 }
 
@@ -111,13 +125,13 @@ export interface CandleResult {
 
 export function lightCandle(house: HouseState): CandleResult {
   const candlesLit = house.candlesLit + 1;
-  if (candlesLit < CANDLES_PER_ROOM) {
+  if (candlesLit < candlesPerRoom(house)) {
     return { house: { ...house, candlesLit }, restoredRoom: null, houseRestored: false };
   }
   const room = viewHouse(house).room;
   const roomsRestored = house.roomsRestored + 1;
   return {
-    house: { candlesLit: 0, roomsRestored },
+    house: { ...house, candlesLit: 0, roomsRestored },
     restoredRoom: room,
     houseRestored: roomsRestored % ROOMS.length === 0,
   };
@@ -125,5 +139,5 @@ export function lightCandle(house: HouseState): CandleResult {
 
 /** Total candles ever lit, used to compare two copies of the same house. */
 export function houseScore(house: HouseState): number {
-  return house.roomsRestored * CANDLES_PER_ROOM + house.candlesLit;
+  return house.roomsRestored * candlesPerRoom(house) + house.candlesLit;
 }

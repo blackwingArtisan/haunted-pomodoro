@@ -1705,6 +1705,137 @@ input[type='number'],
   }
 }
 
+/* ------------------------------------------------------------------ Opening and restoration theatre */
+
+/* The drapes part once when the page opens, over a brass title card. */
+.drape {
+  animation: drapes-part 1.7s var(--ease) 0.25s both;
+}
+.title-card {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  pointer-events: none;
+  opacity: 0;
+  animation: title-card 2.2s ease-out both;
+}
+.title-card span {
+  font-family: var(--font-numeral);
+  font-size: clamp(11px, 1.1vw, 14px);
+  font-weight: 700;
+  letter-spacing: 0.45em;
+  text-transform: uppercase;
+  color: var(--brass-bright);
+}
+.title-card strong {
+  padding: 6px 28px;
+  border: 2px solid var(--brass);
+  border-radius: 6px;
+  background: rgba(20, 12, 8, 0.85);
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(26px, 3.4vw, 46px);
+  color: #fff4dc;
+}
+
+/* Lighting a candle: one warm flare behind the new flame. */
+.scene .flare {
+  opacity: 0;
+  animation: flare 1.3s ease-out 1 both;
+  mix-blend-mode: screen;
+}
+
+/* Restoration: a band of warm light sweeps the wallpaper and the dust bursts off the room. */
+.scene .restore-sweep .sweep-band {
+  animation: sweep 2s var(--ease) 0.15s 1 both;
+  mix-blend-mode: screen;
+}
+.scene .dust-burst circle {
+  opacity: 0;
+  animation: dust 1.8s ease-out 0.1s 1 both;
+}
+
+/* The ghost's color gathers at the edges of the room as it comes closer. */
+.scene .ghost-vignette {
+  opacity: 0;
+  transition: opacity 1.6s var(--ease);
+}
+.scene[data-ghost-closeness='1'] .ghost-vignette {
+  opacity: 0.25;
+}
+.scene[data-ghost-closeness='2'] .ghost-vignette {
+  opacity: 0.5;
+}
+.scene[data-ghost-closeness='3'] .ghost-vignette {
+  opacity: 0.85;
+}
+/* While the ghost is awake the candles gutter. */
+.scene[data-ghost='awake'] .candle-lit .flame-group,
+.scene[data-ghost='calling'] .candle-lit .flame-group {
+  animation: candle-flicker 0.45s ease-in-out infinite;
+}
+
+@keyframes drapes-part {
+  from {
+    width: 50.5%;
+  }
+  to {
+    width: 5.5%;
+  }
+}
+@keyframes title-card {
+  0% {
+    opacity: 1;
+  }
+  55% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    translate: 0 -12px;
+  }
+}
+@keyframes flare {
+  0% {
+    opacity: 0;
+    scale: 0.2;
+  }
+  25% {
+    opacity: 0.75;
+    scale: 1.15;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.6;
+  }
+}
+@keyframes sweep {
+  from {
+    translate: 0 0;
+  }
+  to {
+    translate: 1760px 0;
+  }
+}
+@keyframes dust {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  15% {
+    opacity: 0.9;
+  }
+  100% {
+    opacity: 0;
+    translate: var(--dx) var(--dy);
+  }
+}
+
 /* ------------------------------------------------------------------ Reduced motion */
 
 [data-motion='reduced'] *,
@@ -1720,6 +1851,13 @@ input[type='number'],
   transition: none;
 }
 [data-motion='reduced'] .scene .ghost-body {
+  transition: opacity 0.4s;
+}
+/*
+ * Stills: with animations off the drapes rest open, and the title card, flare, sweep and dust stay
+ * out of view. The restored room itself (warm light, closed eyes, the banner) is the still frame.
+ */
+[data-motion='reduced'] .scene .ghost-vignette {
   transition: opacity 0.4s;
 }
 
