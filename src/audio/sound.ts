@@ -6,13 +6,16 @@
 
 export type SoundName = 'candle' | 'snuff' | 'chime' | 'restored' | 'breath' | 'moan' | 'rattle' | 'click';
 
-type Ctx = AudioContext;
+/** A live AudioContext in the app; an OfflineAudioContext when the sound check renders to a buffer. */
+type Ctx = BaseAudioContext;
 
 export class SoundEngine {
   private ctx: Ctx | null = null;
+  private live: AudioContext | null = null;
   private master: GainNode | null = null;
   private ambientNodes: { stop: () => void } | null = null;
   private noise: AudioBuffer | null = null;
+  private hiss: AudioBuffer | null = null;
   private volume = 0.6;
   private muted = false;
   private ambientWanted = false;
@@ -20,20 +23,34 @@ export class SoundEngine {
   /** Call from a click or key handler. Safe to call repeatedly. */
   unlock(): void {
     if (typeof window === 'undefined') return;
-    if (!this.ctx) {
+    if (!this.live) {
       const AC = window.AudioContext ?? (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
       if (!AC) return;
+      let live: AudioContext;
       try {
-        this.ctx = new AC();
+        live = new AC();
       } catch {
         return;
       }
-      this.master = this.ctx.createGain();
-      this.master.connect(this.ctx.destination);
-      this.applyGain();
-      if (this.ambientWanted) this.startAmbient();
+      this.live = live;
+      this.attach(live);
     }
-    if (this.ctx.state === 'suspended') void this.ctx.resume().catch(() => undefined);
+    if (this.live.state === 'suspended') void this.live.resume().catch(() => undefined);
+  }
+
+  /**
+   * Routes every sound into the given context. The app uses the live context from unlock(); the
+   * sound check passes an OfflineAudioContext to render and measure each sound without speakers.
+   */
+  attach(ctx: Ctx): void {
+    this.ctx = ctx;
+    this.noise = null;
+    this.hiss = null;
+    this.ambientNodes = null;
+    this.master = ctx.createGain();
+    this.master.connect(ctx.destination);
+    this.applyGain();
+    if (this.ambientWanted) this.startAmbient();
   }
 
   setVolume(volume: number): void {
@@ -82,7 +99,8 @@ export class SoundEngine {
         this.moan(t);
         break;
       case 'rattle':
-        for (let i = 0; i < 7; i++) this.noiseBurst(t + i * 0.07 + Math.random() * 0.02, 0.05, 2400 + Math.random() * 800, 0.3, 'bandpass');
+        // White noise: brown noise has almost no energy up here, which left the rattle near silent.
+        for (let i = 0; i < 7; i++) this.noiseBurst(t + i * 0.07 + Math.random() * 0.02, 0.05, 2400 + Math.random() * 800, 0.3, 'bandpass', this.hissBuffer());
         break;
       case 'click':
         this.tone(t, 880, 0.06, 0.06, 'triangle');
@@ -112,6 +130,17 @@ export class SoundEngine {
     return buffer;
   }
 
+  private hissBuffer(): AudioBuffer {
+    const ctx = this.ctx!;
+    if (this.hiss) return this.hiss;
+    const length = ctx.sampleRate;
+    const buffer = ctx.createBuffer(1, length, ctx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < length; i++) data[i] = Math.random() * 2 - 1;
+    this.hiss = buffer;
+    return buffer;
+  }
+
   private envelope(t: number, attack: number, hold: number, release: number, peak: number): GainNode {
     const ctx = this.ctx!;
     const g = ctx.createGain();
@@ -138,16 +167,16 @@ export class SoundEngine {
     [1, 2.76, 5.4].forEach((ratio, i) => this.tone(t, freq * ratio, duration / (i + 1), peak / (i * 1.8 + 1), 'sine'));
   }
 
-  private noiseBurst(t: number, duration: number, freq: number, peak: number, type: BiquadFilterType): void {
+  private noiseBurst(t: number, duration: number, freq: number, peak: number, type: BiquadFilterType, source?: AudioBuffer): void {
     const ctx = this.ctx!;
     const src = ctx.createBufferSource();
-    src.buffer = this.noiseBuffer();
+    src.buffer = source ?? this.noiseBuffer();
     const filter = ctx.createBiquadFilter();
     filter.type = type;
     filter.frequency.setValueAtTime(freq, t);
     filter.Q.value = 1.2;
     src.connect(filter).connect(this.envelope(t, 0.005, 0, duration, peak));
-    src.start(t, Math.random());
+    src.start(t, Math.random() * Math.max(0, src.buffer.duration - duration - 0.1));
     src.stop(t + duration + 0.05);
   }
 

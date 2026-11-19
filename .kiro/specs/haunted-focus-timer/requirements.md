@@ -59,6 +59,8 @@ Haunted Pomodoro is a Pomodoro timer whose progress is shown as a haunted house 
 1. THE system SHALL synthesize every sound with the Web Audio API and SHALL NOT ship audio files.
 2. THE system SHALL provide a volume control and a mute toggle, both reachable from the main screen and remembered.
 3. WHERE ambient wind is enabled THE system SHALL play a generated, looping wind until it is disabled or muted.
+4. WHEN any sound is rendered at full volume THEN the system SHALL keep its peak between -28 and -1 dBFS (audible, never clipping) and, for one-shot sounds, SHALL fade to below -50 dBFS before it ends.
+5. THE system SHALL provide a sound check page that plays every sound and shows its measured levels.
 
 ## Requirement 7: Accessibility and keyboard
 1. THE system SHALL make every control reachable and operable by keyboard with a visible focus indicator.
@@ -66,6 +68,7 @@ Haunted Pomodoro is a Pomodoro timer whose progress is shown as a haunted house 
 3. THE system SHALL announce phase changes, finished sessions, wanderings and restorations through a polite live region.
 4. WHERE the person prefers reduced motion (system setting or in-app choice) THE system SHALL stop all animation and drifting while keeping every state visible.
 5. THE system SHALL keep text contrast at WCAG AA or better and SHALL fit a 390 px wide screen without sideways scrolling.
+6. WHEN the main screen opens on a 1280x720 or larger desktop viewport, with or without the demo banner, THEN the system SHALL show the room, the timer digits and the primary button without scrolling.
 
 ## Requirement 8: Offline and privacy
 1. THE system SHALL store all data in the browser's localStorage by default.

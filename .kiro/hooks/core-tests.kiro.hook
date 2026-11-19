@@ -5,7 +5,7 @@
   "version": "1",
   "when": {
     "type": "fileEdited",
-    "patterns": ["src/core/**/*.ts", "src/adapters/**/*.ts", "worker/**/*.ts"]
+    "patterns": ["src/core/**/*.ts", "src/adapters/**/*.ts", "src/audio/**/*.ts", "worker/**/*.ts"]
   },
   "then": {
     "type": "askAgent",

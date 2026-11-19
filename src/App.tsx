@@ -313,7 +313,7 @@ export function App() {
   const sceneLabel = `${shownRoom.name}, ${restoredNow ? 'restored' : `${view.candlesLit} of ${CANDLES_PER_ROOM} candles lit`}. The ghost is ${ghost.mood === 'asleep' ? 'asleep' : ghost.mood === 'watching' ? 'watching you' : 'awake'}.`;
 
   return (
-    <div className={`app phase-${timer.phase} ${breathing ? 'is-breathing' : ''}`} data-phase={timer.phase} data-status={timer.status}>
+    <div className={`app phase-${timer.phase} ${breathing ? 'is-breathing' : ''} ${demo ? 'is-demo' : ''}`} data-phase={timer.phase} data-status={timer.status}>
       <a className="skip-link" href="#timer">
         Skip to the timer
       </a>
@@ -445,6 +445,9 @@ export function App() {
       <footer className="footer">
         <p>
           Stubborn Otter Software · Your tasks and your house stay in this browser · Works offline · Press <kbd>?</kbd> for keys
+        </p>
+        <p className="footer-links">
+          <a href="/sound-check.html">Sound check</a> · <a href="/licenses/fonts.txt">Font licenses</a>
         </p>
       </footer>
 

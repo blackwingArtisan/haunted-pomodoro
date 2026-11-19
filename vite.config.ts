@@ -62,6 +62,12 @@ self.addEventListener('fetch', (event) => {
 
 export default defineConfig({
   plugins: [react(), serviceWorker()],
+  build: {
+    rollupOptions: {
+      // The app, plus the sound check page that measures and plays every synthesized sound.
+      input: { main: 'index.html', soundCheck: 'sound-check.html' },
+    },
+  },
   server: { port: 3180, strictPort: true },
   preview: { port: 3181, strictPort: true },
 });

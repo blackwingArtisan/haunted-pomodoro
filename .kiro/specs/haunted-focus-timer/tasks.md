@@ -24,3 +24,6 @@
 - [x] 18. axe-core WCAG 2.1 A/AA scans in the Playwright suite (Req 7.1, 7.5)
 - [ ] 19. Optional browser notification when a phase ends while the tab is hidden (opt-in, off by default)
 - [ ] 20. Export and import the house as a JSON file
+- [x] 21. Sound check page: offline render of every sound, level limits, waveform, play buttons; unit tests for the level maths and a Playwright check of all eight sounds (Req 6.4, 6.5)
+- [x] 22. First-view fit: the stage scales with viewport height so the room, digits and primary button fit at 1280x720 and up, demo banner included; Playwright checks three desktop sizes (Req 7.6)
+- [ ] 23. Listening review: play every sound on /sound-check.html through laptop speakers and headphones, and retune any that sound harsh or thin (the level limits are measured; the character of each sound has not been judged by ear yet)

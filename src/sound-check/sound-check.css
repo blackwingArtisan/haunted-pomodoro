@@ -1,0 +1,117 @@
+/* Sound check page. Reuses the app's tokens, cards and buttons from styles.css. */
+
+.sound-check {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px 28px 48px;
+}
+.sc-kicker {
+  margin: 0;
+  font-family: var(--font-numeral);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--brass);
+}
+.sc-head h1 {
+  margin: 4px 0 8px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(34px, 5vw, 56px);
+  line-height: 1.05;
+  color: #fff4dc;
+  text-shadow: 0 0 18px rgba(255, 191, 90, 0.5);
+}
+.sc-lede {
+  max-width: 62ch;
+  margin: 0 0 8px;
+  color: var(--bone-dim);
+}
+.sc-summary {
+  margin: 0 0 20px;
+  font-family: var(--font-numeral);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--candle);
+}
+.sc-list {
+  display: grid;
+  gap: 16px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sc-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 20px;
+}
+.sc-row h2 {
+  margin: 0 0 2px;
+  font-size: 24px;
+}
+.sc-row h2::after {
+  display: none;
+}
+.sc-when {
+  margin: 0;
+  font-style: italic;
+  color: var(--bone-dim);
+}
+.sc-verdict {
+  margin: 6px 0 0;
+  font-family: var(--font-numeral);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ecto);
+}
+.is-off .sc-verdict {
+  color: var(--danger);
+}
+.sc-wave {
+  width: 100%;
+  height: 64px;
+}
+.sc-wave polygon {
+  fill: var(--candle);
+  opacity: 0.85;
+}
+.sc-ceiling {
+  stroke: var(--danger);
+  stroke-dasharray: 4 4;
+  stroke-width: 1;
+  opacity: 0.6;
+}
+.sc-stats {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 2px 12px;
+  margin: 0;
+  font-size: 16px;
+}
+.sc-stats dt {
+  color: var(--bone-dim);
+}
+.sc-stats dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.sc-back {
+  margin-top: 24px;
+}
+.sc-back a {
+  color: var(--brass-bright);
+}
+
+@media (max-width: 820px) {
+  .sound-check {
+    padding: 16px;
+  }
+  .sc-row {
+    grid-template-columns: 1fr;
+  }
+}

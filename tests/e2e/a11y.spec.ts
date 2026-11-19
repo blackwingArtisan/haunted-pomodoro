@@ -29,3 +29,9 @@ test('the demo session, settings and house map have no WCAG A/AA violations', as
   await expect(page.getByRole('dialog', { name: 'The House' })).toBeVisible();
   expect(await scan(page)).toEqual([]);
 });
+
+test('the sound check page has no WCAG A/AA violations', async ({ page }) => {
+  await page.goto('/sound-check.html');
+  await expect(page.getByTestId('summary')).toHaveAttribute('data-total', '8', { timeout: 30_000 });
+  expect(await scan(page)).toEqual([]);
+});

@@ -16,10 +16,14 @@ src/
   adapters/store/  HouseStore port: local (localStorage) and cloudflare (sync Worker)
   app/             HouseController (holds the model, persists, emits cues) and the demo seed
   audio/sound.ts   Web Audio synthesized sound effects and ambient wind
+  audio/levels.ts  Pure level measurements (peak, RMS, tail) of rendered samples
+  audio/render.ts  Renders each sound offline and judges it against the level limits
+  sound-check/     The /sound-check.html page: waveform, levels and a Play button per sound
   ui/              Scene.tsx (the SVG room and ghost), panels.tsx (plaque, ledger, hearth, dialogs), icons.tsx
   App.tsx          Wiring: ticker, Page Visibility, keyboard shortcuts, cues to sound and announcements
   styles.css       Tokens, layout, scene animation, reduced-motion overrides
 worker/            Optional Cloudflare Worker for sync (Workers KV)
+sound-check.html   Second Vite entry for the sound check page
 public/            Manifest and icons
 scripts/           make-icons.mjs renders the PNG icons from icon.svg
 tests/unit/        Vitest
