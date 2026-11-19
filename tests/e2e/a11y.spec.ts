@@ -45,3 +45,16 @@ test('the sound check page has no WCAG A/AA violations', async ({ page }) => {
   await expect(page.getByTestId('summary')).toHaveAttribute('data-total', '8', { timeout: 30_000 });
   expect(await scan(page)).toEqual([]);
 });
+
+test('at phone width the icon-only toolbar keeps its names and the screen has no WCAG A/AA violations', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await context.newPage();
+  for (const path of ['/', '/?demo=1']) {
+    await page.goto(path);
+    await expect(page.getByTestId('primary')).toBeVisible();
+    const toolbar = page.getByRole('navigation', { name: 'House tools' });
+    for (const name of ['House', 'Settings', 'Keys']) await expect(toolbar.getByRole('button', { name, exact: true })).toBeVisible();
+    expect(await scan(page)).toEqual([]);
+  }
+  await context.close();
+});

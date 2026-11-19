@@ -124,6 +124,9 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 12. WHERE the person prefers reduced motion, THE SYSTEM SHALL keep every state visible.
 13. WHEN the viewport is 390 px wide, THE SYSTEM SHALL fit the page without sideways scrolling.
 14. WHEN a break ends, THE SYSTEM SHALL announce that the next candle can be lit, through the polite live region.
+15. WHEN the viewport is 720 px wide or narrower, THE SYSTEM SHALL show the ghost's words as a caption below the scene, never over the Restored banner.
+16. WHEN the viewport is 720 px wide or narrower, THE SYSTEM SHALL keep an accessible name on every icon-only toolbar button and keep zero axe A/AA violations at 390 px.
+17. WHEN the viewport is 720 px wide or narrower in demo mode, THE SYSTEM SHALL fit the demo banner on one line.
 
 ## Requirement 8: Offline and privacy
 1. THE SYSTEM SHALL store all data in the browser's localStorage by default.

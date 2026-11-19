@@ -49,3 +49,4 @@ A task is checked only when code and a test implement it. The full Playwright su
 - [ ] 29. Playwright: delete a task, clear finished tasks and choose the active task from the ledger (Req 2.4 to 2.6)
 - [ ] 30. Notifications on platforms where `new Notification` is not allowed (for example Android Chrome) need a service worker `showNotification` path; add it behind the same `Notifier` port (Req 10.6)
 - [ ] 31. Find out why the "," shortcut is sometimes ignored when pressed within about a second of erasing or importing the house (seen in about 3 of 5 runs of the house-file end-to-end test, which now opens settings with the toolbar button instead), and fix it (Req 7.2)
+- [x] 32. Phone layout: the ghost's words dock as a caption under the scene, the demo banner fits one line, toolbar labels are visually hidden instead of removed, and an axe scan runs at 390 px (Req 7.15 to 7.17)

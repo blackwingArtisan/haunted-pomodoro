@@ -11,7 +11,7 @@ import { CANDLES_PER_ROOM, ROOMS, viewHouse, type RoomDef } from './core/house';
 import { createModel, demoConfigFor, timerConfig, type Cue } from './core/model';
 import { computeStreak } from './core/streak';
 import { focusInProgress, progressAt, remainingAt } from './core/timer';
-import { GearIcon, HouseIcon, KeysIcon, MoonIcon, SoundIcon } from './ui/icons';
+import { CloseIcon, GearIcon, HouseIcon, KeysIcon, MoonIcon, SoundIcon } from './ui/icons';
 import { Dialog, formatClock, Hearth, IntroCard, HouseMap, PHASE_LABEL, SettingsForm, ShortcutList, TaskLedger, TimerPlaque } from './ui/panels';
 import { GHOST_SPOTS, Scene, type GhostView } from './ui/Scene';
 
@@ -349,11 +349,16 @@ export function App() {
       {demo && (
         <div className="demo-banner" role="status">
           <MoonIcon />
-          <span>
-            <strong>Demo house.</strong> A 20 second focus, then a 10 second break. Your own house is untouched.
+          <span className="demo-text">
+            <strong>Demo house.</strong>
+            <span className="demo-long"> A 20 second focus, then a 10 second break. Your own house is untouched.</span>
+            <span className="demo-short"> Yours is untouched.</span>
           </span>
-          <button type="button" className="btn btn-small" onClick={() => setDemoUrl(false)}>
-            Leave the demo
+          <button type="button" className="btn btn-small demo-leave" onClick={() => setDemoUrl(false)}>
+            <CloseIcon width={14} height={14} />
+            <span>
+              Leave<span className="phone-sr-only"> the demo</span>
+            </span>
           </button>
         </div>
       )}
@@ -433,6 +438,7 @@ export function App() {
               {restoredNow ? shownRoom.restored : shownRoom.haunted}
             </p>
           </div>
+          <div className="stage-frame">
           <div className="proscenium">
             <div className="drape drape-left" aria-hidden="true" />
             <div className="drape drape-right" aria-hidden="true" />
@@ -455,6 +461,7 @@ export function App() {
                 <span className="restored-name">{shownRoom.name}</span>
               </div>
             )}
+          </div>
             {ghostLine && (
               <p className="ghost-line" data-testid="ghost-line" style={ghostLineStyle(restoredNow ? 0 : ghost.closeness)}>
                 {ghostLine}

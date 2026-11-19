@@ -36,3 +36,28 @@ test('demo mode fits a phone screen without sideways scrolling', async ({ browse
   expect(overflow).toBeLessThanOrEqual(0);
   await context.close();
 });
+
+test('on a phone the demo banner is one line and the ghost speaks in a caption under the scene', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await context.newPage();
+  await page.clock.install();
+  await page.goto('/?demo=1');
+  const banner = page.locator('.demo-banner');
+  await expect(banner.getByRole('button', { name: 'Leave the demo' })).toBeVisible();
+  // One line: the text block is no taller than one line box.
+  const text = await banner.locator('.demo-text').evaluate((el) => ({ height: el.getBoundingClientRect().height, line: parseFloat(getComputedStyle(el).lineHeight) }));
+  expect(text.height).toBeLessThanOrEqual(text.line * 1.2);
+
+  await page.getByTestId('primary').click();
+  await page.clock.runFor(21_000);
+  await expect(page.getByTestId('restored-banner')).toBeVisible();
+  const line = page.getByTestId('ghost-line');
+  await expect(line).toBeVisible();
+  const box = (selector: string) => page.locator(selector).first().evaluate((el) => el.getBoundingClientRect().toJSON() as DOMRect);
+  const [caption, scene, restored] = await Promise.all([box('[data-testid="ghost-line"]'), box('.proscenium'), box('[data-testid="restored-banner"]')]);
+  expect(caption.top).toBeGreaterThanOrEqual(scene.bottom);
+  expect(caption.top).toBeGreaterThanOrEqual(restored.bottom);
+  expect(caption.left).toBeGreaterThanOrEqual(0);
+  expect(caption.right).toBeLessThanOrEqual(390);
+  await context.close();
+});
