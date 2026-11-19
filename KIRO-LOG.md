@@ -3,11 +3,12 @@
 What Kiro was asked to do on this project, what it produced, and what it cost. Every call is listed, including any that fail.
 
 **TL;DR**
-- Steering, two EARS specs and five agent hooks set the rules; "never punish" is the one they all guard.
-- Kiro pass 1 (kiro-cli v3, 11 min 44 s, 16.02 credits) reviewed both specs against the code, tightened every criterion into EARS form, and built house export and import plus the opt-in phase-end notification with their tests.
-- After that pass: typecheck clean, Vitest 101 of 101, Playwright 23 of 23, and the new house-file test 10 of 10 on repeated runs.
-- Kiro also converted the one old-format hook to the current `v1` format and recorded every gap it found as an open task.
-- Open work lives in the task lists of `.kiro/specs/`, never in prose.
+- **Kiro caught a spec that disagreed with the code.** House-sync 4.1 said the Worker answers 404 for a wrong method; the Worker answers 405. Kiro corrected the criterion rather than the code.
+- **Kiro refused to take the checklist on trust.** It unchecked two tasks no test backed (9, the Hearth panel's values; 11, the ambient wind wiring) and logged every gap it found as an open task: 24 to 30 here, 3.1 and 8 to 10 in house-sync.
+- **Kiro built two features with their tests in one pass:** house export and import, and the opt-in phase-end notification (kiro-cli v3, 11 min 44 s, 16.02 credits). Afterwards: typecheck clean, Vitest 101 of 101, Playwright 23 of 23.
+- **Kiro tightened every acceptance criterion into EARS form** and converted the one old-format hook to `v1`.
+- Disclosure: the steering, the first two specs and the first hooks were drafted by hand in Kiro's formats before the first Kiro session; "Before the Kiro pass" says exactly what.
+- Work done since then without Kiro is listed under "Work outside Kiro" with its commits, so nothing here is credited to Kiro that it did not do.
 
 ## Before the Kiro pass
 The steering files (`.kiro/steering/product.md`, `tech.md`, `structure.md`), the two specs (`.kiro/specs/haunted-focus-timer/` and `.kiro/specs/house-sync/`, each with EARS requirements, a design and a task list) and the agent hooks (`.kiro/hooks/`) were drafted by hand in Kiro's formats before any Kiro session, alongside the first working build. Kiro had not been run on this repository at that point.
@@ -107,3 +108,32 @@ One non-interactive session, four jobs in order: spec review, tasks 19 and 20, h
 - If a throttled tab completes several phases on successive catch-up ticks, each completion notifies once; they are not merged.
 - Task 23 (listening review) needs a person.
 - The spec gaps above (tasks 9.1, 11.1, 24 to 30, house-sync 3.1 and 8 to 10) are recorded, not fixed.
+
+## Work outside Kiro
+
+Everything below was written without a Kiro session (by hand, with another coding assistant), tested with the same Vitest and Playwright suites, and recorded in the task list like Kiro's work. None of it is counted in the Kiro credits above.
+
+| Commits | Tasks | What changed |
+|---|---|---|
+| `8205972` | none | README leads with forgiveness and its sources; records corrected to the real pass counts |
+| `7acad72` | 32 | Phone layout: the ghost's words as a caption under the scene, a one-line demo banner, an axe scan at 390 px |
+| `4cf9a52` | 33 | The restoration as the hero moment: a fully haunted demo parlor, one-candle demo rooms, the restoration sweep |
+| `b3c8552` | 34 | The ghost's story: journal pages, return lines, the Hearth diary and the weekly reflection |
+| `48e55ae` | 35 | House map exterior first, and ghosted candle outlines for the Hearth's unlit days |
+| `3ed0840` | 36 | README GIF, link-preview image and Open Graph tags, recorded from the real demo |
+| `ee7327e` | 37 (38 opened) | `npm run trace`: every acceptance criterion mapped to the tests that name it |
+| `cddb2e0` | 39 (40 opened) | `npm run smoke` for a deployed copy |
+| `aa13873` | 41, 42 | A clear payoff frame and a warm strike bloom; phone first view and 24 px targets |
+| `0ecfcc1` | none | Kiro configuration: MCP servers, four new hooks, two file-match steering files and the `ghost-reviewer` agent (below) |
+| `8437451` | 43 | Will-o'-wisps: each return from a wandering leaves a light in the room, never removed |
+| `f7c3338` | 44 | Unmask: the same state as a plain Pomodoro, with a test that the state is identical |
+| `8172d3c` | 31, 45 | `?demo=finale`; the "," shortcut fixed (task 31, opened by Kiro pass 1): a dialog's late `close` event swallowed a shortcut pressed straight after Escape |
+
+### Kiro configuration added outside a Kiro session
+- `.kiro/settings/mcp.json`: Playwright MCP (`@playwright/mcp@0.0.84`, headless and isolated) and Context7 (`@upstash/context7-mcp@4.5.0`).
+- Hooks: `guard-dependencies-and-pushes.json` (PreToolUse; `scripts/kiro/guard.mjs` exits 2 on a dependency change, an edit to `package.json` or `package-lock.json`, `git push` or a deploy), `trace-after-task.json` (PostTaskExec; `npm run trace -- --check`), `open-tasks-on-start.json` (SessionStart; `scripts/kiro/open-tasks.mjs`) and `demo-ready.json` (Manual; `npm run demo-ready`).
+- Steering: `scene-art.md` (file match on `src/ui/**`, `src/styles.css`, `src/App.tsx`) and `audio.md` (file match on `src/audio/**` and the sound check).
+- Agent: `.kiro/agents/ghost-reviewer.json`, a read-only reviewer of copy against the never-punish rule, with the guard and the task list as its own hooks.
+- Schema check: trigger names, matcher rules, exit-code behavior and agent fields were checked against the v3.5.0 agent engine that ships with kiro-cli. Exit code 2 blocks only on PreToolUse, PreTaskExec, PermissionRequest, UserPromptSubmit and PreCompact, so the PostTaskExec trace hook reports to the agent and cannot block. `tests/unit/kiro-config.test.ts` checks every hook, agent, steering and MCP file, and `tests/unit/kiro-guard.test.ts` runs the guard the way Kiro does.
+- Not yet seen inside Kiro: these hooks have not fired in a Kiro session. `docs/kiro/hook-checks.txt` records each hook command run by hand with the event Kiro sends, and its output; a fire inside Kiro will be logged here when it happens.
+

@@ -1,6 +1,6 @@
 # Tasks: Haunted focus timer
 
-A task is checked only when code and a test implement it. The full Playwright suite passes 23 of 23, and `tests/e2e/house-file.spec.ts` passed 10 of 10 repeated runs.
+A task is checked only when code and a test implement it. At the last full run: Playwright 47 of 47, Vitest 150 of 150, and `npm run trace` names 152 of 161 criteria in a test.
 
 - [x] 1. Clock and day helpers: `Clock`, `ManualClock`, local day keys, DST-safe day arithmetic (Req 5.1)
 - [x] 2. Timer state machine with absolute end times, pause/resume, skip, reset, long-break cycle, auto-start (Req 1.1 to 1.8, 1.11 to 1.15, 1.17, 1.18)
