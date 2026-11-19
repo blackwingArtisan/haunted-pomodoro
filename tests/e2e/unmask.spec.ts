@@ -123,7 +123,7 @@ test('with reduced motion the costume comes off at once, with no drapes', async 
 });
 
 // Req 7.24
-test('the plain timer drops its costume and sits below the plain view at 1440x900', async ({ browser }) => {
+test('the plain timer drops its costume and sits beside the plain view at 1440x900', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 1440, height: 900 }, reducedMotion: 'reduce' });
   const page = await context.newPage();
   await page.goto('/?demo=1');
@@ -131,9 +131,10 @@ test('the plain timer drops its costume and sits below the plain view at 1440x90
   const plaque = page.locator('.plaque');
   expect(await plaque.evaluate((el) => getComputedStyle(el, '::before').content)).toBe('none');
   await expect(page.getByTestId('digits')).toHaveCSS('text-shadow', 'none');
+  // Beside the plain view on a desktop, never over it.
   const [stage, timer] = await Promise.all([
-    page.getByTestId('plain-stage').evaluate((el) => el.getBoundingClientRect().bottom),
-    plaque.evaluate((el) => el.getBoundingClientRect().top),
+    page.getByTestId('plain-stage').evaluate((el) => el.getBoundingClientRect().right),
+    plaque.evaluate((el) => el.getBoundingClientRect().left),
   ]);
   expect(timer).toBeGreaterThanOrEqual(stage);
   // The plain view and the whole timer still fit the first view.

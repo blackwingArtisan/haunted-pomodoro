@@ -24,7 +24,7 @@ npm run trace      # map every acceptance criterion to its tests
 npm run demo-ready # the demo arc, the payoff frame and the axe scans (also a Manual Kiro hook)
 LIVE_URL=https://example.pages.dev npm run smoke   # three checks against a deployed copy
 ```
-Each test names the acceptance criteria it checks (`// Req 3.2`), and [`traceability.md`](../.kiro/specs/haunted-focus-timer/traceability.md) lists the tests behind every criterion: 156 of the 165 criteria are named by a test, and the rest are listed by number and open as task 38.
+Each test names the acceptance criteria it checks (`// Req 3.2`), and [`traceability.md`](../.kiro/specs/haunted-focus-timer/traceability.md) lists the tests behind every criterion: 159 of the 168 criteria are named by a test, and the rest are listed by number and open as task 38.
 
 The end-to-end suite uses Playwright's fake clock to run the whole demo arc: light a candle, hide the tab, watch the ghost call, come back, finish the session, see the parlor restored, breathe through the break, and arrive in the library. It also covers reload persistence, keyboard shortcuts, sound controls, the house map, the first-visit guide, offline reload, the link-preview tags and image size, reduced motion, a phone-width layout, first-view fit at 1280x720, 1366x768 and 1920x1080, level limits for all eight sounds rendered in Chromium's OfflineAudioContext, export, erase and import of a house file, will-o'-wisps, the Unmask switch keeping the state identical, the `?demo=finale` ending, shortcuts pressed straight after a window closes, and axe-core WCAG 2.1 A/AA scans of the main screen, the restored room, settings (demo and normal house), the house map, the plain view and the sound check page.
 

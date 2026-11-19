@@ -147,7 +147,10 @@ Numbers never change. A criterion that held more than one behavior keeps its fir
 21. WHEN the person presses U or the Unmask button beside the room heading, THE SYSTEM SHALL switch between the haunted house and a plain Pomodoro view without changing the timer, the tasks, the house or the day history, and SHALL remember the choice in this browser.
 22. WHILE the plain view is shown, THE SYSTEM SHALL show session progress as a named progress bar and the distraction, goal and streak counts as text, each with a note naming the part of the house that stands for it.
 23. WHEN the person switches between the house and the plain view AND motion is not reduced, THE SYSTEM SHALL close the drapes over the stage while the ghost tugs her sheet, swap the view only while the drapes are closed, and open them again within about 1.1 s; WHEN the house comes back, THE SYSTEM SHALL end the change with a candle strike; WHILE motion is reduced, THE SYSTEM SHALL swap the view at once.
-24. WHILE the plain view is shown, THE SYSTEM SHALL show the timer without its costume (no glow, no brass ornaments) below the plain view rather than over it, with every tile only as tall as its content.
+24. WHILE the plain view is shown, THE SYSTEM SHALL show the timer without its costume (no glow, no brass ornaments) beside or below the plain view, never over it, with every tile only as tall as its content.
+25. WHILE the window is at least 1041 px wide, THE SYSTEM SHALL show the timer at the top of the right-hand column beside the stage, never over it, and SHALL size the stage to at least 60% of the window's width at 1440x900 with the whole stage in the first view.
+26. WHILE the window is 720 px wide or narrower, THE SYSTEM SHALL show a full-bleed stage 280 px tall, a text label under each toolbar icon and a short "Skip" button whose accessible name still says what it skips, and SHALL keep the timer clear of the Restored caption.
+27. THE SYSTEM SHALL draw small capitals at 13 px or larger, and SHALL place the ghost's words clear of the portrait and the clock face.
 
 ## Requirement 8: Offline and privacy
 1. THE SYSTEM SHALL store all data in the browser's localStorage by default.

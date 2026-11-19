@@ -1,4 +1,5 @@
 import { expect, test, type Page } from '@playwright/test';
+import { setTabHidden } from './helpers';
 
 /** Bottom edge of an element, in viewport pixels. */
 async function bottomOf(page: Page, selector: string): Promise<number> {
@@ -106,4 +107,89 @@ test('task checkboxes and footer links are at least 24 px tall, and the house ma
   await expect(windows).toHaveCount(6);
   for (const w of await windows.all()) await expect(w).toHaveAttribute('aria-hidden', 'true');
   await expect(page.locator('.room-btn')).toHaveCount(6);
+});
+
+type Box = { left: number; top: number; right: number; bottom: number; width: number; height: number };
+const boxOf = (page: Page, selector: string): Promise<Box> => page.locator(selector).first().evaluate((el) => el.getBoundingClientRect().toJSON() as Box);
+const overlaps = (a: Box, b: Box) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+
+// Req 7.25
+test('on a desktop the stage gets the screen and the timer sits beside it, never over the payoff frame', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await context.newPage();
+  await page.clock.install();
+  await page.goto('/?demo=1');
+  const scene = await boxOf(page, '.proscenium');
+  expect(scene.width).toBeGreaterThanOrEqual(1440 * 0.6);
+  expect(scene.bottom).toBeLessThanOrEqual(900);
+  const plaque = await boxOf(page, '.plaque');
+  expect(plaque.left).toBeGreaterThanOrEqual(scene.right);
+  await expect(page.getByTestId('primary')).toBeInViewport({ ratio: 1 });
+
+  await page.getByTestId('primary').click();
+  await page.clock.runFor(21_000);
+  await expect(page.getByTestId('restored-banner')).toBeVisible();
+  const caption = await boxOf(page, '[data-testid="restored-banner"]');
+  expect(overlaps(caption, await boxOf(page, '.plaque'))).toBe(false);
+  expect(caption.bottom).toBeLessThanOrEqual(scene.bottom);
+  await context.close();
+});
+
+// Req 7.26
+test('on a phone the stage is full-bleed and 280 px tall, the toolbar has words, and Skip is short but fully named', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
+  const page = await context.newPage();
+  await page.clock.install();
+  await page.goto('/?demo=1');
+  const scene = await boxOf(page, '.proscenium');
+  expect(Math.round(scene.width)).toBe(390);
+  expect(Math.round(scene.height)).toBe(280);
+  const toolbar = page.getByRole('navigation', { name: 'House tools' });
+  for (const name of ['House', 'Settings', 'Keys']) await expect(toolbar.getByText(name, { exact: true })).toBeVisible();
+  const skip = page.getByRole('button', { name: 'Skip to break' });
+  await expect(skip).toBeVisible();
+  // The words a sighted user sees: everything but the screen-reader-only text.
+  const shown = await skip.evaluate((el) => {
+    const copy = el.cloneNode(true) as HTMLElement;
+    copy.querySelectorAll('.sr-only').forEach((n) => n.remove());
+    return (copy.textContent ?? '').trim();
+  });
+  expect(shown).toBe('Skip');
+  const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+  expect(overflow).toBeLessThanOrEqual(0);
+
+  await page.getByTestId('primary').click();
+  await page.clock.runFor(21_000);
+  await expect(page.getByTestId('restored-banner')).toBeVisible();
+  expect(overlaps(await boxOf(page, '[data-testid="restored-banner"]'), await boxOf(page, '.plaque'))).toBe(false);
+  await context.close();
+});
+
+// Req 7.27
+test('small capitals are at least 13 px, and the ghost speaks clear of the portrait and the clock face', async ({ browser }) => {
+  const context = await browser.newContext({ viewport: { width: 1440, height: 900 } });
+  const page = await context.newPage();
+  await page.clock.install();
+  await page.goto('/?demo=1');
+  const sizes = await page.evaluate(() =>
+    ['.room-number', '.unmask-toggle', '.phase-label', '.working-on label', '.tool'].map((s) => [s, parseFloat(getComputedStyle(document.querySelector(s)!).fontSize)] as const),
+  );
+  for (const [selector, size] of sizes) expect(size, selector).toBeGreaterThanOrEqual(13);
+
+  // Every spot the ghost can float to: one, two and three wanderings.
+  await page.getByTestId('primary').click();
+  for (let n = 1; n <= 3; n++) {
+    await page.clock.runFor(1_000);
+    await setTabHidden(page, true);
+    await page.clock.runFor(2_500);
+    await setTabHidden(page, false);
+    await page.clock.runFor(3_000);
+    const line = await boxOf(page, '[data-testid="ghost-line"]');
+    expect(overlaps(line, await boxOf(page, '.scene .portrait')), `wandering ${n}: portrait`).toBe(false);
+    expect(overlaps(line, await boxOf(page, '.scene .clock-hands')), `wandering ${n}: clock face`).toBe(false);
+    const stage = await boxOf(page, '.proscenium');
+    expect(line.left).toBeGreaterThanOrEqual(stage.left);
+    expect(line.right).toBeLessThanOrEqual(stage.right);
+  }
+  await context.close();
 });

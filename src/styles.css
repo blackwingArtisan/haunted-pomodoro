@@ -8,7 +8,7 @@
   --velvet: #5d1a2a;
   --velvet-deep: #2a0b16;
   --bone: #efe6d2;
-  --bone-dim: #c9bda3;
+  --bone-dim: #d8ccb2;
   --brass: #c9a25a;
   --brass-bright: #e6c47a;
   --candle: #ffbf5a;
@@ -217,16 +217,36 @@ input[type='range'] {
   accent-color: var(--candle);
 }
 
+/*
+ * Two columns on desktop: the stage takes the whole left column, and the timer sits at the top of
+ * the right column above the ledger and the Hearth, so it never covers the room. One column below
+ * 1041 px: stage, timer, then the cards.
+ */
 .stage-grid {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 370px;
-  gap: 28px;
+  grid-template-rows: auto 1fr;
+  grid-template-areas: 'stage plaque' 'stage side';
+  column-gap: 28px;
+  row-gap: 22px;
   align-items: start;
+}
+.stage {
+  grid-area: stage;
+}
+.stage-grid > .plaque {
+  grid-area: plaque;
+}
+.side {
+  grid-area: side;
 }
 
 @media (max-width: 1040px) {
   .stage-grid {
     grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: none;
+    grid-template-areas: 'stage' 'plaque' 'side';
+    row-gap: 18px;
   }
 }
 
@@ -244,7 +264,7 @@ input[type='range'] {
   grid-area: num;
   margin: 0;
   font-family: var(--font-numeral);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.24em;
   text-transform: uppercase;
@@ -281,7 +301,7 @@ input[type='range'] {
   color: var(--bone-dim);
   font: inherit;
   font-family: var(--font-numeral);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
@@ -374,6 +394,12 @@ input[type='range'] {
   text-align: center;
   animation: ghost-line-in 0.6s var(--ease) both;
 }
+/* Beside the ghost, anchored by its left edge so it never reaches the portrait. */
+.ghost-line.is-anchored {
+  translate: none;
+  max-width: 34%;
+  animation-name: caption-in;
+}
 /* After a restoration the ghost waits for the sweep to finish, then speaks beside the window. */
 .ghost-line.is-after-restore {
   max-width: 30%;
@@ -414,7 +440,7 @@ input[type='range'] {
 .restored-kicker {
   font-family: var(--font-numeral);
   font-weight: 700;
-  font-size: clamp(12px, 1.2vw, 15px);
+  font-size: clamp(13px, 1.2vw, 15px);
   letter-spacing: 0.5em;
   color: var(--brass-bright);
   text-transform: uppercase;
@@ -434,8 +460,8 @@ input[type='range'] {
 .plaque {
   position: relative;
   z-index: 5;
-  width: min(660px, 94%);
-  margin: -24px auto 0;
+  width: min(660px, 100%);
+  margin: 0 auto;
   padding: 18px 28px 20px;
   text-align: center;
   background:
@@ -609,7 +635,7 @@ input[type='range'] {
 .btn-small {
   min-height: 38px;
   padding: 6px 14px;
-  font-size: 12px;
+  font-size: 13px;
 }
 .btn-danger {
   border-color: var(--danger);
@@ -627,7 +653,7 @@ input[type='range'] {
 }
 .working-on label {
   font-family: var(--font-numeral);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.2em;
   text-transform: uppercase;
@@ -643,9 +669,13 @@ input[type='number'] {
   background: #0c0910;
   color: var(--bone);
 }
+/* A long task name is cut off with an ellipsis inside the select's own width. */
 .working-on select {
   min-width: 0;
   max-width: min(320px, 100%);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 /* Numbers line up and never jiggle as they change. */
 input[type='number'],
@@ -895,7 +925,7 @@ input[type='number'],
 }
 .mini-day {
   font-family: var(--font-numeral);
-  font-size: 10px;
+  font-size: 13px;
   color: var(--bone-dim);
 }
 .fortnight .is-today .mini-day {
@@ -1041,7 +1071,7 @@ input[type='number'],
 .settings legend {
   padding: 0 6px;
   font-family: var(--font-numeral);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.22em;
   text-transform: uppercase;
@@ -2150,7 +2180,7 @@ input[type='number'],
  */
 @media (min-width: 1041px) {
   .stage {
-    --stage-chrome: 540px;
+    --stage-chrome: 250px;
     --stage-width: min(100%, max(var(--stage-min, 480px), calc((100svh - var(--stage-chrome) - var(--banner-room, 0px)) * 12 / 7)));
   }
   /* The demo banner sits above everything else, so it takes its height from the stage. */
@@ -2161,14 +2191,39 @@ input[type='number'],
     width: var(--stage-width);
     margin-inline: auto;
   }
+  /* The timer heads the right column: the primary button on its own row, the quiet ones below it. */
   .plaque {
-    width: min(660px, 100%, max(604px, calc(var(--stage-width) * 0.94)));
+    width: 100%;
+    padding: 16px 20px 18px;
+  }
+  .plaque .digits {
+    font-size: clamp(64px, 5.6vw, 92px);
+  }
+  .plaque .wick {
+    width: 100%;
+  }
+  .plaque .controls {
+    gap: 10px;
+  }
+  .plaque .btn-primary {
+    order: -1;
+    width: 100%;
+    min-width: 0;
+  }
+  .plaque .controls .btn-quiet {
+    flex: 1;
+    padding-inline: 10px;
+  }
+  .plaque .working-on {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
   }
 }
 
 @media (min-width: 1041px) and (max-height: 960px) {
   .stage {
-    --stage-chrome: 440px;
+    --stage-chrome: 214px;
   }
   .is-demo {
     --banner-room: 58px;
@@ -2198,11 +2253,10 @@ input[type='number'],
     font-size: clamp(28px, 4.6svh, 42px);
   }
   .plaque {
-    margin-top: -24px;
-    padding: 12px 24px 14px;
+    padding: 12px 18px 14px;
   }
-  .digits {
-    font-size: clamp(60px, 10svh, 104px);
+  .plaque .digits {
+    font-size: clamp(60px, 9svh, 88px);
     margin: 2px 0 0;
   }
   .plaque-sub {
@@ -2289,8 +2343,18 @@ input[type='number'],
   .app {
     padding: 12px 16px 24px;
   }
-  /* Icon-only toolbar on phones: the words stay in the accessibility tree. */
-  .toolbar .tool span:not(.sr-only),
+  /* Phones: a small label under each toolbar icon. */
+  .toolbar {
+    gap: 0;
+  }
+  .toolbar .tool:not(.tool-volume, .tool-demo) {
+    flex-direction: column;
+    gap: 2px;
+    min-height: 44px;
+    padding: 4px 3px;
+    font-size: 13px;
+    letter-spacing: 0.02em;
+  }
   .phone-sr-only {
     position: absolute;
     width: 1px;
@@ -2334,8 +2398,9 @@ input[type='number'],
     transition: none;
     animation-name: caption-in;
   }
-  .ghost-line.is-after-restore {
-    max-width: none;
+  .ghost-line.is-after-restore,
+  .ghost-line.is-anchored {
+    max-width: none !important;
     font-size: 17px;
   }
   .tool-volume input {
@@ -2369,12 +2434,21 @@ input[type='number'],
     white-space: nowrap;
     text-underline-offset: 3px;
   }
+  /* A full-bleed stage, 280 px tall; the scene is cropped at the sides rather than shrunk. */
+  .stage-frame {
+    margin-inline: -16px;
+  }
   .proscenium {
-    border-radius: 80px 80px 10px 10px / 30px 30px 10px 10px;
+    aspect-ratio: auto;
+    height: 280px;
+    border-inline: none;
+    border-radius: 80px 80px 0 0 / 30px 30px 0 0;
+  }
+  .stage-frame .ghost-line {
+    margin-inline: 16px;
   }
   .plaque {
     width: 100%;
-    margin-top: -24px;
     padding: 16px 14px;
   }
   .btn-primary {
@@ -2490,7 +2564,6 @@ input[type='number'],
 }
 /* The timer loses its costume too: no glow, no brass ornaments, no engraved small caps, and it sits below the plain view instead of over it. */
 .app.is-unmasked .plaque {
-  margin-top: 14px;
   border-radius: 12px;
 }
 .app.is-unmasked .plaque::before,
@@ -2695,7 +2768,7 @@ input[type='number'],
 .finale-kicker {
   margin: 0;
   font-family: var(--font-numeral);
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.24em;
   text-transform: uppercase;

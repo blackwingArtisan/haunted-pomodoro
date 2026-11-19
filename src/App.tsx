@@ -38,16 +38,23 @@ function downloadTextFile(fileName: string, text: string): void {
 }
 
 /**
- * Places the ghost's speech above wherever the ghost is floating, kept inside the stage. In a
- * restored room the line sits beside the resting ghost by the window, clear of the portrait, the
- * fireplace and the Restored caption, and only after the restoration sweep has finished.
+ * Places the ghost's speech beside wherever the ghost is floating, always clear of the portrait (the
+ * middle of the back wall) and the clock face (upper right). On the left of the room the bubble hangs
+ * from the left wall; on the right it sits below the ghost, under the clock face. In a restored room
+ * the line sits beside the resting ghost by the window, clear of the portrait, the fireplace and the
+ * Restored caption, and only after the restoration sweep has finished.
  */
 function ghostLineStyle(closeness: number, restored: boolean): CSSProperties {
   if (restored) return { left: '19%', top: '40%' };
-  const [x, y, scale] = GHOST_SPOTS[Math.min(3, Math.max(0, Math.round(closeness)))]!;
-  const left = Math.min(72, Math.max(28, (x / 1200) * 100));
-  const top = Math.max(9, ((y - 110 * scale) / 700) * 100 - 9);
-  return { left: `${left}%`, top: `${top}%` };
+  const spot = Math.min(3, Math.max(0, Math.round(closeness)));
+  const [x, y, scale] = GHOST_SPOTS[spot]!;
+  if (x > 600) {
+    // Right of the mantel: below the ghost, between the portrait and the clock's pendulum case.
+    return { left: '58%', top: `${Math.round(((y + 100 * scale) / 700) * 100)}%`, maxWidth: '30%' };
+  }
+  // Left of the room, or the ghost right up at the glass: the left wall, by the window.
+  const top = spot === 3 ? 30 : Math.max(9, Math.round(((y - 110 * scale) / 700) * 100) - 9);
+  return { left: '4%', top: `${top}%` };
 }
 
 function demoFromUrl(): DemoKind | null {
@@ -535,15 +542,16 @@ export function App() {
             )}
           </div>
             {ghostLine && (
-              <p className={restoredNow ? 'ghost-line is-after-restore' : 'ghost-line'} data-testid="ghost-line" style={ghostLineStyle(ghost.closeness, restoredNow)}>
+              <p className={restoredNow ? 'ghost-line is-after-restore' : 'ghost-line is-anchored'} data-testid="ghost-line" style={ghostLineStyle(ghost.closeness, restoredNow)}>
                 {ghostLine}
               </p>
             )}
           </div>
           )}
           </div>
-          <TimerPlaque timer={timer} now={now} house={house} model={model} dispatch={controller.dispatch} onGesture={unlock} showcaseName={showcase?.name ?? null} />
         </section>
+
+        <TimerPlaque timer={timer} now={now} house={house} model={model} dispatch={controller.dispatch} onGesture={unlock} showcaseName={showcase?.name ?? null} />
 
         <aside className="side">
           <IntroCard show={showIntro} onDemo={() => setDemoUrl(true)} onDismiss={dismissIntro} />

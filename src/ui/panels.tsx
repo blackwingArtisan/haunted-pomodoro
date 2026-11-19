@@ -97,7 +97,9 @@ export function TimerPlaque(props: {
         </button>
         <button type="button" className="btn btn-quiet" onClick={() => act('skip')} aria-keyshortcuts="S" title="Skip (S)">
           <SkipIcon />
-          <span>{isFocus ? 'Skip to break' : 'Skip break'}</span>
+          <span>
+            Skip<span className="sr-only">{isFocus ? ' to break' : ' break'}</span>
+          </span>
         </button>
       </div>
       <div className="working-on">
