@@ -27,6 +27,8 @@ Built for Kiroween 2026 (Costume Contest) by Stubborn Otter Software.
 - **Reduced motion.** Follows the system setting, or choose reduced or full theatre in settings.
 - **Works offline.** Installable PWA with a generated service worker; fonts are self-hosted.
 - **Private by default.** Everything lives in localStorage. Optional sync to a Cloudflare Worker is written and tested against a stub, and off unless configured.
+- **Export and import.** Settings has "Export house", which downloads `haunted-house-YYYY-MM-DD.json`, and "Import house", which merges a saved file into the current house. The house with more candles wins, so an import never removes a candle or a room. Files over 1 MB, damaged files and files from another format version are refused with a message and change nothing. Both are disabled in demo mode.
+- **Optional phase-end notification.** Off by default. "Notify me when a phase ends while this tab is hidden" asks for browser permission when you turn it on, turns itself off with a reason if permission is denied, and shows one notification per phase end only while the tab is hidden.
 - **Demo mode.** `/?demo=1` runs a 20 second focus and a 10 second break in a house whose parlor is one candle from restored, without touching your own data.
 
 ## Run it
@@ -45,12 +47,12 @@ npx playwright install chromium   # once
 npm run test:e2e   # Playwright against the production build on port 3182
 npm run check      # all three
 ```
-The end-to-end suite uses Playwright's fake clock to run the whole demo arc: light a candle, hide the tab, watch the ghost call, come back, finish the session, see the parlor restored, breathe through the break, and arrive in the library. It also covers reload persistence, keyboard shortcuts, sound controls, the house map, the first-visit guide, offline reload, reduced motion, a phone-width layout, first-view fit at 1280x720, 1366x768 and 1920x1080, level limits for all eight sounds rendered in Chromium's OfflineAudioContext, and axe-core WCAG 2.1 A/AA scans of the main screen, the restored room, settings, the house map and the sound check page.
+The end-to-end suite uses Playwright's fake clock to run the whole demo arc: light a candle, hide the tab, watch the ghost call, come back, finish the session, see the parlor restored, breathe through the break, and arrive in the library. It also covers reload persistence, keyboard shortcuts, sound controls, the house map, the first-visit guide, offline reload, reduced motion, a phone-width layout, first-view fit at 1280x720, 1366x768 and 1920x1080, level limits for all eight sounds rendered in Chromium's OfflineAudioContext, and export, erase and import of a house file, and axe-core WCAG 2.1 A/AA scans of the main screen, the restored room, settings (demo and normal house), the house map and the sound check page.
 
 ## Architecture
 ```
-src/core        pure domain logic: timer state machine, house, streak, reducer, snapshot/merge
-src/adapters    HouseStore port: local (localStorage) and cloudflare (sync Worker)
+src/core        pure domain logic: timer state machine, house, streak, reducer, snapshot/merge, house file export and import
+src/adapters    HouseStore port (local and cloudflare) and the Notifier port (browser and no-op)
 src/app         HouseController (model + persistence + cues), demo seed
 src/audio       Web Audio sound engine, offline renderer and level measurements
 src/sound-check the /sound-check.html page
@@ -64,14 +66,15 @@ The core never reads the clock or touches the DOM: `step(state, action, now, con
 |---|---|---|---|
 | House store | `LocalHouseStore`: one JSON document in localStorage | `CloudflareHouseStore` + `worker/sync-worker.ts`: Workers KV, merge on conflict | `VITE_HOUSE_STORE=cloudflare` and `VITE_SYNC_URL` (see `.env.example`) |
 | Sound | Web Audio synthesis | none needed | settings |
+| Notifier | no-op (nothing shown) | `createBrowserNotifier`: the browser's Notification API, unit tested with a fake | settings, off by default |
 
 ## Deploy (free)
 The app is a static site: deploy `dist/` to Cloudflare Pages (free tier). The optional sync Worker deploys with `wrangler deploy` using `worker/wrangler.toml.example` and a free KV namespace. Nothing is deployed from this repository.
 
 ## Built with Kiro
 - `.kiro/steering/`: product rules (never punish, honest timer, local data, accessible theatre), tech stack and structure.
-- `.kiro/specs/haunted-focus-timer/` and `.kiro/specs/house-sync/`: EARS requirements, design and task lists mapped to requirement numbers.
-- `.kiro/hooks/`: unit tests on core saves, a never-punish guard, an accessibility and motion guard and a full check on stop (the `v1` hook files), plus the same core-tests rule as a Kiro IDE `.kiro.hook` file. The IDE file format will be confirmed in the Kiro pass; see the log.
+- `.kiro/specs/haunted-focus-timer/` and `.kiro/specs/house-sync/`: EARS requirements, design and task lists mapped to requirement numbers. Open tasks are listed honestly, including gaps found in review.
+- `.kiro/hooks/`: five `v1` hook files. `test-on-save.json` runs `npm test` when core, adapter, app, audio, Worker or unit-test files are saved. `core-tests.json` (converted from an older IDE-format file) has the agent fix code, not tests, against the spec. `never-punish-guard.json` restates the forward-only rule after edits to house, streak, snapshot, reducer or house-file code. `a11y-motion-guard.json` checks reduced motion, labels and focus after UI edits. `e2e-on-stop.json` runs `npm run check` (types, unit and Playwright) when a turn ends.
 - [`KIRO-LOG.md`](KIRO-LOG.md) records what was drafted before Kiro ran and every Kiro call since.
 
 ## Credits

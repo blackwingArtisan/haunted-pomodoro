@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
+import { createBrowserNotifier } from './adapters/notify';
 import { createStores } from './adapters/store';
 import { HouseController } from './app/controller';
 import { createDemoModel } from './app/demo';
 import { SoundEngine } from './audio/sound';
 import { systemClock } from './core/clock';
 import { dayKey } from './core/dates';
+import { decideImport, exportHouse, importSizeProblem } from './core/house-file';
 import { CANDLES_PER_ROOM, ROOMS, viewHouse, type RoomDef } from './core/house';
 import { createModel, demoConfigFor, timerConfig, type Cue } from './core/model';
 import { computeStreak } from './core/streak';
@@ -21,6 +23,20 @@ const RETURN_LINES = [
 ];
 
 const stores = createStores(import.meta.env);
+const notifier = createBrowserNotifier();
+const isTabHidden = () => document.visibilityState === 'hidden';
+
+/** Hands a text file to the browser as a download. */
+function downloadTextFile(fileName: string, text: string): void {
+  const url = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = fileName;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  URL.revokeObjectURL(url);
+}
 
 /** Places the ghost's speech above wherever the ghost is floating, kept inside the stage. */
 function ghostLineStyle(closeness: number): CSSProperties {
@@ -46,7 +62,7 @@ function buildController(demo: boolean): HouseController {
   if (demo) {
     const settings = stores.local.loadSync()?.settings;
     const initial = createDemoModel(now, settings ?? createModel(now).settings);
-    return new HouseController({ initial, clock: systemClock, configFor: demoConfigFor });
+    return new HouseController({ initial, clock: systemClock, configFor: demoConfigFor, notifier, isHidden: isTabHidden });
   }
   const initial = stores.local.loadSync() ?? createModel(now);
   let pushTimer: ReturnType<typeof setTimeout> | null = null;
@@ -54,6 +70,8 @@ function buildController(demo: boolean): HouseController {
     initial,
     clock: systemClock,
     configFor: timerConfig,
+    notifier,
+    isHidden: isTabHidden,
     persist: (model) => {
       stores.local.saveSync(model);
       if (stores.primary.kind === 'local') return;
@@ -89,6 +107,7 @@ export function App() {
   const [ghostAwakeUntil, setGhostAwakeUntil] = useState(0);
   const [rattleUntil, setRattleUntil] = useState(0);
   const [showcase, setShowcase] = useState<RoomDef | null>(null);
+  const [notifyNote, setNotifyNote] = useState('');
   const [hidden, setHidden] = useState(() => document.visibilityState === 'hidden');
   const taskInput = useRef<HTMLInputElement>(null);
   const settingsRef = useRef(model.settings);
@@ -102,6 +121,16 @@ export function App() {
     if (demo || stores.primary.kind === 'local') return;
     void stores.primary.load().then((m) => m && controller.replace(m));
   }, [controller, demo]);
+
+  // If the browser has since blocked notifications, the setting turns itself off and says why. This never prompts.
+  useEffect(() => {
+    const off = controller.onNotifyOff((message) => {
+      setNotifyNote(message);
+      setAnnouncement(message);
+    });
+    controller.reconcileNotifications();
+    return off;
+  }, [controller]);
 
   // The heartbeat: advances the state machine and redraws the clock.
   useEffect(() => {
@@ -459,11 +488,41 @@ export function App() {
           settings={settings}
           dispatch={controller.dispatch}
           demo={demo}
-          onErase={() => {
-            stores.local.clear();
-            controller.replace(createModel(systemClock.now(), settings));
-            setDialog(null);
-            setAnnouncement('The house was erased. A fresh, very haunted house awaits.');
+          notifyNote={notifyNote}
+          actions={{
+            onErase: () => {
+              stores.local.clear();
+              controller.replace(createModel(systemClock.now(), settings));
+              setDialog(null);
+              setAnnouncement('The house was erased. A fresh, very haunted house awaits.');
+            },
+            onExport: () => {
+              const file = exportHouse(controller.getModel(), systemClock.now());
+              downloadTextFile(file.fileName, file.text);
+              setAnnouncement(`Exported ${file.fileName}.`);
+            },
+            onImport: async (file) => {
+              const tooLarge = importSizeProblem(file.size);
+              let decision = tooLarge;
+              if (!decision) {
+                let text = '';
+                try {
+                  text = await file.text();
+                } catch {
+                  return 'That file could not be read, so it was not imported. Your house is unchanged.';
+                }
+                decision = decideImport(text, controller.getModel(), systemClock.now());
+              }
+              if (decision.ok) controller.replace(decision.model);
+              setAnnouncement(decision.message);
+              return decision.message;
+            },
+            onNotifyChange: async (on) => {
+              const result = await controller.setNotifyPhaseEnd(on);
+              setNotifyNote('');
+              setAnnouncement(result.message);
+              return result.message;
+            },
           }}
         />
       </Dialog>

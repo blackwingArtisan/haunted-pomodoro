@@ -10,3 +10,9 @@
 ## Testing
 - The Worker handler is tested with an in-memory KV.
 - The Cloudflare store is tested by routing its `fetch` calls into the Worker handler, covering push, pull and merge, the 409 retry and offline fallback. No real network is used.
+
+## Notes from the Kiro pass
+- Importing a house file (`src/core/house-file.ts`) calls the same `mergeModels`, so sync and import share the forward-only rule (Req 3.3).
+- The push debounce (four seconds) lives in `buildController` in `src/App.tsx`, not in the store, so no unit test reaches it yet (tasks 9).
+- On start-up the app calls `controller.replace(pulled)` with the store's merged copy. That is correct when nothing changed during the pull, and loses a change made during it (task 8).
+- The Worker measures the body with `text.length`, which counts UTF-16 units, not bytes (task 3.1).

@@ -30,6 +30,16 @@ test('the demo session, settings and house map have no WCAG A/AA violations', as
   expect(await scan(page)).toEqual([]);
 });
 
+test('settings in a normal house, with export, import and notifications, have no WCAG A/AA violations', async ({ page }) => {
+  await page.goto('/');
+  await page.keyboard.press(',');
+  const dialog = page.getByRole('dialog', { name: 'Settings' });
+  await expect(dialog.getByRole('button', { name: 'Export house' })).toBeEnabled();
+  await expect(dialog.getByLabel('Import house')).toBeEnabled();
+  await expect(dialog.getByRole('switch', { name: /Notify me when a phase ends/ })).not.toBeChecked();
+  expect(await scan(page)).toEqual([]);
+});
+
 test('the sound check page has no WCAG A/AA violations', async ({ page }) => {
   await page.goto('/sound-check.html');
   await expect(page.getByTestId('summary')).toHaveAttribute('data-total', '8', { timeout: 30_000 });

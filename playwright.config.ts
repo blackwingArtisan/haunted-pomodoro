@@ -1,7 +1,8 @@
 import { defineConfig, devices } from '@playwright/test';
 
 /** End-to-end tests drive the production build (with its service worker) on port 3182. */
-const PORT = 3182;
+// Override with PW_PORT when 3182 is taken by another local server.
+const PORT = Number(process.env.PW_PORT ?? 3182);
 
 export default defineConfig({
   testDir: 'tests/e2e',

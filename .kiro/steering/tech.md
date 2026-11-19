@@ -25,12 +25,17 @@ Every external service sits behind an interface with a free local default.
 |---|---|---|---|
 | `HouseStore` | `LocalHouseStore` (localStorage) | `CloudflareHouseStore` (Worker + Workers KV, last-writer-wins with a merge on 409) | `VITE_HOUSE_STORE=local\|cloudflare`, `VITE_SYNC_URL` |
 | Sound | Web Audio synthesis in the browser | none needed | `settings.muted`, `settings.volume` |
+| `Notifier` | `noopNotifier` (shows nothing) | `createBrowserNotifier` (Notification API; written and unit tested with a fake constructor) | `settings.notifyPhaseEnd`, off by default; permission is requested only when the person turns it on |
 
-The real adapter is unit tested against the Worker handler through a stubbed `fetch`; no test touches the network.
+The real adapter is unit tested against the Worker handler through a stubbed `fetch`; no test touches the network. Notification logic is tested with a fake `Notifier`; no test shows a real notification or prompt.
+
+## Files the person can move
+- Export writes a JSON envelope (`format`, `formatVersion`, `snapshot`) from `src/core/house-file.ts`. Import is untrusted input: a 1 MB limit, a format and version check, `parseModel`, then `mergeModels`, so it can only move progress forward.
 
 ## Testing rules
 - Unit tests for every rule in `src/core` (timer transitions, distraction counting, streak math across days with an injectable clock, house progress, persistence round-trip, merge).
 - End-to-end tests drive the real app in Chromium with Playwright's fake clock. Visibility changes are simulated by overriding `document.visibilityState` and dispatching `visibilitychange`.
+- Export, import and notification decisions are pure or take a fake port, so they are unit tested without a browser; one Playwright test covers export, erase and import.
 - Accessibility is scanned with `@axe-core/playwright` (WCAG 2.1 A and AA) on the main screen, the restored room, settings and the house map.
 - Chromium is launched with `--disable-audio-output`.
 - Every commit passes `npm run typecheck`, `npm test` and `npm run test:e2e` from a clean checkout.

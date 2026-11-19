@@ -1,29 +1,51 @@
 # Tasks: Haunted focus timer
 
+A task is checked only when code and a test implement it. Tests marked "written, not run" were added in the Kiro pass and still need a Playwright run by the operator.
+
 - [x] 1. Clock and day helpers: `Clock`, `ManualClock`, local day keys, DST-safe day arithmetic (Req 5.1)
-- [x] 2. Timer state machine with absolute end times, pause/resume, skip, reset, long-break cycle, auto-start (Req 1.1 to 1.8)
+- [x] 2. Timer state machine with absolute end times, pause/resume, skip, reset, long-break cycle, auto-start (Req 1.1 to 1.8, 1.11 to 1.15, 1.17, 1.18)
   - [x] 2.1 Unit tests for every transition, late ticks and cycle reset
-- [x] 3. Distraction tracking in the state machine: hidden, visible, grace period, ghost wake, settle at end of focus (Req 3.1 to 3.7)
+- [x] 3. Distraction tracking in the state machine: hidden, visible, grace period, ghost wake, settle at end of focus (Req 3.1 to 3.7, 3.14)
   - [x] 3.1 Unit tests for grace, repeat absences, breaks and pauses, absence still open at the end
-- [x] 4. House progress: candles per room, restoration, new house, score for merging (Req 4.2, 4.3, 4.5, 4.6)
-- [x] 5. Forgiving streak with injectable clock (Req 5.1 to 5.3)
+- [x] 4. House progress: candles per room, restoration, new house, score for merging (Req 4.2, 4.3, 4.6, 4.14)
+- [x] 5. Forgiving streak with injectable clock (Req 5.1 to 5.3, 5.5)
   - [x] 5.1 Unit tests across days, gaps, grace, duplicates and future days
-- [x] 6. App reducer: tasks, settings clamping, day log, cues, demo lengths (Req 1.10, 2.1 to 2.4, 9.1)
+- [x] 6. App reducer: tasks, settings clamping, day log, cues, demo lengths (Req 1.16, 1.19, 2.1 to 2.9, 3.13, 9.1)
 - [x] 7. Snapshot: serialize, defensive parse, merge; local store with blocked-storage fallback (Req 1.9, 8.1, 8.3)
   - [x] 7.1 Persistence round-trip and damaged-data unit tests
-- [x] 8. SVG scene: room, window, fireplace, portrait with tracking eyes, candles, six room props, cobwebs, ghost (Req 4.1, 4.3)
-- [x] 9. Timer plaque, ledger, hearth panel, house map, settings, shortcut list (Req 1, 2, 4.7, 5.4, 6.2)
-- [x] 10. Wiring: ticker, Page Visibility, keyboard shortcuts, live region, tab title, ghost lines (Req 3.2, 3.3, 7.2, 7.3)
-- [x] 11. Web Audio sound engine with volume, mute and ambient wind (Req 6.1 to 6.3)
-- [x] 12. Reduced motion (system and in-app) and phone layout (Req 7.4, 7.5)
+- [x] 8. SVG scene: room, window, fireplace, portrait with tracking eyes, candles, six room props, cobwebs, ghost (Req 4.1, 4.3, 4.10, 4.11)
+- [ ] 9. Timer plaque, ledger, hearth panel, house map, settings, shortcut list (Req 1, 2, 4.7, 4.15, 5.4, 5.6 to 5.8, 6.2)
+  - [ ] 9.1 Playwright test of the Hearth panel: fourteen-day chart, today's candles, minutes and wanderings, best streak, rooms restored, the warm-until line and the cold-hearth line (Req 5.3, 5.4, 5.6 to 5.8). The code exists; no test reads these values yet.
+- [x] 10. Wiring: ticker, Page Visibility, keyboard shortcuts, live region, tab title, ghost lines (Req 3.2, 3.3, 3.8, 3.10, 3.12, 7.2, 7.3, 7.11)
+- [ ] 11. Web Audio sound engine with volume, mute and ambient wind (Req 6.1 to 6.3, 6.6, 6.7)
+  - [ ] 11.1 Playwright or controller-level test that the A key and the ambient switch turn the wind on and off, and that muting stops it (Req 6.3, 6.7, 7.2). Volume and mute are tested; the ambient wiring is not.
+- [x] 12. Reduced motion (system and in-app) and phone layout (Req 7.4, 7.12, 7.13)
 - [x] 13. PWA: manifest, icons, generated service worker (Req 8.2)
-- [x] 14. Demo mode with in-memory house and banner (Req 9.1 to 9.3)
-- [x] 15. Erase all data with confirmation (Req 8.4)
+- [x] 14. Demo mode with in-memory house and banner (Req 9.1 to 9.6)
+- [x] 15. Erase all data with confirmation (Req 8.4 to 8.6); covered by `tests/e2e/house-file.spec.ts` (written, not run)
 - [x] 16. Playwright: demo arc, demo isolation, reload persistence, shortcuts, sound controls, house map, offline, reduced motion, phone width
 - [x] 17. First-visit guide card, dismissed once per browser
 - [x] 18. axe-core WCAG 2.1 A/AA scans in the Playwright suite (Req 7.1, 7.5)
-- [ ] 19. Optional browser notification when a phase ends while the tab is hidden (opt-in, off by default)
-- [ ] 20. Export and import the house as a JSON file
-- [x] 21. Sound check page: offline render of every sound, level limits, waveform, play buttons; unit tests for the level maths and a Playwright check of all eight sounds (Req 6.4, 6.5)
+- [x] 19. Optional browser notification when a phase ends while the tab is hidden (opt-in, off by default) (Req 10.1 to 10.13)
+  - [x] 19.1 Notification port with a no-op default and a browser adapter: `src/adapters/notify.ts` (Req 10.12)
+  - [x] 19.2 `notifyPhaseEnd` setting, off by default, kept through save and load (Req 10.1)
+  - [x] 19.3 Pure notice wording in `src/core/notice.ts` and the controller rules: hidden, granted, once per phase end, no notice for skip or reset (Req 10.6 to 10.10, 10.13)
+  - [x] 19.4 Settings switch that asks for permission only when turned on, and turns itself off with a reason when denied (Req 10.2 to 10.5)
+  - [x] 19.5 Unit tests with a fake notifier: off by default, hidden and granted notifies once, visible does not, denied turns the setting off, no duplicate on late ticks, demo follows the setting (Req 10.1 to 10.13)
+- [x] 20. Export and import the house as a JSON file (Req 11.1 to 11.15)
+  - [x] 20.1 Pure export and import decision in `src/core/house-file.ts`: versioned envelope, 1 MB limit, defensive parse, merge through `mergeModels` (Req 11.1 to 11.12)
+  - [x] 20.2 Settings controls: "Export house" button, "Import house" file input, status message, demo disabled with a reason (Req 11.13 to 11.15)
+  - [x] 20.3 Unit tests: export payload, valid file merges forward, older house never lowers progress, damaged JSON, wrong format version, foreign file, too large (Req 11.1 to 11.12)
+  - [x] 20.4 Playwright: export after a one-minute session, erase, import, candle is back, damaged file changes nothing; demo controls disabled (Req 11.1 to 11.13; written, not run)
+  - [x] 20.5 axe scan of settings in a normal house with the new controls (Req 11.14; written, not run)
+- [x] 21. Sound check page: offline render of every sound, level limits, waveform, play buttons; unit tests for the level maths and a Playwright check of all eight sounds (Req 6.4, 6.5, 6.8, 6.9)
 - [x] 22. First-view fit: the stage scales with viewport height so the room, digits and primary button fit at 1280x720 and up, demo banner included; Playwright checks three desktop sizes (Req 7.6)
 - [ ] 23. Listening review: play every sound on /sound-check.html through laptop speakers and headphones, and retune any that sound harsh or thin (the level limits are measured; the character of each sound has not been judged by ear yet)
+- [ ] 24. Move the scene progress maths (`restore = (candlesLit + session progress) / 4`, the burning candle's melt) from `App.tsx` into `src/core/house.ts` and unit test it, including the restored showcase (Req 4.8, 4.9)
+- [ ] 25. Playwright: reload during a running session resumes at the right time and the end still lands on the original end time (Req 1.2, 1.9)
+- [ ] 26. Playwright: the tab title returns to the timer title after the person comes back, and the live region announces a counted wandering and a break that starts or ends (Req 3.15, 7.9, 7.10, 7.14)
+- [ ] 27. Playwright: every interactive control shows a visible focus indicator when reached by Tab; axe does not check this (Req 7.7)
+- [ ] 28. Test that turning off "the ghost calls when you wander off" silences the call while the title still changes (Req 3.8, 3.9)
+- [ ] 29. Playwright: delete a task, clear finished tasks and choose the active task from the ledger (Req 2.4 to 2.6)
+- [ ] 30. Notifications on platforms where `new Notification` is not allowed (for example Android Chrome) need a service worker `showNotification` path; add it behind the same `Notifier` port (Req 10.6)
+- [ ] 31. Find out why the "," shortcut is sometimes ignored when pressed within about a second of erasing or importing the house (seen in about 3 of 5 runs of the house-file end-to-end test, which now opens settings with the toolbar button instead), and fix it (Req 7.2)

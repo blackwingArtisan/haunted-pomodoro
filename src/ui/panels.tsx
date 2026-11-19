@@ -280,8 +280,21 @@ export function Dialog({ open, onClose, title, children, wide }: { open: boolean
 
 /* ------------------------------------------------------------------ Settings */
 
-export function SettingsForm({ settings, dispatch, onErase, demo }: { settings: Settings; dispatch: Dispatch; onErase: () => void; demo: boolean }) {
+export interface SettingsActions {
+  onErase: () => void;
+  /** Downloads the house as a JSON file. */
+  onExport: () => void;
+  /** Reads a chosen file; resolves with the message to show the person. */
+  onImport: (file: File) => Promise<string>;
+  /** Turns phase-end notifications on or off; resolves with the message to show. */
+  onNotifyChange: (on: boolean) => Promise<string>;
+}
+
+export function SettingsForm({ settings, dispatch, demo, actions, notifyNote }: { settings: Settings; dispatch: Dispatch; demo: boolean; actions: SettingsActions; notifyNote: string }) {
   const [confirmErase, setConfirmErase] = useState(false);
+  const [importNote, setImportNote] = useState('');
+  const [notifyResult, setNotifyResult] = useState('');
+  const { onErase } = actions;
   const set = (patch: Partial<Settings>) => dispatch({ type: 'updateSettings', patch });
   const num = (key: 'focusMin' | 'shortMin' | 'longMin' | 'longEvery', label: string, unit: string) => (
     <label className="field">
@@ -337,6 +350,26 @@ export function SettingsForm({ settings, dispatch, onErase, demo }: { settings: 
         {toggle('ghostCalls', 'The ghost calls when you wander off')}
       </fieldset>
       <fieldset>
+        <legend>Notifications</legend>
+        <label className="switch">
+          <input
+            type="checkbox"
+            role="switch"
+            checked={settings.notifyPhaseEnd}
+            aria-describedby="notify-note"
+            onChange={(e) => void actions.onNotifyChange(e.target.checked).then(setNotifyResult)}
+          />
+          <span className="switch-track" aria-hidden="true" />
+          <span className="switch-label">
+            Notify me when a phase ends while this tab is hidden
+            <small>Off by default. Your browser asks for permission only when you turn this on.</small>
+          </span>
+        </label>
+        <p className="note" id="notify-note" role="status">
+          {notifyNote || notifyResult}
+        </p>
+      </fieldset>
+      <fieldset>
         <legend>Motion</legend>
         <div className="radios" role="radiogroup" aria-label="Motion">
           {(
@@ -353,11 +386,43 @@ export function SettingsForm({ settings, dispatch, onErase, demo }: { settings: 
           ))}
         </div>
       </fieldset>
-      {!demo && (
-        <fieldset>
-          <legend>Your data</legend>
-          <p className="note">Everything stays in this browser. Nothing is sent anywhere.</p>
-          {confirmErase ? (
+      <fieldset>
+        <legend>Your data</legend>
+        <p className="note">Everything stays in this browser. Nothing is sent anywhere.</p>
+        <div className="data-actions">
+          <button type="button" className="btn btn-small" disabled={demo} aria-describedby={demo ? 'data-demo-note' : undefined} onClick={actions.onExport}>
+            Export house
+          </button>
+          <label className="file-field">
+            <span>Import house</span>
+            <input
+              type="file"
+              accept="application/json,.json"
+              disabled={demo}
+              aria-describedby={demo ? 'data-demo-note' : 'import-note'}
+              onChange={(e) => {
+                const input = e.currentTarget;
+                const file = input.files?.[0];
+                if (!file) return;
+                void actions.onImport(file).then((message) => {
+                  setImportNote(message);
+                  input.value = '';
+                });
+              }}
+            />
+          </label>
+        </div>
+        {demo ? (
+          <p className="note" id="data-demo-note">
+            Export and import are off in the demo house, which is never saved. Leave the demo to use them.
+          </p>
+        ) : (
+          <p className="note" id="import-note" role="status">
+            {importNote || 'Importing merges a saved house into this one. It never removes a candle or a room.'}
+          </p>
+        )}
+        {!demo &&
+          (confirmErase ? (
             <div className="erase-confirm">
               <span>Erase every task, day and restored room?</span>
               <button type="button" className="btn btn-danger btn-small" onClick={onErase}>
@@ -371,9 +436,8 @@ export function SettingsForm({ settings, dispatch, onErase, demo }: { settings: 
             <button type="button" className="btn btn-small" onClick={() => setConfirmErase(true)}>
               Erase all data…
             </button>
-          )}
-        </fieldset>
-      )}
+          ))}
+      </fieldset>
     </div>
   );
 }

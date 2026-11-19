@@ -1055,6 +1055,29 @@ input[type='number'] {
   font-style: italic;
   font-size: 16px;
 }
+.data-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.btn:disabled,
+.file-field input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.file-field {
+  display: grid;
+  gap: 4px;
+  color: var(--bone);
+}
+.file-field input[type='file'] {
+  max-width: 100%;
+  color: var(--bone-dim);
+  font: inherit;
+  font-size: 15px;
+}
 .erase-confirm {
   display: flex;
   flex-wrap: wrap;

@@ -20,8 +20,9 @@ A focus timer that lives in a haunted house. It is a real, daily-use Pomodoro ti
 ## Non-negotiable rules
 - **Never punish.** Progress only moves forward. A missed day, a reset or a skipped session never un-restores a room or removes a candle that was earned. The streak (the Hearth) forgives one missed day between active days, and a cold hearth says what the person kept, not what they lost.
 - **The timer is honest.** Time is computed from absolute end times so it never drifts in background tabs. A reload resumes exactly where the session was.
-- **Data stays local.** Everything lives in localStorage by default. Cloud sync is opt-in through an adapter and is never required.
+- **Data stays local.** Everything lives in localStorage by default. Cloud sync is opt-in through an adapter and is never required. The person can also export the house to a JSON file and import it again; an import can only add progress, never remove a candle or a room.
 - **Accessible theatre.** Every control works from the keyboard, focus is always visible, text meets WCAG AA contrast on the dark theme, state changes are announced to screen readers, and reduced motion (system or in-app) stills every animation without hiding information.
+- **Quiet by default.** The optional notification when a phase ends while the tab is hidden is off until the person turns it on, asks for browser permission only at that moment, and never shows while the tab is visible.
 - **Free to run.** No paid service on the default path. Sound is synthesized with Web Audio; there are no audio files.
 - **Demo mode** (`?demo=1`) runs a whole arc in about 30 seconds (20 s focus, 10 s break, parlor one candle from restored) in memory only, for presentations.
 

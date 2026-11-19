@@ -32,6 +32,8 @@ export interface Settings {
   ambient: boolean;
   /** The ghost makes a soft sound when you wander off during focus. */
   ghostCalls: boolean;
+  /** Show a browser notification when a phase ends while the tab is hidden. Off until the person asks. */
+  notifyPhaseEnd: boolean;
   motion: MotionPreference;
 }
 
@@ -46,6 +48,7 @@ export const DEFAULT_SETTINGS: Settings = {
   muted: false,
   ambient: false,
   ghostCalls: true,
+  notifyPhaseEnd: false,
   motion: 'system',
 };
 
@@ -168,6 +171,7 @@ export function normalizeSettings(patch: Partial<Settings>, base: Settings = DEF
     muted: Boolean(s.muted),
     ambient: Boolean(s.ambient),
     ghostCalls: Boolean(s.ghostCalls),
+    notifyPhaseEnd: s.notifyPhaseEnd === true,
     motion: s.motion === 'reduced' || s.motion === 'full' ? s.motion : 'system',
   };
 }

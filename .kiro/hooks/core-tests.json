@@ -1,0 +1,17 @@
+{
+  "version": "v1",
+  "hooks": [
+    {
+      "name": "Fix core failures against the spec",
+      "description": "Converted from the older core-tests.kiro.hook. After a save in the domain core, an adapter, the controller, the audio code or the Worker, the agent reads the unit suite result and fixes the code, not the test, unless the requirement says the test is wrong.",
+      "trigger": "PostFileSave",
+      "matcher": "^(src/core|src/adapters|src/app|src/audio|worker)/.*\\.ts$",
+      "action": {
+        "type": "agent",
+        "prompt": "A file in the domain core, an adapter, the controller, the audio code or the Worker changed. Read the result of the 'Run unit tests on core save' hook; if you have not seen it, run `npm test`. If anything fails, fix the code (not the test) unless the requirement in .kiro/specs/haunted-focus-timer/requirements.md or .kiro/specs/house-sync/requirements.md says the test is wrong, and say which requirement number applies."
+      },
+      "timeout": 300,
+      "enabled": true
+    }
+  ]
+}
