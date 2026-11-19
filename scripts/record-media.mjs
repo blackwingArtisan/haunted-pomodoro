@@ -25,7 +25,8 @@ async function setTabHidden(page, hidden) {
 
 /** Saves a full-window screenshot as a README JPEG through ffmpeg (quality 3 of 31). */
 async function still(page, work, name) {
-  const png = join(work, `${name}.png`);
+  // Kept apart from the film's restored.png, which the link-preview image is cut from.
+  const png = join(work, `still-${name}.png`);
   await page.screenshot({ path: png });
   execFileSync('ffmpeg', ['-y', '-loglevel', 'error', '-i', png, '-q:v', '3', join(shotsDir, `${name}.jpg`)]);
 }
@@ -54,7 +55,8 @@ async function recordStills(browser, work) {
   await page.waitForTimeout(400);
   await still(page, work, 'costume-off');
   await page.keyboard.press('u');
-  await page.clock.runFor(10_000);
+  // Run the focus just past its end, then let the sweep play in real time; the 10-second break leaves room on a busy machine.
+  await page.clock.runFor(8_400);
   await page.waitForTimeout(4_000);
   await still(page, work, 'restored');
   await context.close();
@@ -117,7 +119,8 @@ try {
   await setTabHidden(page, false);
   await page.clock.runFor(200);
   await page.waitForTimeout(1_800);
-  await burn(15);
+  // Run the rest of the focus to just past its end, so the still lands early in the 10-second break.
+  await burn(14);
   // The restoration sweep, the banner and the embers, in real time.
   await page.waitForTimeout(3_200);
   const filmSeconds = (Date.now() - filmStart) / 1000;
