@@ -157,7 +157,7 @@ export function Scene(props: SceneProps) {
         <Portrait restored={restored} pupilsRef={pupilsRef} />
         <Prop prop={room.prop} restored={restored} />
         {CANDLE_X.map((x, i) => (
-          <Candle key={i} x={x} state={i < candlesLit ? 'lit' : burning && burning.index === i ? 'burning' : 'unlit'} melt={burning && burning.index === i ? burning.melt : 0} />
+          <Candle key={i} uid={uid} x={x} state={i < candlesLit ? 'lit' : burning && burning.index === i ? 'burning' : 'unlit'} melt={burning && burning.index === i ? burning.melt : 0} />
         ))}
         <Cobwebs />
       </g>
@@ -319,7 +319,7 @@ function Portrait({ restored, pupilsRef }: { restored: boolean; pupilsRef: React
   );
 }
 
-function Candle({ x, state, melt }: { x: number; state: 'lit' | 'burning' | 'unlit'; melt: number }) {
+function Candle({ uid, x, state, melt }: { uid: string; x: number; state: 'lit' | 'burning' | 'unlit'; melt: number }) {
   const height = state === 'burning' ? 56 - melt * 30 : state === 'lit' ? 40 : 56;
   const top = 296 - height;
   return (
@@ -329,7 +329,7 @@ function Candle({ x, state, melt }: { x: number; state: 'lit' | 'burning' | 'unl
       <rect x={x - 9} y={top} width="18" height={height} rx="3" fill="#efe3c4" />
       <path d={`M${x - 9} ${top + 6} q4 10 0 16`} stroke="#d8c89f" strokeWidth="3" fill="none" />
       <line x1={x} x2={x} y1={top} y2={top - 7} stroke="#2a1a10" strokeWidth="2" />
-      {state === 'burning' && <circle className="flare" cx={x} cy={top - 16} r="70" fill="#ffcf7a" style={{ transformOrigin: `${x}px ${top - 16}px` }} />}
+      {state === 'burning' && <circle className="flare" cx={x} cy={top - 16} r="56" fill={`url(#glow-${uid})`} style={{ transformOrigin: `${x}px ${top - 16}px` }} />}
       {state !== 'unlit' && (
         <g className="flame-group" style={{ transformOrigin: `${x}px ${top - 4}px` }}>
           <circle cx={x} cy={top - 16} r="26" fill="#ffbf5a" opacity="0.18" />

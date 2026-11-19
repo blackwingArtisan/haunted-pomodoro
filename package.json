@@ -17,7 +17,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "check": "npm run typecheck && npm test && npm run test:e2e"
+    "check": "npm run typecheck && npm test && npm run test:e2e",
+    "media": "npm run build && node scripts/record-media.mjs"
   },
   "dependencies": {
     "@fontsource/cinzel": "5.3.0",

@@ -4,6 +4,8 @@
 
 A real Pomodoro timer wearing a haunted house: every focus session lights a candle, wandering off wakes a lonely ghost who counts it without taking anything away, and finished sessions restore the house room by room. Built for Kiroween 2026 (Costume Contest) by Stubborn Otter Software.
 
+![The demo in twelve seconds: the drapes part on a haunted parlor, one focus candle burns down, and a warm sweep restores the room](docs/media/hero.gif)
+
 | Haunted | You wandered off | Restored |
 |---|---|---|
 | ![The parlor, still haunted, with cobwebs and a staring portrait](docs/screenshots/haunted.jpg) | ![The ghost has drifted closer and says: there you are, I kept your candle lit](docs/screenshots/ghost.jpg) | ![The parlor restored: warm colors, the portrait asleep, the Restored banner](docs/screenshots/restored.jpg) |
@@ -66,6 +68,8 @@ npm run build && npm run preview   # production build with the service worker, h
 ```
 Open `http://localhost:3180/?demo=1` for the 30 second demo, and `http://localhost:3180/sound-check.html` to hear and measure every sound.
 
+Set `SITE_URL` (for example `SITE_URL=https://example.pages.dev npm run build`) so the link-preview tags point at an absolute image URL. `npm run media` rebuilds and re-records the README GIF and the 1200x630 preview image from the live demo; it needs ffmpeg.
+
 ## Test it
 ```bash
 npm run typecheck
@@ -74,7 +78,7 @@ npx playwright install chromium   # once
 npm run test:e2e   # Playwright against the production build on port 3182 (set PW_PORT to change it)
 npm run check      # all three
 ```
-The end-to-end suite uses Playwright's fake clock to run the whole demo arc: light a candle, hide the tab, watch the ghost call, come back, finish the session, see the parlor restored, breathe through the break, and arrive in the library. It also covers reload persistence, keyboard shortcuts, sound controls, the house map, the first-visit guide, offline reload, reduced motion, a phone-width layout, first-view fit at 1280x720, 1366x768 and 1920x1080, level limits for all eight sounds rendered in Chromium's OfflineAudioContext, and export, erase and import of a house file, and axe-core WCAG 2.1 A/AA scans of the main screen, the restored room, settings (demo and normal house), the house map and the sound check page.
+The end-to-end suite uses Playwright's fake clock to run the whole demo arc: light a candle, hide the tab, watch the ghost call, come back, finish the session, see the parlor restored, breathe through the break, and arrive in the library. It also covers reload persistence, keyboard shortcuts, sound controls, the house map, the first-visit guide, offline reload, the link-preview tags and image size, reduced motion, a phone-width layout, first-view fit at 1280x720, 1366x768 and 1920x1080, level limits for all eight sounds rendered in Chromium's OfflineAudioContext, and export, erase and import of a house file, and axe-core WCAG 2.1 A/AA scans of the main screen, the restored room, settings (demo and normal house), the house map and the sound check page.
 
 ## Architecture
 ```

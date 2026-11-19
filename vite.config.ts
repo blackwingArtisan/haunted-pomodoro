@@ -6,6 +6,18 @@ import { defineConfig, type Plugin } from 'vite';
  * Emits /sw.js after the bundle is written: a small offline-first service worker that precaches
  * every built file (scripts, styles, fonts, icons) so the timer opens with no network at all.
  */
+/**
+ * Fills %SITE_URL% in index.html. Link-preview images need an absolute URL, so a deploy sets
+ * SITE_URL (for example https://example.pages.dev); local builds fall back to a root-relative path.
+ */
+function siteUrl(): Plugin {
+  const base = (process.env.SITE_URL ?? '').replace(/\/$/, '');
+  return {
+    name: 'haunted-site-url',
+    transformIndexHtml: (html) => html.replaceAll('%SITE_URL%', base),
+  };
+}
+
 function serviceWorker(): Plugin {
   return {
     name: 'haunted-service-worker',
@@ -61,7 +73,7 @@ self.addEventListener('fetch', (event) => {
 }
 
 export default defineConfig({
-  plugins: [react(), serviceWorker()],
+  plugins: [react(), siteUrl(), serviceWorker()],
   build: {
     rollupOptions: {
       // The app, plus the sound check page that measures and plays every synthesized sound.

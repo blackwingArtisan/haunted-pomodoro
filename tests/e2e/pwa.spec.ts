@@ -41,3 +41,20 @@ test('fits a phone screen without sideways scrolling', async ({ browser }) => {
   expect(overflow).toBeLessThanOrEqual(0);
   await context.close();
 });
+
+test('link previews have a title, description and a 1200x630 image', async ({ page, request }) => {
+  await page.goto('/');
+  const meta = (property: string) => page.locator(`meta[property="${property}"], meta[name="${property}"]`).getAttribute('content');
+  expect(await meta('og:title')).toContain('Haunted Pomodoro');
+  expect(await meta('og:description')).toContain('keeps your candle lit');
+  expect(await meta('twitter:card')).toBe('summary_large_image');
+  const image = await meta('og:image');
+  expect(image).toMatch(/\/og-image\.png$/);
+  expect(image).not.toContain('%');
+  const response = await request.get(new URL(image!, page.url()).href);
+  expect(response.ok()).toBe(true);
+  expect(response.headers()['content-type']).toContain('image/png');
+  const png = await response.body();
+  // PNG header: width and height are big-endian at bytes 16 and 20.
+  expect([png.readUInt32BE(16), png.readUInt32BE(20)]).toEqual([1200, 630]);
+});
