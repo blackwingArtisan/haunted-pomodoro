@@ -814,6 +814,12 @@ input[type='number'],
   border-radius: 2px 2px 1px 1px;
   background: rgba(239, 230, 210, 0.2);
 }
+.mini-candle[data-lit='false'] {
+  /* An unlit day is a ghosted candle outline waiting to be lit, not a grey tick. */
+  height: 34%;
+  background: transparent;
+  border: 1px dashed rgba(239, 230, 210, 0.38);
+}
 .mini-candle[data-lit='true'] {
   background: var(--bone);
 }
@@ -828,6 +834,11 @@ input[type='number'],
   border-radius: 50% 50% 50% 50% / 70% 70% 30% 30%;
   background: var(--candle);
   box-shadow: 0 0 8px var(--candle);
+}
+.fortnight-empty {
+  margin: -6px 0 14px;
+  font-style: italic;
+  color: var(--bone-dim);
 }
 .mini-day {
   font-family: var(--font-numeral);
@@ -1127,17 +1138,46 @@ input[type='number'],
 
 .house-map {
   display: grid;
-  grid-template-columns: 300px 1fr;
-  gap: 22px;
+  grid-template-columns: 1fr;
+  gap: 18px;
 }
-@media (max-width: 820px) {
-  .house-map {
-    grid-template-columns: 1fr;
-  }
+/* The exterior is the hero: a band of night sky across the top with the house in the middle. */
+.facade-wrap {
+  display: grid;
+  justify-items: center;
+  padding: 10px 12px 0;
+  border-radius: 12px;
+  background:
+    radial-gradient(60% 90% at 50% 100%, rgba(255, 191, 90, calc(0.04 + var(--lit-rooms, 0) * 0.025)), transparent 70%),
+    linear-gradient(#0a0f22, #0d1226 60%, #070912);
+  border: 1px solid var(--hairline);
+}
+.facade-wrap .note {
+  margin: 6px 0 10px;
 }
 .facade {
-  width: 100%;
+  width: min(100%, 420px);
   height: auto;
+}
+.rooms {
+  grid-template-columns: 260px 1fr;
+  align-items: start;
+}
+.rooms .room-list {
+  grid-template-columns: 1fr;
+}
+@media (max-width: 820px) {
+  .rooms {
+    grid-template-columns: 1fr;
+  }
+  .rooms .room-list {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (max-width: 600px) {
+  .rooms .room-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 .facade-window {
   cursor: pointer;
@@ -1150,6 +1190,10 @@ input[type='number'],
 .facade-window.restored .pane {
   fill: #ffbf5a;
   filter: drop-shadow(0 0 8px rgba(255, 191, 90, 0.9));
+  animation: window-glow 3.2s ease-in-out infinite;
+}
+.facade-window.restored:nth-child(even) .pane {
+  animation-delay: -1.4s;
 }
 .facade-window.current .pane {
   fill: #6a4a2a;
@@ -1785,6 +1829,18 @@ input[type='number'],
   to {
     opacity: 1;
     translate: 0 0;
+  }
+}
+@keyframes window-glow {
+  0%,
+  100% {
+    fill: #ffbf5a;
+  }
+  45% {
+    fill: #ffd27e;
+  }
+  55% {
+    fill: #f0ad48;
   }
 }
 @keyframes window-flicker {

@@ -56,3 +56,4 @@ A task is checked only when code and a test implement it. The full Playwright su
 - [x] 34. The house's story and the ghost's voice: the journal in the house map, fifteen return lines by room and count, the Hearth diary line and the weekly reflection, all from `src/core/story.ts` (Req 12.1 to 12.8)
   - [x] 34.1 Unit tests: page per room, unlocking and the finale, line count and tone, diary wording and look-back, weekly sums, the down-from wording and the no-scold wording
   - [x] 34.2 Playwright: the demo restoration unlocks page I, the ghost and the live region say so, and the Hearth shows the diary line and the weekly reflection
+- [x] 35. Secondary screens: the house map opens on the exterior in a band of night sky, restored windows glow and flicker, the room list and preview sit below it, and the Hearth shows unlit days as ghosted candle outlines with an invitation when the fortnight is empty; Playwright checks both (Req 4.7, 5.4)

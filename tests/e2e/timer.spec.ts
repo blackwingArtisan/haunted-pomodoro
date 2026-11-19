@@ -77,3 +77,24 @@ test('first visit explains the house once', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Haunted Pomodoro' })).toBeVisible();
   await expect(page.getByTestId('intro')).toBeHidden();
 });
+
+test('a new house shows fourteen ghosted candles waiting on the Hearth; a lived-in one does not', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByTestId('fortnight-empty')).toContainText('Fourteen candles are waiting');
+  await expect(page.locator('.mini-candle[data-lit="false"]')).toHaveCount(14);
+  await page.goto('/?demo=1');
+  await expect(page.getByTestId('fortnight-empty')).toHaveCount(0);
+  await expect(page.locator('.mini-candle[data-lit="true"]')).toHaveCount(4);
+});
+
+test('the house map shows a lit window for each restored room', async ({ page }) => {
+  await page.clock.install();
+  await page.goto('/?demo=1');
+  await page.getByRole('button', { name: 'Light a candle' }).click();
+  await page.clock.runFor(21_000);
+  await page.keyboard.press('h');
+  const house = page.getByRole('dialog', { name: 'The House' });
+  await expect(house.getByRole('img', { name: 'The house: 1 of 6 rooms restored' })).toBeVisible();
+  await expect(house.locator('.facade-window.restored')).toHaveCount(1);
+  await expect(house.locator('.facade-window.current')).toHaveCount(1);
+});

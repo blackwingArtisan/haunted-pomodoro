@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type CSSProperties, type FormEvent, type ReactNode } from 'react';
 import { addDays, dayKey, lastDays, weekdayName, type DayKey } from '../core/dates';
 import { ROOMS, viewHouse, type HouseState } from '../core/house';
 import { SETTING_LIMITS, type AppAction, type AppModel, type DayLog, type Settings } from '../core/model';
@@ -202,6 +202,7 @@ export function Hearth({ streak, days, today, house, roomId }: { streak: Streak;
   const weekly = weeklyReflection(days, today);
   const fortnight = lastDays(today, 14);
   const max = Math.max(4, ...fortnight.map((d) => days[d]?.sessions ?? 0));
+  const emptyFortnight = fortnight.every((d) => (days[d]?.sessions ?? 0) === 0);
   const todayLog = days[today] ?? { sessions: 0, focusMs: 0, distractions: 0 };
   let message: string;
   if (streak.current > 0 && streak.warmUntil) {
@@ -233,7 +234,7 @@ export function Hearth({ streak, days, today, house, roomId }: { streak: Streak;
           const n = days[d]?.sessions ?? 0;
           return (
             <li key={d} aria-label={`${weekdayName(d)} ${d}: ${n} ${n === 1 ? 'session' : 'sessions'}`} className={d === today ? 'is-today' : ''}>
-              <span className="mini-candle" style={{ height: `${n ? 22 + (n / max) * 58 : 8}%` }} data-lit={n > 0} />
+              <span className="mini-candle" style={n ? { height: `${22 + (n / max) * 58}%` } : undefined} data-lit={n > 0} />
               <span className="mini-day" aria-hidden="true">
                 {weekdayName(d).slice(0, 1)}
               </span>
@@ -241,6 +242,11 @@ export function Hearth({ streak, days, today, house, roomId }: { streak: Streak;
           );
         })}
       </ol>
+      {emptyFortnight && (
+        <p className="fortnight-empty" data-testid="fortnight-empty">
+          Fourteen candles are waiting for you. Light the first one and it will burn here.
+        </p>
+      )}
       <dl className="stats">
         <div>
           <dt>Today</dt>
@@ -499,11 +505,11 @@ export function HouseMap({ house, reducedMotion }: { house: HouseState; reducedM
 
   return (
     <div className="house-map">
-      <div className="facade-wrap">
+      <div className="facade-wrap" style={{ '--lit-rooms': view.roomsInThisHouse } as CSSProperties}>
         <svg className="facade" viewBox="0 0 360 320" role="img" aria-label={`The house: ${view.roomsInThisHouse} of ${ROOMS.length} rooms restored`}>
-          <rect width="360" height="320" rx="12" fill="#0d1226" />
+          {/* The sky comes from the surrounding band, so the house sits in one continuous night. */}
           <circle cx="300" cy="52" r="24" fill="#f3efd8" opacity="0.9" />
-          <circle cx="290" cy="46" r="24" fill="#0d1226" opacity="0.25" />
+          <circle cx="290" cy="46" r="24" fill="#0b1124" opacity="0.25" />
           {[
             [40, 40],
             [90, 70],
