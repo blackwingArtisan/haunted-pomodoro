@@ -1661,6 +1661,17 @@ input[type='number'],
   opacity: 0.35;
   filter: blur(1.5px);
 }
+.scene .glass-fog {
+  opacity: 0.32;
+  transition: opacity 1.4s var(--ease);
+}
+.scene .glass-fog.is-clear {
+  opacity: 0.04;
+}
+.scene .mobile.turning,
+.scene .orrery.turning {
+  animation: sway 6s ease-in-out infinite alternate;
+}
 .scene .key-press {
   animation: key-press 7s ease-in-out infinite;
 }

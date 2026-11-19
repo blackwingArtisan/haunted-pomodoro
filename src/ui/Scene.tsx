@@ -165,6 +165,7 @@ export function Scene(props: SceneProps) {
       <g className="room">
         <rect width="1200" height="520" fill={`url(#paper-${uid})`} />
         <rect width="1200" height="520" fill="#06040a" className="room-shade" />
+        <RoomDressing roomId={room.id} restored={restored} layer="back" />
         {/* Wainscot */}
         <rect y="400" width="1200" height="120" fill="#24160f" />
         <rect y="398" width="1200" height="8" fill="#3d2618" />
@@ -183,6 +184,7 @@ export function Scene(props: SceneProps) {
         <Fireplace />
         <Portrait restored={restored} pupilsRef={pupilsRef} />
         <Prop prop={room.prop} restored={restored} />
+        <RoomDressing roomId={room.id} restored={restored} layer="front" />
         {CANDLE_X.map((x, i) => (
           <Candle key={i} uid={uid} x={x} state={i < candlesLit ? 'lit' : burning && burning.index === i ? 'burning' : 'unlit'} melt={burning && burning.index === i ? burning.melt : 0} />
         ))}
@@ -426,6 +428,197 @@ function Cobwebs() {
       <circle cx="1046" cy="124" r="6" fill="#1a1420" stroke="none" className="spider" />
     </g>
   );
+}
+
+const STAR_FIELD: ReadonlyArray<readonly [number, number, number]> = Array.from({ length: 34 }, (_, i) => [40 + ((i * 211) % 1120), 14 + ((i * 89) % 120), 1.2 + (i % 3) * 0.8] as const);
+
+/**
+ * Set dressing that gives each room after the Parlor its own shape on the shared walls: what hangs
+ * from the ceiling or stands on the back wall ("back", drawn behind the window and fireplace), and
+ * what stands on the floor to the left ("front"). The mantel and its candles never move. Haunted
+ * rooms drift or blur; restored ones settle. The room's own color filter greys all of it while haunted.
+ */
+function RoomDressing({ roomId, restored, layer }: { roomId: string; restored: boolean; layer: 'back' | 'front' }) {
+  const kind = `room-dressing dressing-${layer}`;
+  switch (roomId) {
+    case 'library':
+      return layer === 'back' ? (
+        <g className={kind} data-room={roomId} data-testid={`dressing-${layer}`}>
+          {/* A high shelf of books running above the portrait. */}
+          <rect x="320" y="52" width="560" height="10" fill="#4a2c1a" />
+          {Array.from({ length: 22 }, (_, i) => {
+            const h = 30 + ((i * 17) % 14);
+            const colors = ['#6b2a2a', '#2a4a3a', '#5a4a1f', '#3a3060', '#7a5a2a'];
+            if (i >= 7 && i <= 14) return null;
+            return <rect key={i} x={326 + i * 25} y={52 - h} width="20" height={h} fill={colors[i % colors.length]} />;
+          })}
+        </g>
+      ) : (
+        <g className={kind} data-room={roomId} data-testid={`dressing-${layer}`}>
+          {/* A wingback reading chair with a book left open on the arm. */}
+          <path d="M150 600 V470 Q150 420 200 420 H280 Q330 420 330 470 V600 Z" fill="#4a1d2a" />
+          <path d="M136 600 V500 Q136 486 150 486 H170 V600 Z M310 600 V486 H330 Q344 486 344 500 V600 Z" fill="#5a2533" />
+          <rect x="164" y="530" width="152" height="40" rx="8" fill="#5a2533" />
+          <path d="M150 600 v18 M330 600 v18" stroke="#2a1410" strokeWidth="6" />
+          <path d="M296 486 l26 -8 l26 8 l-26 6 Z" fill="#efe3c4" />
+          {!restored && (
+            <g className="drifting-books">
+              {[
+                [210, 130, -14],
+                [360, 200, 10],
+                [880, 70, 6],
+              ].map(([x, y, r], i) => (
+                <rect key={i} className="book floating" x={x} y={y} width="40" height="12" rx="2" fill={['#6b2a2a', '#3a3060', '#2a4a3a'][i]} transform={`rotate(${r} ${x! + 20} ${y! + 6})`} style={{ animationDelay: `${i * -1.6}s` }} />
+              ))}
+            </g>
+          )}
+        </g>
+      );
+    case 'conservatory':
+      return layer === 'back' ? (
+        <g className={kind} data-room={roomId} data-testid={`dressing-${layer}`}>
+          {/* A glass roof across the top of the room, fogged while haunted. */}
+          <path d="M0 0 H1200 V70 L600 118 L0 70 Z" fill="#0d1530" />
+          {Array.from({ length: 13 }, (_, i) => (
+            <path key={i} d={`M${i * 100} 0 L${i * 100 + (600 - i * 100) * 0.12} ${70 + (48 * (1 - Math.abs(600 - i * 100) / 600))}`} stroke="#5a6a5a" strokeWidth="5" />
+          ))}
+          <path d="M0 70 L600 118 L1200 70" stroke="#5a6a5a" strokeWidth="7" fill="none" />
+          <path d="M0 0 H1200 V70 L600 118 L0 70 Z" fill="#dfe7ee" className={restored ? 'glass-fog is-clear' : 'glass-fog'} />
+          {/* Vines trail down from the roof. */}
+          <g fill="none" stroke="#3f7a3a" strokeWidth="5" strokeLinecap="round">
+            {[330, 420, 800, 860].map((x, i) => (
+              <g key={x}>
+                <path d={`M${x} ${80 + (i % 2) * 8} q${i % 2 ? 14 : -14} 50 0 100 q${i % 2 ? -14 : 14} 50 0 ${90 + i * 12}`} />
+                {[0, 1, 2, 3].map((k) => (
+                  <ellipse key={k} cx={x + (k % 2 ? 9 : -9)} cy={110 + k * 44 + (i % 2) * 8} rx="10" ry="6" fill="#4f8a42" stroke="none" transform={`rotate(${k % 2 ? 30 : -30} ${x + (k % 2 ? 9 : -9)} ${110 + k * 44 + (i % 2) * 8})`} />
+                ))}
+              </g>
+            ))}
+          </g>
+        </g>
+      ) : (
+        <g className={kind} data-room={roomId} data-testid={`dressing-${layer}`}>
+          {/* Two potted plants on the tiles. */}
+          {[200, 320].map((x, i) => (
+            <g key={x}>
+              <path d={`M${x - 34} 600 L${x - 26} 540 H${x + 26} L${x + 34} 600 Z`} fill="#7a3d2a" />
+              <g fill="none" stroke={i ? '#4f8a42' : '#3f7a3a'} strokeWidth="6" strokeLinecap="round">
+                <path d={`M${x} 540 C${x - 10} 500 ${x - 40} 480 ${x - 54} 460`} />
+                <path d={`M${x} 540 C${x} 490 ${x - 4} 460 ${x + 4} ${430 - i * 20}`} />
+                <path d={`M${x} 540 C${x + 10} 500 ${x + 40} 480 ${x + 54} 462`} />
+              </g>
+            </g>
+          ))}
+        </g>
+      );
+    case 'music-room':
+      return layer === 'back' ? (
+        <g className={kind} data-room={roomId} data-testid={`dressing-${layer}`}>
+          {/* A small chandelier between the window and the portrait. */}
+          <line x1="400" y1="0" x2="400" y2="60" stroke="#c9a25a" strokeWidth="3" />
+          <path d="M350 70 Q400 100 450 70" fill="none" stroke="#c9a25a" strokeWidth="4" />
+          {[350, 375, 400, 425, 450].map((x, i) => (
+            <g key={x}>
+              <rect x={x - 3} y={i === 2 ? 76 : 62} width="6" height="14" fill="#efe3c4" />
+              <circle cx={x} cy={i === 2 ? 70 : 56} r="4" fill={restored ? '#ffcf6a' : '#5a5560'} />
+            </g>
+          ))}
+        </g>
+      ) : (
+        <g className={kind} data-room={roomId} data-testid={`dressing-${layer}`}>
+          {/* A music stand, its pages blown loose while the room is haunted. */}
+          <path d="M250 610 L250 470 M222 612 L250 586 L278 612" stroke="#2a1c22" strokeWidth="6" fill="none" strokeLinecap="round" />
+          <path d="M196 470 L304 470 L294 410 L206 410 Z" fill="#2a1c22" />
+          {restored ? (
+            <rect x="212" y="414" width="76" height="50" fill="#efe6d2" />
+          ) : (
+            <g className="drifting-pages">
+              {[
+                [190, 300, -18],
+                [330, 250, 14],
+                [270, 180, -6],
+              ].map(([x, y, r], i) => (
+                <rect key={i} className="book floating" x={x} y={y} width="40" height="52" fill="#efe6d2" opacity="0.8" transform={`rotate(${r} ${x! + 20} ${y! + 26})`} style={{ animationDelay: `${i * -1.4}s` }} />
+              ))}
+            </g>
+          )}
+        </g>
+      );
+    case 'nursery':
+      return layer === 'back' ? (
+        <g className={kind} data-room={roomId} data-testid={`dressing-${layer}`}>
+          {/* Bunting across the top of the wall, and a mobile of moons and stars. */}
+          <path d="M0 28 Q300 64 600 28 Q900 64 1200 28" fill="none" stroke="#c9a25a" strokeWidth="2" />
+          {Array.from({ length: 16 }, (_, i) => {
+            const x = 36 + i * 75;
+            const y = 28 + Math.sin(((x % 600) / 600) * Math.PI) * 18;
+            return <path key={i} d={`M${x - 16} ${y} L${x + 16} ${y} L${x} ${y + 26} Z`} fill={['#7a3d50', '#c9a25a', '#3a3060', '#2a4a3a'][i % 4]} />;
+          })}
+          <g className={restored ? 'mobile' : 'mobile turning'} style={{ transformOrigin: '380px 60px' }}>
+            <line x1="380" y1="0" x2="380" y2="80" stroke="#c9a25a" strokeWidth="2" />
+            <line x1="330" y1="80" x2="430" y2="80" stroke="#c9a25a" strokeWidth="3" />
+            {[330, 380, 430].map((x, i) => (
+              <g key={x}>
+                <line x1={x} y1="80" x2={x} y2={110 + i * 8} stroke="#c9a25a" strokeWidth="1.5" />
+                {i === 1 ? <path d={`M${x + 8} ${118 + i * 8} a14 14 0 1 1 -10 -16 a11 11 0 1 0 10 16 Z`} fill="#f3efd8" /> : <circle cx={x} cy={118 + i * 8} r="9" fill="#e0bf6e" />}
+              </g>
+            ))}
+          </g>
+        </g>
+      ) : (
+        <g className={kind} data-room={roomId} data-testid={`dressing-${layer}`}>
+          {/* Toy blocks and a ball on the floor. */}
+          {[
+            [170, 556, '#7a3d50', 'A'],
+            [222, 556, '#2a4a3a', 'B'],
+            [196, 508, '#3a3060', 'C'],
+          ].map(([x, y, c, letter]) => (
+            <g key={letter as string}>
+              <rect x={x as number} y={y as number} width="48" height="48" rx="4" fill={c as string} stroke="#efe3c4" strokeOpacity="0.6" strokeWidth="2" />
+              <text x={(x as number) + 24} y={(y as number) + 33} textAnchor="middle" fontSize="26" fontFamily="Georgia, serif" fill="#efe3c4">
+                {letter}
+              </text>
+            </g>
+          ))}
+          <circle cx="320" cy="580" r="22" fill="#c9a25a" />
+          <path d="M298 580 Q320 566 342 580" stroke="#7a3d50" strokeWidth="5" fill="none" />
+        </g>
+      );
+    case 'observatory':
+      return layer === 'back' ? (
+        <g className={kind} data-room={roomId} data-testid={`dressing-${layer}`}>
+          {/* The dome: ribs, an open slit and a star field that blurs while the room is haunted. */}
+          <path d="M0 150 Q600 -110 1200 150 V0 H0 Z" fill="#0b1226" />
+          <g stroke="#2e4a6e" strokeWidth="5" fill="none">
+            {[-0.8, -0.45, -0.15, 0.15, 0.45, 0.8].map((k) => (
+              <path key={k} d={`M${600 + k * 760} 160 Q${600 + k * 300} 40 600 -20`} />
+            ))}
+          </g>
+          <rect x="560" y="0" width="80" height="34" fill="#16244a" />
+          <g className={restored ? 'dome-stars' : 'dome-stars smudged'}>
+            {STAR_FIELD.filter(([x, y]) => y < 150 - Math.abs(600 - x) * 0.22).map(([x, y, r], i) => (
+              <circle key={i} cx={x} cy={y} r={r} fill="#f3efd8" />
+            ))}
+          </g>
+        </g>
+      ) : (
+        <g className={kind} data-room={roomId} data-testid={`dressing-${layer}`}>
+          {/* An orrery on a small table. */}
+          <rect x="200" y="540" width="120" height="10" fill="#3a2214" />
+          <path d="M214 550 V612 M306 550 V612" stroke="#3a2214" strokeWidth="6" />
+          <line x1="260" y1="540" x2="260" y2="480" stroke="#c9a25a" strokeWidth="3" />
+          <g className={restored ? 'orrery' : 'orrery turning'} style={{ transformOrigin: '260px 470px' }}>
+            <ellipse cx="260" cy="470" rx="58" ry="16" fill="none" stroke="#c9a25a" strokeOpacity="0.6" strokeWidth="2" />
+            <ellipse cx="260" cy="470" rx="34" ry="9" fill="none" stroke="#c9a25a" strokeOpacity="0.6" strokeWidth="2" />
+            <circle cx="260" cy="470" r="11" fill="#ffbf5a" />
+            <circle cx="318" cy="470" r="6" fill="#8fb4e6" />
+            <circle cx="226" cy="472" r="4.5" fill="#c97a5a" />
+          </g>
+        </g>
+      );
+    default:
+      return null;
+  }
 }
 
 function Prop({ prop, restored }: { prop: RoomProp; restored: boolean }) {

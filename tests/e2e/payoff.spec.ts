@@ -121,3 +121,27 @@ test('a haunted room has dark edges and the odd flash of lightning; a restored r
     await context.close();
   }
 });
+
+// Req 4.27
+test('every room after the Parlor has its own set dressing, and the mantel candles never move', async ({ page }) => {
+  await page.goto('/?demo=1');
+  await page.keyboard.press('h');
+  const preview = page.locator('.room-preview svg.scene');
+  const candles = () => preview.locator('.candle').evaluateAll((els) => els.map((el) => Math.round(el.getBoundingClientRect().left)));
+  await page.getByRole('button', { name: /^The Parlor/ }).click();
+  await expect(preview.locator('.room-dressing')).toHaveCount(0);
+  const parlorCandles = await candles();
+  const rooms: ReadonlyArray<readonly [string, string]> = [
+    ['The Library', 'library'],
+    ['The Conservatory', 'conservatory'],
+    ['The Music Room', 'music-room'],
+    ['The Nursery', 'nursery'],
+    ['The Observatory', 'observatory'],
+  ];
+  for (const [name, id] of rooms) {
+    await page.getByRole('button', { name: new RegExp(`^${name}`) }).click();
+    await expect(preview).toHaveAttribute('data-room', id);
+    for (const layer of ['back', 'front']) await expect(preview.getByTestId(`dressing-${layer}`)).toHaveAttribute('data-room', id);
+    expect(await candles()).toEqual(parlorCandles);
+  }
+});
