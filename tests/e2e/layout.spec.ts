@@ -13,6 +13,7 @@ const firstViews = [
 
 for (const viewport of firstViews) {
   for (const path of ['/', '/?demo=1']) {
+    // Req 7.6
     test(`the room and the whole timer fit the first view at ${viewport.width}x${viewport.height} on ${path}`, async ({ browser }) => {
       const context = await browser.newContext({ viewport });
       const page = await context.newPage();
@@ -27,6 +28,7 @@ for (const viewport of firstViews) {
   }
 }
 
+// Req 7.13
 test('demo mode fits a phone screen without sideways scrolling', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const page = await context.newPage();
@@ -37,6 +39,7 @@ test('demo mode fits a phone screen without sideways scrolling', async ({ browse
   await context.close();
 });
 
+// Req 7.15, 7.17
 test('on a phone the demo banner is one line and the ghost speaks in a caption under the scene', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const page = await context.newPage();

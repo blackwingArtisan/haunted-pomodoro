@@ -77,7 +77,10 @@ npm test           # Vitest unit tests
 npx playwright install chromium   # once
 npm run test:e2e   # Playwright against the production build on port 3182 (set PW_PORT to change it)
 npm run check      # all three
+npm run trace      # map every acceptance criterion to its tests
 ```
+Each test names the acceptance criteria it checks (`// Req 3.2`), and [`traceability.md`](.kiro/specs/haunted-focus-timer/traceability.md) lists the tests behind every criterion: 138 of the 147 criteria are covered, and the rest are listed by number and open as task 38.
+
 The end-to-end suite uses Playwright's fake clock to run the whole demo arc: light a candle, hide the tab, watch the ghost call, come back, finish the session, see the parlor restored, breathe through the break, and arrive in the library. It also covers reload persistence, keyboard shortcuts, sound controls, the house map, the first-visit guide, offline reload, the link-preview tags and image size, reduced motion, a phone-width layout, first-view fit at 1280x720, 1366x768 and 1920x1080, level limits for all eight sounds rendered in Chromium's OfflineAudioContext, and export, erase and import of a house file, and axe-core WCAG 2.1 A/AA scans of the main screen, the restored room, settings (demo and normal house), the house map and the sound check page.
 
 ## Architecture

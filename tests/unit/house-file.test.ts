@@ -26,6 +26,7 @@ const refusal = (text: string, current: AppModel) => {
 };
 
 describe('export', () => {
+  // Req 11.1, 11.2
   it('wraps the existing snapshot in a versioned envelope with a dated file name', () => {
     const model = modelWith({ candlesLit: 2, roomsRestored: 3 });
     const file = exportHouse(model, NOW);
@@ -37,6 +38,7 @@ describe('export', () => {
     expect(parsed.snapshot).toEqual(JSON.parse(serializeModel(model)));
   });
 
+  // Req 11.3
   it('round-trips through the importer into an equal house', () => {
     const model = modelWith({ candlesLit: 1, roomsRestored: 2 });
     const d = decideImport(exportHouse(model, NOW).text, createModel(500), NOW);
@@ -50,6 +52,7 @@ describe('export', () => {
 });
 
 describe('import decision', () => {
+  // Req 11.3, 11.4, 11.12
   it('merges a house that is further along and moves progress forward', () => {
     const current = modelWith({ candlesLit: 1, roomsRestored: 1 });
     const file = exportHouse(modelWith({ candlesLit: 3, roomsRestored: 4 }, 2_000), NOW).text;
@@ -62,6 +65,7 @@ describe('import decision', () => {
     }
   });
 
+  // Req 11.4, 11.12
   it('never lowers progress when the file holds an older, smaller house', () => {
     const current = modelWith({ candlesLit: 2, roomsRestored: 5 }, 9_000);
     const older = modelWith({ candlesLit: 3, roomsRestored: 1 }, 100);
@@ -75,6 +79,7 @@ describe('import decision', () => {
     }
   });
 
+  // Req 11.4
   it('keeps the higher house even when the smaller file is newer', () => {
     const current = modelWith({ candlesLit: 0, roomsRestored: 6 }, 1_000);
     const newerButSmaller = modelWith({ candlesLit: 1, roomsRestored: 0 }, 50_000);
@@ -82,6 +87,7 @@ describe('import decision', () => {
     expect(d.ok && d.model.house).toEqual(current.house);
   });
 
+  // Req 11.5
   it('keeps the larger day counts from either copy', () => {
     const current = modelWith({ candlesLit: 0, roomsRestored: 0 });
     const other = { ...modelWith({ candlesLit: 0, roomsRestored: 0 }), days: { '2026-11-10': { sessions: 5, focusMs: 1, distractions: 0 }, '2026-11-11': { sessions: 1, focusMs: 1, distractions: 0 } } };
@@ -90,12 +96,14 @@ describe('import decision', () => {
     expect(d.ok && d.model.days['2026-11-11']?.sessions).toBe(1);
   });
 
+  // Req 11.8
   it('refuses damaged JSON and changes nothing', () => {
     const d = refusal('{"format": "haunted-pomodoro-house", ', createModel(1));
     expect(d.reason).toBe('not-json');
     expect(d.message).toMatch(/unchanged/);
   });
 
+  // Req 11.9
   it('refuses a file that is not a house file', () => {
     const current = createModel(1);
     expect(refusal('[1, 2, 3]', current).reason).toBe('foreign');
@@ -105,12 +113,14 @@ describe('import decision', () => {
     expect(refusal(serializeModel(modelWith({ candlesLit: 3, roomsRestored: 9 })), current).reason).toBe('foreign');
   });
 
+  // Req 11.10
   it('refuses a different format version', () => {
     const envelope = JSON.parse(exportHouse(modelWith({ candlesLit: 0, roomsRestored: 2 }), NOW).text);
     expect(refusal(JSON.stringify({ ...envelope, formatVersion: 2 }), createModel(1)).reason).toBe('wrong-version');
     expect(refusal(JSON.stringify({ ...envelope, formatVersion: undefined }), createModel(1)).reason).toBe('wrong-version');
   });
 
+  // Req 11.11
   it('refuses an envelope whose snapshot is missing or hollow', () => {
     const base = { format: HOUSE_FILE_FORMAT, formatVersion: HOUSE_FILE_VERSION, exportedAt: NOW };
     const current = createModel(1);
@@ -119,6 +129,7 @@ describe('import decision', () => {
     expect(refusal(JSON.stringify({ ...base, snapshot: { version: 7, house: {}, days: {}, tasks: [] } }), current).reason).toBe('damaged');
   });
 
+  // Req 11.7
   it('refuses a file over 1 MB without parsing it, and accepts one just under', () => {
     const current = createModel(1);
     const big = ' '.repeat(MAX_IMPORT_BYTES + 1);
@@ -131,6 +142,7 @@ describe('import decision', () => {
     expect(decideImport(padded, current, NOW).ok).toBe(true);
   });
 
+  // Req 11.3
   it('sanitizes hostile field values through the defensive parser', () => {
     const envelope = JSON.parse(exportHouse(modelWith({ candlesLit: 0, roomsRestored: 1 }), NOW).text);
     envelope.snapshot.house = { candlesLit: 99, roomsRestored: -4 };

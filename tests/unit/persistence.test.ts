@@ -16,6 +16,7 @@ function busyModel() {
 }
 
 describe('persistence', () => {
+  // Req 1.9, 8.1
   it('round-trips the whole model through localStorage', async () => {
     const storage = new MemoryStorage();
     const store = new LocalHouseStore(storage, STORAGE_KEY, () => 9_000);
@@ -55,6 +56,7 @@ describe('persistence', () => {
     expect(parseModel({ version: 2, tasks: [{ id: 'x', title: 'y' }] }, 0).tasks).toEqual([]);
   });
 
+  // Req 8.3
   it('never throws when storage is blocked', () => {
     const blocked = {
       getItem: () => {
@@ -70,6 +72,7 @@ describe('persistence', () => {
     expect(store.saveSync(createModel(0))).toBe(false);
   });
 
+  // Req 4.6, 11.5, 11.6
   it('merges two copies without losing progress', () => {
     const local = busyModel();
     const remote = {
@@ -87,6 +90,7 @@ describe('persistence', () => {
     expect(JSON.parse(serializeModel(merged)).version).toBe(1);
   });
 
+  // Req 8.1
   it('selects the local store unless sync is fully configured', () => {
     expect(storeKind({})).toBe('local');
     expect(storeKind({ VITE_HOUSE_STORE: 'cloudflare' })).toBe('local');

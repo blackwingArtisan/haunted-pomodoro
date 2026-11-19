@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { mantelCandles } from '../../src/ui/candles';
 
 describe('candlesticks on the mantel', () => {
+  // Req 4.19
   it('shows one candlestick per session in a four-candle room', () => {
     expect(mantelCandles(2, 4, 0, false)).toEqual({ lit: 2, burning: null });
     expect(mantelCandles(2, 4, 0, true)).toEqual({ lit: 2, burning: { index: 2, melt: 0 } });
@@ -11,6 +12,7 @@ describe('candlesticks on the mantel', () => {
     expect(mid.burning?.melt).toBeCloseTo(0.3);
   });
 
+  // Req 4.19, 9.4
   it('lights all four candlesticks through a single session in the one-candle demo room', () => {
     expect(mantelCandles(0, 1, 0, false)).toEqual({ lit: 0, burning: null });
     expect(mantelCandles(0, 1, 0.15, true).lit).toBe(0);
@@ -20,6 +22,7 @@ describe('candlesticks on the mantel', () => {
     expect(mantelCandles(0, 1, 1, true)).toEqual({ lit: 4, burning: null });
   });
 
+  // Req 4.6, 4.19
   it('never shows fewer candlesticks than the candles already earned', () => {
     for (let lit = 0; lit < 4; lit++) {
       for (const p of [0, 0.25, 0.5, 0.99]) expect(mantelCandles(lit, 4, p, true).lit).toBeGreaterThanOrEqual(lit);

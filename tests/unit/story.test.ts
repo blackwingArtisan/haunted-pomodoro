@@ -21,12 +21,14 @@ const log = (sessions: number, distractions: number, minutes = sessions * 25) =>
 const HARSH = /\b(fail|failed|failure|lazy|shame|ashamed|disappoint|lost|lose|punish|wasted?|guilt|bad|should have)\b/i;
 
 describe('the ghost’s journal', () => {
+  // Req 12.2, 12.3
   it('has one page per room, in room order, plus a finale', () => {
     expect(JOURNAL_PAGES.map((p) => p.roomId)).toEqual(ROOMS.map((r) => r.id));
     expect(JOURNAL_FINALE.text.length).toBeGreaterThan(40);
     for (const page of [...JOURNAL_PAGES, JOURNAL_FINALE]) expect(page.text).not.toMatch(HARSH);
   });
 
+  // Req 12.1
   it('unlocks one page for each room restored in this house', () => {
     let house: HouseState = { candlesLit: 0, roomsRestored: 0 };
     expect(journalFor(house).pages.filter((p) => p.unlocked)).toHaveLength(0);
@@ -36,6 +38,7 @@ describe('the ghost’s journal', () => {
     expect(j.finished).toBe(false);
   });
 
+  // Req 12.3
   it('finishes the book with the sixth room, then starts a new house with the finale kept', () => {
     let house: HouseState = { candlesLit: CANDLES_PER_ROOM - 1, roomsRestored: ROOMS.length - 1 };
     const r = lightCandle(house);
@@ -47,6 +50,7 @@ describe('the ghost’s journal', () => {
     expect(j.pages.filter((p) => p.unlocked)).toHaveLength(0);
   });
 
+  // Req 12.1
   it('finds the page a room gives back', () => {
     expect(pageForRoom('library')?.title).toBe('II. The Library');
     expect(pageForRoom('cellar')).toBeNull();
@@ -54,18 +58,21 @@ describe('the ghost’s journal', () => {
 });
 
 describe('the ghost’s voice when you come back', () => {
+  // Req 12.4, 12.7
   it('has about fifteen distinct lines, none of them harsh', () => {
     expect(new Set(ALL_RETURN_LINES).size).toBe(ALL_RETURN_LINES.length);
     expect(ALL_RETURN_LINES.length).toBeGreaterThanOrEqual(15);
     for (const line of ALL_RETURN_LINES) expect(line).not.toMatch(HARSH);
   });
 
+  // Req 12.4
   it('greets the first return with a line about the room it waited in', () => {
     expect(returnLine('parlor', 1)).toBe('There you are. I kept your candle lit.');
     expect(returnLine('library', 1)).toMatch(/shelf/);
     expect(new Set(ROOMS.map((r) => returnLine(r.id, 1))).size).toBe(ROOMS.length);
   });
 
+  // Req 12.4
   it('changes with the count and varies by room, and an unknown room falls back to the parlor', () => {
     expect(returnLine('parlor', 2)).not.toBe(returnLine('parlor', 3));
     expect(returnLine('parlor', 3)).not.toBe(returnLine('library', 3));
@@ -76,17 +83,20 @@ describe('the ghost’s voice when you come back', () => {
 });
 
 describe('the Hearth diary', () => {
+  // Req 12.5, 12.8
   it('writes about yesterday in the room’s voice', () => {
     const days = { [addDays(TODAY, -1)]: log(3, 2) };
     expect(diaryLine(days, TODAY, 'library')).toBe('Yesterday you lit three candles and left me twice. I counted the books while I waited.');
   });
 
+  // Req 12.5, 12.7
   it('names the weekday for older days and celebrates a day without wandering', () => {
     const days = { [addDays(TODAY, -2)]: log(1, 0) };
     expect(diaryLine(days, TODAY, 'parlor')).toBe('Monday you lit one candle and never once left me. I did not know what to do with myself.');
     expect(diaryLine({ [addDays(TODAY, -3)]: log(2, 3) }, TODAY, 'parlor')).toBe('Sunday you lit two candles and left me three times. I dusted the portrait while I waited.');
   });
 
+  // Req 12.5
   it('says nothing when there is no earlier day, and ignores today and empty days', () => {
     expect(diaryLine({}, TODAY, 'parlor')).toBeNull();
     expect(diaryLine({ [TODAY]: log(4, 1), [addDays(TODAY, -1)]: log(0, 2) }, TODAY, 'parlor')).toBeNull();
@@ -94,6 +104,7 @@ describe('the Hearth diary', () => {
 });
 
 describe('the weekly reflection', () => {
+  // Req 12.6, 12.8
   it('sums the last seven days and says when wanderings went down', () => {
     const days = {
       [TODAY]: log(3, 1, 75),
@@ -106,6 +117,7 @@ describe('the weekly reflection', () => {
     expect(r.text).toBe('This week: 11 candles, 4 h 35 min focused, 6 wanderings, down from 14.');
   });
 
+  // Req 12.6, 12.7
   it('never scolds when wanderings went up or there is nothing to compare', () => {
     const up = weeklyReflection({ [TODAY]: log(2, 5), [addDays(TODAY, -8)]: log(2, 1) }, TODAY)!;
     expect(up.text).toBe('This week: 2 candles, 50 min focused, 5 wanderings. Every candle stayed lit.');
@@ -115,11 +127,13 @@ describe('the weekly reflection', () => {
     expect(first.text).toBe('This week: 1 candle, 25 min focused, 0 wanderings. Not one. The ghost is speechless.');
   });
 
+  // Req 12.6
   it('is empty until the week has a session', () => {
     expect(weeklyReflection({}, TODAY)).toBeNull();
     expect(weeklyReflection({ [addDays(TODAY, -9)]: log(3, 1) }, TODAY)).toBeNull();
   });
 
+  // Req 12.6
   it('formats hours and minutes', () => {
     expect(hoursAndMinutes(0)).toBe('0 min');
     expect(hoursAndMinutes(30_000)).toBe('under 1 min');

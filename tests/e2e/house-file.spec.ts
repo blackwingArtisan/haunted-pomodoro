@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 
+// Req 7.3, 7.9, 8.4, 8.5, 8.6, 11.1, 11.2, 11.3, 11.8, 11.15
 test('export, erase and import brings the lit candle back, and a damaged file changes nothing', async ({ page }, testInfo) => {
   await page.clock.install();
   await page.goto('/');
@@ -14,6 +15,8 @@ test('export, erase and import brings the lit candle back, and a damaged file ch
   await page.getByRole('button', { name: 'Light a candle' }).click();
   await page.clock.runFor(61_000);
   await expect(page.getByTestId('phase')).toHaveText('Short break');
+  await expect(page.getByTestId('announcer')).toContainText('Session complete');
+  await expect(page.getByTestId('announcer')).toHaveText(/Short break (started|is ready)/);
   await expect(scene).toHaveAttribute('aria-label', /1 of 4 candles lit/);
 
   // Export from settings.
@@ -54,6 +57,7 @@ test('export, erase and import brings the lit candle back, and a damaged file ch
   await expect(scene).toHaveAttribute('aria-label', /1 of 4 candles lit/);
 });
 
+// Req 11.13
 test('export and import are switched off in the demo house, with a reason', async ({ page }) => {
   await page.goto('/?demo=1');
   await page.keyboard.press(',');

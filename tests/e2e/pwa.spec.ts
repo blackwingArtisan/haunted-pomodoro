@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 
+// Req 8.2
 test('works offline once loaded (service worker precache)', async ({ page, context }) => {
   await page.goto('/');
   await page.evaluate(async () => {
@@ -15,6 +16,7 @@ test('works offline once loaded (service worker precache)', async ({ page, conte
   await context.setOffline(false);
 });
 
+// Req 4.20, 7.4
 test('reduced motion stills the house', async ({ browser }) => {
   const context = await browser.newContext({ reducedMotion: 'reduce', viewport: { width: 1200, height: 900 } });
   const page = await context.newPage();
@@ -32,6 +34,7 @@ test('reduced motion stills the house', async ({ browser }) => {
   await context.close();
 });
 
+// Req 7.13
 test('fits a phone screen without sideways scrolling', async ({ browser }) => {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true });
   const page = await context.newPage();

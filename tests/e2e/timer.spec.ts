@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 
+// Req 1.3, 1.7, 1.8, 1.9, 1.10, 2.1, 2.7, 7.2, 7.8
 test('tasks, settings and a paused session survive a reload', async ({ page }) => {
   await page.clock.install();
   await page.goto('/');
@@ -11,6 +12,9 @@ test('tasks, settings and a paused session survive a reload', async ({ page }) =
   await page.keyboard.press('Enter');
   await expect(page.getByTestId('tasks')).toContainText('Index the field recordings');
   await expect(page.getByLabel('Working on')).toHaveValue(/.+/);
+  // Typing spaces and shortcut letters into the field started, reset and skipped nothing.
+  await expect(page.getByTestId('digits')).toHaveText('25:00');
+  await expect(page.getByTestId('phase')).toHaveText('Focus');
 
   // Shorter focus length.
   await page.locator('#new-task').blur();
@@ -41,6 +45,7 @@ test('tasks, settings and a paused session survive a reload', async ({ page }) =
   await expect(page.getByTestId('phase')).toHaveText('Short break');
 });
 
+// Req 6.2, 6.6, 7.2
 test('mute and volume controls are reachable and remembered', async ({ page }) => {
   await page.goto('/');
   const mute = page.getByRole('button', { name: /Mute/ });
@@ -53,6 +58,7 @@ test('mute and volume controls are reachable and remembered', async ({ page }) =
   await expect(page.getByLabel('Volume').first()).toHaveValue('30');
 });
 
+// Req 4.7, 4.15, 7.2
 test('the house map lists every room and the shortcut list opens with ?', async ({ page }) => {
   await page.goto('/');
   await page.keyboard.press('h');
@@ -78,6 +84,7 @@ test('first visit explains the house once', async ({ page }) => {
   await expect(page.getByTestId('intro')).toBeHidden();
 });
 
+// Req 5.4
 test('a new house shows fourteen ghosted candles waiting on the Hearth; a lived-in one does not', async ({ page }) => {
   await page.goto('/');
   await expect(page.getByTestId('fortnight-empty')).toContainText('Fourteen candles are waiting');
@@ -87,6 +94,7 @@ test('a new house shows fourteen ghosted candles waiting on the Hearth; a lived-
   await expect(page.locator('.mini-candle[data-lit="true"]')).toHaveCount(4);
 });
 
+// Req 4.7
 test('the house map shows a lit window for each restored room', async ({ page }) => {
   await page.clock.install();
   await page.goto('/?demo=1');

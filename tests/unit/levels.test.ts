@@ -54,16 +54,19 @@ describe('sound levels', () => {
 });
 
 describe('sound limits', () => {
+  // Req 6.4, 6.8
   it('passes a cue that is audible, has headroom and fades out', () => {
     expect(judge(rendered('chime', sine(0.5, 1, 0.5))).ok).toBe(true);
   });
 
+  // Req 6.4
   it('fails a cue that clips or sits at full scale', () => {
     const verdict = judge(rendered('chime', sine(1.2, 1, 0.5)));
     expect(verdict.ok).toBe(false);
     expect(verdict.notes.join(' ')).toMatch(/clipped/);
   });
 
+  // Req 6.4
   it('fails a cue too quiet to hear, like the first rattle at -31 dBFS', () => {
     const quiet = sine(Math.pow(10, -31 / 20), 0.4, 0.5);
     const verdict = judge(rendered('rattle', quiet));
@@ -71,6 +74,7 @@ describe('sound limits', () => {
     expect(verdict.notes.join(' ')).toMatch(`below ${LIMITS.minPeakDb}`);
   });
 
+  // Req 6.3, 6.8
   it('fails a one-shot that never fades, but lets the looping wind run on', () => {
     expect(judge(rendered('moan', sine(0.3, 2))).ok).toBe(false);
     expect(judge(rendered('ambient', sine(0.3, 2))).ok).toBe(true);

@@ -35,6 +35,7 @@ describe('HouseController', () => {
 });
 
 describe('demo house', () => {
+  // Req 9.1, 9.4
   it('starts with a fully haunted parlor that one candle restores, a warm streak and demo lengths', () => {
     const now = new Date(2026, 10, 18, 12).getTime();
     const m = createDemoModel(now, { ...DEFAULT_SETTINGS, autoStartBreaks: false });

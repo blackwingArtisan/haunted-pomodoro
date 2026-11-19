@@ -19,6 +19,7 @@ function harness(model?: AppModel, configFor = demoConfigFor) {
 }
 
 describe('app reducer', () => {
+  // Req 2.2, 2.7, 4.1, 4.2
   it('a finished focus session lights a candle, credits the task and logs the day', () => {
     const h = harness();
     h.send({ type: 'addTask', id: 't1', title: '  Draft the   chapter ', estimate: 2 });
@@ -33,6 +34,7 @@ describe('app reducer', () => {
     expect(h.cues.map((c) => c.kind)).toEqual(['candleLit', 'sessionComplete', 'phase', 'breakStarted']);
   });
 
+  // Req 4.3
   it('the fourth candle restores the room', () => {
     const base = createModel(0, DEFAULT_SETTINGS, demoConfigFor);
     const h = harness({ ...base, house: { candlesLit: CANDLES_PER_ROOM - 1, roomsRestored: 0 } });
@@ -44,6 +46,7 @@ describe('app reducer', () => {
     expect(h.model.house).toEqual({ candlesLit: 0, roomsRestored: 1 });
   });
 
+  // Req 3.2, 3.13
   it('a distraction wakes the ghost and is logged for the day', () => {
     const h = harness();
     h.timer('start');
@@ -54,6 +57,7 @@ describe('app reducer', () => {
     expect(h.model.days[dayKey(h.clock.now())]?.distractions).toBe(1);
   });
 
+  // Req 1.17, 4.6
   it('reset snuffs the candle without touching the house', () => {
     const h = harness();
     h.timer('start');
@@ -69,6 +73,7 @@ describe('app reducer', () => {
     expect(h.model).toBe(before);
   });
 
+  // Req 2.3, 2.5, 2.6, 2.8, 2.9
   it('manages tasks: done, active hand-off, remove, clear', () => {
     const h = harness();
     h.send({ type: 'addTask', id: 'a', title: 'Alpha', estimate: 1 });
@@ -87,6 +92,17 @@ describe('app reducer', () => {
     expect(h.model).toMatchObject({ tasks: [], activeTaskId: null });
   });
 
+  // Req 2.4
+  it('choosing a task makes it the active task', () => {
+    const h = harness();
+    h.send({ type: 'addTask', id: 'a', title: 'Alpha', estimate: 1 });
+    h.send({ type: 'addTask', id: 'b', title: 'Beta', estimate: 1 });
+    expect(h.model.activeTaskId).toBe('a');
+    h.send({ type: 'setActiveTask', id: 'b' });
+    expect(h.model.activeTaskId).toBe('b');
+  });
+
+  // Req 1.10, 1.16, 9.1
   it('clamps settings and applies new lengths to an idle timer', () => {
     const real = harness(createModel(0), timerConfig);
     real.send({ type: 'updateSettings', patch: { focusMin: 500, volume: 3, longEvery: 1 } });

@@ -43,6 +43,7 @@ describe('timer state machine', () => {
     expect(t.state).toMatchObject({ phase: 'focus', status: 'idle', remainingMs: 10_000, endsAt: null });
   });
 
+  // Req 1.1, 1.2
   it('counts down from an absolute end time', () => {
     const t = harness();
     expect(t.send({ type: 'start' })).toEqual([{ type: 'focusStarted' }]);
@@ -51,6 +52,7 @@ describe('timer state machine', () => {
     expect(progressAt(t.state, t.clock.now())).toBeCloseTo(0.4);
   });
 
+  // Req 1.3, 1.14
   it('pauses and resumes without losing or gaining time', () => {
     const t = harness();
     t.send({ type: 'start' });
@@ -66,6 +68,7 @@ describe('timer state machine', () => {
     expect(t.types().filter((x) => x === 'focusStarted')).toHaveLength(1);
   });
 
+  // Req 1.1, 1.3, 1.14
   it('toggle walks idle -> running -> paused -> running', () => {
     const t = harness();
     t.send({ type: 'toggle' });
@@ -76,6 +79,7 @@ describe('timer state machine', () => {
     expect(t.state.status).toBe('running');
   });
 
+  // Req 1.4, 1.6, 1.18
   it('finishes focus into an auto-started short break', () => {
     const t = harness();
     t.send({ type: 'start' });
@@ -87,6 +91,7 @@ describe('timer state machine', () => {
     expect(t.state.endsAt).toBe(1_000_000 + 10_000 + 3_000);
   });
 
+  // Req 1.18
   it('completes at the exact end time even when the tick is late', () => {
     const t = harness();
     t.send({ type: 'start' });
@@ -106,6 +111,7 @@ describe('timer state machine', () => {
     expect(t.state).toMatchObject({ phase: 'focus', status: 'idle', remainingMs: 10_000 });
   });
 
+  // Req 1.5, 1.11
   it('takes a long break every longEvery sessions and then restarts the cycle', () => {
     const t = harness();
     const phases: string[] = [];
@@ -122,6 +128,7 @@ describe('timer state machine', () => {
     expect(t.log.filter((e) => e.type === 'breakCompleted').map((e) => (e as { phase: string }).phase)).toEqual(['short', 'short', 'long']);
   });
 
+  // Req 1.7, 1.12
   it('skipping focus moves to a break without lighting a candle or advancing the cycle', () => {
     const t = harness();
     t.send({ type: 'start' });
@@ -132,6 +139,7 @@ describe('timer state machine', () => {
     expect(t.types()).not.toContain('focusCompleted');
   });
 
+  // Req 1.5, 1.13
   it('skipping a break returns to focus; skipping a long break resets the cycle', () => {
     const t = harness({ ...config, longEvery: 1 });
     t.send({ type: 'start' });
@@ -143,11 +151,24 @@ describe('timer state machine', () => {
     expect(t.state).toMatchObject({ phase: 'focus', status: 'idle', completedInCycle: 0 });
   });
 
+  // Req 1.15
+  it('starts the next focus by itself when that setting is on', () => {
+    const t = harness({ ...config, autoStartFocus: true });
+    t.send({ type: 'start' });
+    t.clock.advance(10_000);
+    t.send({ type: 'tick' });
+    t.clock.advance(3_000);
+    expect(t.send({ type: 'tick' }).map((e) => e.type)).toEqual(['breakCompleted', 'phaseChanged', 'focusStarted']);
+    expect(t.state).toMatchObject({ phase: 'focus', status: 'running' });
+  });
+
+  // Req 1.12
   it('skipping an idle focus session does not report an abandoned candle', () => {
     const t = harness();
     expect(t.send({ type: 'skip' }).map((e) => e.type)).toEqual(['phaseChanged']);
   });
 
+  // Req 1.8
   it('reset restores the full phase and snuffs an in-progress candle', () => {
     const t = harness();
     t.send({ type: 'start' });
@@ -157,6 +178,7 @@ describe('timer state machine', () => {
   });
 
   describe('distractions', () => {
+    // Req 3.1, 3.3
     it('counts an absence longer than the grace period when the person returns', () => {
       const t = harness();
       t.send({ type: 'start' });
@@ -167,6 +189,7 @@ describe('timer state machine', () => {
       expect(t.state).toMatchObject({ distractions: 1, awayMs: 5_000, hiddenSince: null });
     });
 
+    // Req 3.4
     it('forgives a glance away shorter than the grace period', () => {
       const t = harness();
       t.send({ type: 'start' });
@@ -176,6 +199,7 @@ describe('timer state machine', () => {
       expect(t.state.distractions).toBe(0);
     });
 
+    // Req 3.2
     it('wakes the ghost once per absence while the tab is still hidden', () => {
       const t = harness();
       t.send({ type: 'start' });
@@ -188,6 +212,7 @@ describe('timer state machine', () => {
       expect(t.send({ type: 'tick' })).toEqual([]);
     });
 
+    // Req 3.3
     it('counts each separate absence', () => {
       const t = harness();
       t.send({ type: 'start' });
@@ -199,6 +224,7 @@ describe('timer state machine', () => {
       expect(t.state.distractions).toBe(3);
     });
 
+    // Req 3.6
     it('ignores hiding during breaks and while paused', () => {
       const t = harness();
       t.send({ type: 'hidden' });
@@ -209,6 +235,7 @@ describe('timer state machine', () => {
       expect(t.state.hiddenSince).toBeNull();
     });
 
+    // Req 3.5
     it('settles an absence that is still open when focus ends and reports it with the session', () => {
       const t = harness();
       t.send({ type: 'start' });
@@ -221,6 +248,7 @@ describe('timer state machine', () => {
       expect(t.state.distractions).toBe(0);
     });
 
+    // Req 3.7
     it('a fresh focus session starts with no distractions', () => {
       const t = harness();
       t.send({ type: 'start' });
@@ -232,6 +260,7 @@ describe('timer state machine', () => {
     });
   });
 
+  // Req 1.19
   it('applies new lengths only while idle', () => {
     const t = harness();
     const longer = { ...config, focusMs: 20_000 };

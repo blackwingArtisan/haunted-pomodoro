@@ -4,6 +4,7 @@ import { expect, test } from '@playwright/test';
  * Renders every synthesized sound through the real engine in Chromium's OfflineAudioContext and
  * checks the measured levels: audible, never clipping at full volume, and fading out cleanly.
  */
+// Req 6.3, 6.4, 6.5, 6.8, 6.9
 test('every sound renders within its level limits', async ({ page }) => {
   await page.goto('/sound-check.html');
   const summary = page.getByTestId('summary');

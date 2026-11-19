@@ -15,6 +15,7 @@
     "preview": "vite preview --port 3181 --strictPort",
     "typecheck": "tsc --noEmit -p tsconfig.json",
     "test": "vitest run",
+    "trace": "node scripts/trace.mjs",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
     "check": "npm run typecheck && npm test && npm run test:e2e",

@@ -39,3 +39,4 @@ The real adapter is unit tested against the Worker handler through a stubbed `fe
 - Accessibility is scanned with `@axe-core/playwright` (WCAG 2.1 A and AA) on the main screen, the restored room, settings and the house map.
 - Chromium is launched with `--disable-audio-output`.
 - Every commit passes `npm run typecheck`, `npm test` and `npm run test:e2e` from a clean checkout.
+- A test names the acceptance criteria it checks in a `// Req 3.2, 3.13` comment directly above it. After adding a criterion or a test, run `npm run trace` to rewrite `.kiro/specs/haunted-focus-timer/traceability.md`; a unit test fails while that table is out of date or a tag names a criterion that does not exist.
