@@ -1,6 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type CSSProperties } from 'react';
+import { createCanvasFavicon } from './adapters/favicon';
 import { createBrowserNotifier } from './adapters/notify';
+import { createBrowserPip, renderPipDocument } from './adapters/pip';
 import { createStores } from './adapters/store';
+import { GhostFollower } from './app/follow';
 import { HouseController } from './app/controller';
 import { createDemoModel, demoKindFrom, type DemoKind } from './app/demo';
 import { SoundEngine } from './audio/sound';
@@ -15,12 +18,14 @@ import { computeStreak } from './core/streak';
 import { focusInProgress, progressAt, remainingAt } from './core/timer';
 import { CloseIcon, GearIcon, HouseIcon, KeysIcon, MaskIcon, MoonIcon, SoundIcon } from './ui/icons';
 import { CostumeCurtain, UnmaskedStage, useCostumeChange, type PlainRow } from './ui/Unmasked';
-import { Dialog, formatClock, Hearth, IntroCard, IntroStrip, HouseMap, useIntroDismissed, PHASE_LABEL, SettingsForm, ShortcutList, TaskLedger, TimerPlaque } from './ui/panels';
+import { Dialog, Hearth, IntroCard, IntroStrip, HouseMap, useIntroDismissed, PHASE_LABEL, SettingsForm, ShortcutList, TaskLedger, TimerPlaque } from './ui/panels';
 import { MANTEL_CANDLES, mantelCandles } from './ui/candles';
 import { GHOST_SPOTS, Scene, type GhostView } from './ui/Scene';
 
 const stores = createStores(import.meta.env);
 const notifier = createBrowserNotifier();
+const pip = createBrowserPip(window as unknown as Parameters<typeof createBrowserPip>[0], renderPipDocument);
+const favicon = createCanvasFavicon();
 const isTabHidden = () => document.visibilityState === 'hidden';
 /** After the last room is restored, the house map opens on the book's last page once the sweep has played. */
 const FINALE_DELAY_MS = 5_000;
@@ -124,6 +129,7 @@ export function App() {
   // Bumped on every candle strike, so the warm bloom over the stage plays once per strike.
   const [strikes, setStrikes] = useState(0);
   const [notifyNote, setNotifyNote] = useState('');
+  const [followNote, setFollowNote] = useState('');
   const [hidden, setHidden] = useState(() => document.visibilityState === 'hidden');
   const [introDismissed, dismissIntro] = useIntroDismissed();
   const taskInput = useRef<HTMLInputElement>(null);
@@ -132,6 +138,30 @@ export function App() {
   const systemReduced = useSystemReducedMotion();
   const { settings, timer, house } = model;
   const reducedMotion = settings.motion === 'reduced' || (settings.motion === 'system' && systemReduced);
+  const reducedRef = useRef(reducedMotion);
+  reducedRef.current = reducedMotion;
+  // The ghost's companion: the tab's icon and title, and the optional follow window. It only reads the model.
+  const follower = useMemo(
+    () =>
+      new GhostFollower({
+        controller,
+        clock: systemClock,
+        pip,
+        favicon,
+        setTitle: (t) => {
+          document.title = t;
+        },
+        isHidden: isTabHidden,
+        isReducedMotion: () => reducedRef.current,
+        announce: setAnnouncement,
+        note: setFollowNote,
+      }),
+    [controller],
+  );
+  useEffect(() => () => follower.dispose(), [follower]);
+  useEffect(() => {
+    follower.sync();
+  }, [follower, reducedMotion, settings.ghostFollows, timer.status, timer.phase, hidden]);
   // The costume change: putting the costume back on ends on a candle strike.
   const onCostumeSwap = useCallback((to: 'plain' | 'costume') => {
     if (to === 'costume') setStrikes((n) => n + 1);
@@ -158,10 +188,11 @@ export function App() {
   useEffect(() => {
     const id = window.setInterval(() => {
       controller.dispatch({ type: 'timer', action: { type: 'tick' } });
+      follower.sync();
       setNow(systemClock.now());
     }, 250);
     return () => window.clearInterval(id);
-  }, [controller]);
+  }, [controller, follower]);
 
   // The finale: open the house on the last page, unless another window is already open.
   useEffect(() => {
@@ -180,11 +211,12 @@ export function App() {
       const isHidden = document.visibilityState === 'hidden';
       setHidden(isHidden);
       controller.dispatch({ type: 'timer', action: { type: isHidden ? 'hidden' : 'visible' } });
+      follower.sync();
       setNow(systemClock.now());
     };
     document.addEventListener('visibilitychange', onVisibility);
     return () => document.removeEventListener('visibilitychange', onVisibility);
-  }, [controller]);
+  }, [controller, follower]);
 
   // Sound settings follow the model.
   useEffect(() => {
@@ -282,12 +314,7 @@ export function App() {
   const inFocus = timer.phase === 'focus';
   const running = timer.status === 'running';
 
-  // Tab title: the time, or the ghost's plea while you are away.
-  useEffect(() => {
-    if (hidden && timer.ghostWoke) document.title = `Come back… ${formatClock(remaining)} left · Haunted Pomodoro`;
-    else if (running || timer.status === 'paused') document.title = `${formatClock(remaining)} · ${PHASE_LABEL[timer.phase]} · Haunted Pomodoro`;
-    else document.title = 'Haunted Pomodoro';
-  }, [hidden, timer.ghostWoke, running, timer.status, timer.phase, remaining]);
+  // The tab title and icon are written by the follower.
 
   const unlock = useCallback(() => sound.unlock(), [sound]);
   // A dialog's close event can arrive after another dialog was opened; only close the one that fired.
@@ -311,6 +338,7 @@ export function App() {
       const timerAction = (type: 'toggle' | 'reset' | 'skip') => {
         e.preventDefault();
         unlock();
+        if (type === 'toggle') follower.startGesture();
         controller.dispatch({ type: 'timer', action: { type } });
       };
       switch (e.key) {
@@ -365,7 +393,7 @@ export function App() {
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [controller, unlock, toggleUnmasked]);
+  }, [controller, unlock, toggleUnmasked, follower]);
 
   const view = viewHouse(house);
   const today = dayKey(now);
@@ -561,7 +589,7 @@ export function App() {
           </div>
         </section>
 
-        <TimerPlaque timer={timer} now={now} house={house} model={model} dispatch={controller.dispatch} onGesture={unlock} showcaseName={showcase?.name ?? null} />
+        <TimerPlaque timer={timer} now={now} house={house} model={model} dispatch={controller.dispatch} onGesture={unlock} onStart={() => follower.startGesture()} showcaseName={showcase?.name ?? null} />
 
         <aside className="side">
           <IntroCard show={showIntro} onDemo={() => setDemoUrl(true)} onDismiss={dismissIntro} />
@@ -596,6 +624,8 @@ export function App() {
           dispatch={controller.dispatch}
           demo={demo}
           notifyNote={notifyNote}
+          followSupported={pip.isSupported()}
+          followNote={followNote}
           actions={{
             onErase: () => {
               stores.local.clear();

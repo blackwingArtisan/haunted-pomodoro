@@ -42,9 +42,11 @@ export function TimerPlaque(props: {
   model: AppModel;
   dispatch: Dispatch;
   onGesture: () => void;
+  /** Called inside the click that is about to start a focus session, before the timer starts. */
+  onStart?: () => void;
   showcaseName: string | null;
 }) {
-  const { timer, now, house, model, dispatch, onGesture } = props;
+  const { timer, now, house, model, dispatch, onGesture, onStart } = props;
   const remaining = remainingAt(timer, now);
   const progress = timer.durationMs ? 1 - remaining / timer.durationMs : 0;
   const view = viewHouse(house);
@@ -62,6 +64,7 @@ export function TimerPlaque(props: {
   const open = model.tasks.filter((t) => !t.done);
   const act = (type: 'toggle' | 'reset' | 'skip') => {
     onGesture();
+    if (type === 'toggle' && timer.status === 'idle' && isFocus) onStart?.();
     dispatch({ type: 'timer', action: { type } });
   };
 
@@ -328,7 +331,28 @@ export interface SettingsActions {
   onNotifyChange: (on: boolean) => Promise<string>;
 }
 
-export function SettingsForm({ settings, dispatch, demo, actions, notifyNote }: { settings: Settings; dispatch: Dispatch; demo: boolean; actions: SettingsActions; notifyNote: string }) {
+export const FOLLOW_HINT = 'Off by default. A small window floats over other apps while a candle burns. Closing it never affects your session.';
+export const FOLLOW_UNSUPPORTED = 'This browser cannot show a floating window. The ghost follows you in the tab’s icon and title instead.';
+
+export function SettingsForm({
+  settings,
+  dispatch,
+  demo,
+  actions,
+  notifyNote,
+  followSupported = true,
+  followNote = '',
+}: {
+  settings: Settings;
+  dispatch: Dispatch;
+  demo: boolean;
+  actions: SettingsActions;
+  notifyNote: string;
+  /** Whether the browser has Document Picture-in-Picture. */
+  followSupported?: boolean;
+  /** The last thing the follow window did, in words. */
+  followNote?: string;
+}) {
   const [confirmErase, setConfirmErase] = useState(false);
   const [importNote, setImportNote] = useState('');
   const [notifyResult, setNotifyResult] = useState('');
@@ -405,6 +429,27 @@ export function SettingsForm({ settings, dispatch, demo, actions, notifyNote }: 
         </label>
         <p className="note" id="notify-note" role="status">
           {notifyNote || notifyResult}
+        </p>
+      </fieldset>
+      <fieldset>
+        <legend>The ghost</legend>
+        <label className="switch">
+          <input
+            type="checkbox"
+            role="switch"
+            checked={settings.ghostFollows}
+            disabled={!followSupported}
+            aria-describedby="follow-hint follow-note"
+            onChange={(e) => set({ ghostFollows: e.target.checked })}
+          />
+          <span className="switch-track" aria-hidden="true" />
+          <span className="switch-label">
+            Let her follow me
+            <small id="follow-hint">{followSupported ? FOLLOW_HINT : 'Off by default.'}</small>
+          </span>
+        </label>
+        <p className="note" id="follow-note" role="status">
+          {followSupported ? followNote : FOLLOW_UNSUPPORTED}
         </p>
       </fieldset>
       <fieldset>

@@ -26,6 +26,10 @@ Every external service sits behind an interface with a free local default.
 | `HouseStore` | `LocalHouseStore` (localStorage) | `CloudflareHouseStore` (Worker + Workers KV, last-writer-wins with a merge on 409) | `VITE_HOUSE_STORE=local\|cloudflare`, `VITE_SYNC_URL` |
 | Sound | Web Audio synthesis in the browser | none needed | `settings.muted`, `settings.volume` |
 | `Notifier` | `noopNotifier` (shows nothing) | `createBrowserNotifier` (Notification API; written and unit tested with a fake constructor) | `settings.notifyPhaseEnd`, off by default; permission is requested only when the person turns it on |
+| `PipWindow` (`src/adapters/pip`) | `noopPip` (unsupported, opens nothing) | `createBrowserPip(window, renderPipDocument)` (Document Picture-in-Picture; unit tested with a fake API and `FakePipWindow`, end-to-end with a stand-in iframe window) | `settings.ghostFollows`, off by default, and `'documentPictureInPicture' in window` at run time; a window is requested only inside the "Light a candle" click or the start key |
+| `FaviconPainter` (`src/adapters/favicon.ts`) | `noopFavicon` | `createCanvasFavicon()` (draws each frame once on a 32 by 32 canvas, caches its data URL, at most 28 images per page load, restores `/icon.svg` at rest) | always on; keeps the static icon where there is no canvas |
+
+The `GhostFollower` (`src/app/follow.ts`) is the only user of the last two. It receives the controller's read side (`getModel`, `subscribe`) and never dispatches, so nothing the window or the icon does can change a candle, a wandering or the streak.
 
 The real adapter is unit tested against the Worker handler through a stubbed `fetch`; no test touches the network. Notification logic is tested with a fake `Notifier`; no test shows a real notification or prompt.
 

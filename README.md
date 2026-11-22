@@ -30,6 +30,15 @@ A real Pomodoro timer wearing a haunted house. Every focus session lights a cand
 |---|---|---|
 | ![The same session as a plain Pomodoro: a progress bar, comeback counts, sessions toward the goal and the streak, each labelled with the part of the house behind it](docs/screenshots/costume-off.jpg) | ![The house map opened on the journal's last page, a new dark house in front and the finished house lit up the hill](docs/screenshots/finale.jpg) | ![A postcard of the house at night with two windows lit and the ghost in a third: 16 candles, 8 comebacks, time away fell from 55 min to 13 min](docs/screenshots/postcard.jpg) |
 
+## The ghost follows you
+While a focus candle burns, the tab's icon is a small candle that melts in 24 steps with the session. Switch to another tab and the icon becomes the ghost's face at once; come back and it is the candle again. The tab title keeps the time left ("24:10 · Focus · Haunted Pomodoro") and, once the ghost wakes, calls you back ("Come back… 24:05 left"). The icon is drawn from code on a canvas, so nothing is fetched, and every state it shows is also in the title or on the page.
+
+**The floating window is yours to turn on.** In Settings, under "The ghost", switch on **Let her follow me**. Nothing opens at that moment. The next time you press **Light a candle** (or the start shortcut), a small window floats over whatever app you switch to, with the ghost, the time left and one kind line. She is clear while you are away and fades to 25% when you return. Resuming, a break, a reload or a session that starts by itself never opens a window.
+
+**Closing it is free.** Close the window and the session keeps running with the same time left, every candle and comeback stays as it was, and the setting stays on. She waits for the next candle before she follows again. If the browser refuses the window, the app says so once and carries on with the icon and the title.
+
+**Browsers.** The window uses the Document Picture-in-Picture API, found in desktop Chrome and Edge (from version 116). Firefox and Safari do not have it: there the switch is disabled with a note, and the icon and the title still follow you. "Switched away" means what the Page Visibility API reports, the same signal that wakes the ghost; an app that only partly covers the browser does not count.
+
 ## Why this is a costume
 Take the costume off and every part still works as a timer: the candle is the progress bar, the ghost is the comeback counter, the Hearth is the streak, the house map is the long-term record, and breaks are the house breathing. Leaving the tab *is* what wakes the ghost. Press **U** and the costume really comes off.
 
