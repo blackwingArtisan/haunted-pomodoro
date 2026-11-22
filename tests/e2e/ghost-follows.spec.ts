@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { setTabHidden } from './helpers';
+import { installPausedClock, setTabHidden } from './helpers';
 
 const icon = (page: Page) => page.locator('link[rel="icon"]').getAttribute('href');
 const light = (page: Page) => page.getByRole('button', { name: 'Light a candle' }).click();
@@ -9,7 +9,7 @@ const STEP_MS = (25 * 60_000) / 24;
 test.describe('favicon and title', () => {
   // Req ghost-follows-you:1.1, 1.2, 1.4, 1.6, 2.1, 2.2, 2.3
   test('the icon is static at rest, a candle that steps, the ghost while hidden, the candle on return', async ({ page }) => {
-    await page.clock.install();
+    await installPausedClock(page);
     await page.goto('/');
     await expect.poll(() => icon(page)).toBe('/icon.svg');
 
@@ -36,7 +36,7 @@ test.describe('favicon and title', () => {
 
   // Req ghost-follows-you:1.5, 1.6
   test('a break shows the break frame and a reset brings back the static icon', async ({ page }) => {
-    await page.clock.install();
+    await installPausedClock(page);
     await page.goto('/');
     await light(page);
     await page.keyboard.press('s');
@@ -50,7 +50,7 @@ test.describe('favicon and title', () => {
   // Req ghost-follows-you:9.1, 9.2
   test('with reduced motion the hidden icon stays still and the wax still steps', async ({ page }) => {
     await page.emulateMedia({ reducedMotion: 'reduce' });
-    await page.clock.install();
+    await installPausedClock(page);
     await page.goto('/');
     await light(page);
     const full = await icon(page);
@@ -67,7 +67,7 @@ test.describe('favicon and title', () => {
 
   // Req ghost-follows-you:3.1, 3.2, 3.3, 3.4, 3.6, 3.8
   test('the title shows the time, calls the person back while away and returns to the timer title', async ({ page }) => {
-    await page.clock.install();
+    await installPausedClock(page);
     await page.goto('/');
     await expect(page).toHaveTitle('Haunted Pomodoro');
     await light(page);
@@ -88,6 +88,8 @@ async function openSettings(page: Page) {
   await page.getByRole('button', { name: 'Settings' }).click();
   const dialog = page.getByRole('dialog', { name: 'Settings' });
   await expect(dialog).toBeVisible();
+  // The dialog fades in over 0.35 s; axe must measure colors after that, not part-way through.
+  await dialog.evaluate((el) => Promise.all(el.getAnimations().filter((a) => a.effect?.getTiming().iterations !== Infinity).map((a) => a.finished)));
   return dialog;
 }
 

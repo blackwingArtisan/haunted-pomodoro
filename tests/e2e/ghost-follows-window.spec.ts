@@ -1,6 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
-import { setTabHidden } from './helpers';
+import { installPausedClock, setTabHidden } from './helpers';
 
 /**
  * Headless Chromium has no real Document Picture-in-Picture window. This stand-in is installed before
@@ -65,7 +65,7 @@ async function start(page: Page, opts: { follow?: boolean; reject?: boolean; red
   const { follow = true, reject = false, reduced = false } = opts;
   if (reduced) await page.emulateMedia({ reducedMotion: 'reduce' });
   await installStandIn(page, reject);
-  await page.clock.install({ time: new Date('2025-06-02T09:00:00') });
+  await installPausedClock(page);
   await page.goto('/');
   if (follow) await turnOnFollowing(page);
 }
@@ -245,6 +245,8 @@ test.describe('the follow window', () => {
     await start(page);
     await light(page);
     await expect(pipFrame(page).getByRole('timer')).toBeVisible();
+    // axe schedules its own page timers; they never fire on a paused clock, so let it run for the scan.
+    await page.clock.resume();
     const results = await new AxeBuilder({ page }).include('#pip-standin').withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa']).analyze();
     expect(results.violations).toEqual([]);
   });
