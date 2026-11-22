@@ -45,14 +45,15 @@ Take the costume off and every part still works as a timer: the candle is the pr
 ## Built with Kiro
 | Feature | Files | What it did |
 |---|---|---|
+| Kiro-built feature | [`ghost-follows-you`](.kiro/specs/ghost-follows-you/), `src/core/follow.ts`, `src/app/follow.ts`, `src/adapters/pip/` | Kiro specced and built "The ghost follows you" in six headless sessions: 4,550 lines with no developer edits to its code, unit tests 158 to 348, Playwright 60 to 84, all 100 of its criteria named by a test, 472 hook runs on the record. |
 | Specs | [`haunted-focus-timer`](.kiro/specs/haunted-focus-timer/) and [`house-sync`](.kiro/specs/house-sync/) | Kiro rewrote every criterion in EARS form, caught house-sync 4.1 saying 404 where the Worker answers 405, unchecked two tasks no test backed and opened a task for each gap. |
 | Spec-driven build | `src/core/house-file.ts`, `src/adapters/notify.ts` and their tests | Kiro built house export and import and the opt-in phase-end notification from its own criteria, with unit and Playwright tests (11 min 44 s, 16.02 credits). |
 | Steering | [`.kiro/steering/`](.kiro/steering/): 3 always, 2 by file match | "Never punish" is non-negotiable: nothing removes a lit candle or a restored room. |
 | Traceability | [`traceability.md`](.kiro/specs/haunted-focus-timer/traceability.md), `npm run trace` | 164 of 173 criteria are named by a test; a unit test fails if the table is stale. |
-| Hooks | [`.kiro/hooks/`](.kiro/hooks/): nine `v1` hooks | Save: unit tests and the never-punish and accessibility guards. Stop: the full check. PreToolUse: blocks dependency changes, `git push` and deploys. PostTaskExec: the trace. SessionStart: open tasks. Manual: demo-ready. Each command is verified with Kiro's event payload ([`hook-checks.txt`](docs/kiro/hook-checks.txt)). |
-| Agent and MCP | [`ghost-reviewer`](.kiro/agents/ghost-reviewer.json), [`mcp.json`](.kiro/settings/mcp.json) | A read-only reviewer of every line the ghost says; Playwright MCP and Context7 at pinned versions. Both join the next Kiro session. |
+| Hooks | [`.kiro/hooks/`](.kiro/hooks/): nine `v1` hooks | Save: unit tests and the never-punish and accessibility guards. Stop: the full check. PreToolUse: blocks dependency changes, `git push` and deploys. PostTaskExec: the trace. SessionStart: open tasks. Manual: demo-ready. Kiro's session transcripts show them firing. |
+| Agent and MCP | [`ghost-reviewer`](.kiro/agents/ghost-reviewer.json), [`mcp.json`](.kiro/settings/mcp.json) | The read-only reviewer checked the new feature's copy and found five issues the tests missed, including a note that broke the never-punish rule; Kiro fixed all five. Kiro used Context7 to check the Picture-in-Picture API before writing the spec. |
 
-The first build and most of the visual work were written with Claude Code. [`KIRO-LOG.md`](KIRO-LOG.md) lists every Kiro session with its prompt, result and credits, and the work done outside Kiro commit by commit.
+The first build and most of the visual work were written with Claude Code; the ghost-follows-you feature was written by Kiro. [`KIRO-LOG.md`](KIRO-LOG.md) lists every Kiro session with its prompt, result and credits, and the work done outside Kiro commit by commit.
 
 ## Who it is for, and why
 **People who quit a focus app because it punished them:** a dead tree, a sad pet, a broken streak. If you have ADHD or simply drift a lot, wandering here is counted, never penalised. It is a timer, not a treatment.
