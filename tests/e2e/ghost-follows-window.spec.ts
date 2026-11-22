@@ -150,7 +150,7 @@ test.describe('the follow window', () => {
   });
 
   // Req ghost-follows-you:7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 7.8, 10.5
-  test('closing it leaves the session running, says so, does not reopen, and the next session opens one', async ({ page }) => {
+  test('closing it leaves the session running, says nothing, does not reopen, and the next session opens one', async ({ page }) => {
     await start(page);
     await light(page);
     await expect(page.locator('#pip-standin')).toHaveCount(1);
@@ -158,7 +158,8 @@ test.describe('the follow window', () => {
     await page.clock.runFor(10_000);
     await closeFromOutside(page);
     await expect(page.locator('#pip-standin')).toHaveCount(0);
-    await expect(page.getByTestId('announcer')).toContainText('Your candle is still burning');
+    // Closing is not commented on (Req 7.3, 11.5): the live region keeps the opening note.
+    await expect(page.getByTestId('announcer')).toHaveText('The ghost is following you in a small window.');
     await page.clock.runFor(10_000);
     await expect(page.getByTestId('digits')).toHaveText('24:40');
     await expect(page.getByTestId('primary')).toContainText('Pause');
@@ -292,10 +293,9 @@ test.describe('never punish', () => {
   // Req ghost-follows-you:11.1, 11.2, 11.3, 11.5, 7.2
   test('opening, hiding, showing and closing the window change nothing the person kept', async ({ page, browser }) => {
     await start(page, { follow: true });
-    const notes: string[] = [];
     await theSteps(page, true);
-    await expect(page.getByTestId('announcer')).toContainText('Your candle is still burning');
-    notes.push(await page.getByTestId('announcer').innerText());
+    // Closing adds no note: nothing the live region says mentions the window closing (Req 11.5).
+    await expect(page.getByTestId('announcer')).not.toContainText(/closed/i);
     const withFollowing = await kept(page);
     const countWith = await page.getByTestId('wanderings').innerText();
 
@@ -309,8 +309,6 @@ test.describe('never punish', () => {
 
     expect(withFollowing).toEqual(without);
     expect(countWith).toBe(countWithout);
-    // The closing note says only that the candle still burns.
-    expect(notes[0]).not.toMatch(BLAME);
   });
 
   // Req ghost-follows-you:11.2

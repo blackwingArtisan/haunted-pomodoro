@@ -21,8 +21,10 @@ export interface TabTitleInput {
 export function tabTitle({ timer, now, hidden }: TabTitleInput): string {
   if (timer.status === 'idle') return APP_NAME;
   const left = formatClock(remainingAt(timer, now));
-  if (timer.status === 'running' && timer.phase === 'focus' && hidden && timer.ghostWoke) {
-    return `Come back… ${left} left · ${APP_NAME}`;
+  if (timer.status === 'running' && timer.phase === 'focus' && hidden) {
+    if (timer.ghostWoke) return `Come back… ${left} left · ${APP_NAME}`;
+    // The icon shows the ghost's face from the moment the page is hidden; the title says so too.
+    return `Ottilie is here · ${left} · ${PHASE_NAME.focus} · ${APP_NAME}`;
   }
   return `${left} · ${PHASE_NAME[timer.phase]} · ${APP_NAME}`;
 }

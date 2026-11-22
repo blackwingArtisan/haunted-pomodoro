@@ -170,8 +170,8 @@ describe('GhostFollower', () => {
     const before = r.controller.getModel();
     r.pip.closeFromOutside();
     expect(r.controller.getModel()).toBe(before);
-    expect(r.announced.at(-1)).toBe(FOLLOW_NOTES.closed);
-    expect(FOLLOW_NOTES.closed).toContain('still burning');
+    expect(r.announced).toEqual([FOLLOW_NOTES.opened]);
+    expect(r.notes).toEqual([FOLLOW_NOTES.opened]);
     r.advance(1_000);
     expect(r.controller.getModel().timer.status).toBe('running');
     expect(r.pip.openCalls).toHaveLength(1);

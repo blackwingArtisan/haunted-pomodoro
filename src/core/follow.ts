@@ -30,7 +30,7 @@ export type FollowEvent =
   | { type: 'visible' }
   | { type: 'sessionEnded' }; // finished, skipped or reset
 
-export type FollowNote = 'opened' | 'closed' | 'failed';
+export type FollowNote = 'opened' | 'failed';
 
 export type FollowEffect =
   | { type: 'request'; requestedAt: number } // call pip.open now, inside the gesture
@@ -89,7 +89,7 @@ export function stepFollow(state: FollowState, event: FollowEvent, now: number):
     }
     case 'closed': {
       if (state.status === 'resting' || state.status === 'floating') {
-        return { state: { ...state, status: 'dismissed' }, effects: [{ type: 'announce', note: 'closed' }] };
+        return { state: { ...state, status: 'dismissed' }, effects: [] }; // closing is not commented on (Req 11.5)
       }
       return stay(state);
     }

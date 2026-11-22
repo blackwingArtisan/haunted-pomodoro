@@ -65,7 +65,7 @@ test.describe('favicon and title', () => {
     }
   });
 
-  // Req ghost-follows-you:3.1, 3.2, 3.3, 3.4, 3.6
+  // Req ghost-follows-you:3.1, 3.2, 3.3, 3.4, 3.6, 3.8
   test('the title shows the time, calls the person back while away and returns to the timer title', async ({ page }) => {
     await page.clock.install();
     await page.goto('/');
@@ -74,6 +74,7 @@ test.describe('favicon and title', () => {
     await page.clock.runFor(10_000);
     await expect(page).toHaveTitle('24:50 · Focus · Haunted Pomodoro');
     await setTabHidden(page, true);
+    await expect(page).toHaveTitle('Ottilie is here · 24:50 · Focus · Haunted Pomodoro');
     await page.clock.runFor(5_000);
     await expect(page).toHaveTitle('Come back… 24:45 left · Haunted Pomodoro');
     await setTabHidden(page, false);

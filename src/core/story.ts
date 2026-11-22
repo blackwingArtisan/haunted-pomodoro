@@ -118,9 +118,9 @@ export const FOLLOW_LINES: readonly string[] = [
   'I came along. Your candle is still burning.',
   'Take your time. I will keep the light.',
   'Nothing here needs hurrying.',
-  'I am right here, over your shoulder.',
+  'I am right here, humming by the window.',
   'Every minute is a small lamp.',
-  'Work well. I will keep watch.',
+  'Work well. I will keep the lamp.',
 ];
 
 /** One line per minute of time left, so the same minute always reads the same. */

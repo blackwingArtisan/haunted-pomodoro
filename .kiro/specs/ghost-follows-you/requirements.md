@@ -67,6 +67,7 @@ Tests name the criteria of this spec with the spec's folder name in front, so th
 5. THE SYSTEM SHALL compute the time in the tab title from the timer's absolute end time.
 6. THE SYSTEM SHALL NOT put a count of wanderings, a streak or any word of blame in the tab title.
 7. WHEN the title text is the same as at the last update, THE SYSTEM SHALL NOT assign it again.
+8. WHILE a focus session is running AND the page is hidden AND the ghost has not yet woken for the current absence, THE SYSTEM SHALL show "Ottilie is here · mm:ss · Focus · Haunted Pomodoro" as the tab title, so that the title says something from the same update at which the ghost's face appears in the icon (Requirement 2.2).
 
 ## Requirement 4: The "Let her follow me" setting
 **User story:** As someone who wants the ghost's company in other apps, I want to turn the floating window on myself, so that nothing opens on my screen unless I chose it.
@@ -75,7 +76,7 @@ Tests name the criteria of this spec with the spec's folder name in front, so th
 2. WHEN the person turns the setting on, THE SYSTEM SHALL NOT open a window at that moment.
 3. WHEN the person turns the setting off while the window is open, THE SYSTEM SHALL close the window and keep the session running.
 4. WHERE the browser has no Document Picture-in-Picture API, THE SYSTEM SHALL disable the setting and say beside it, in text, that the ghost follows in the tab's icon and title instead.
-5. WHERE the browser has the Document Picture-in-Picture API, THE SYSTEM SHALL say beside the setting that a small window floats over other apps and that closing it never affects the session.
+5. WHERE the browser has the Document Picture-in-Picture API, THE SYSTEM SHALL say beside the setting that a small window floats over other apps and that it can be closed whenever the person likes while the candle burns on.
 6. WHILE the setting is off, THE SYSTEM SHALL NOT request a window.
 7. WHILE in demo mode, THE SYSTEM SHALL apply the setting under the same conditions as in the person's own house.
 8. THE SYSTEM SHALL NOT turn the setting on by itself and SHALL NOT ask the person to turn it on in a prompt, a banner or a notification.
@@ -112,7 +113,7 @@ Tests name the criteria of this spec with the spec's folder name in front, so th
 
 1. WHEN the person closes the window, THE SYSTEM SHALL keep the session running with the same time left.
 2. WHEN the person closes the window, THE SYSTEM SHALL NOT change the candles, the wanderings, the streak, the tasks or the house.
-3. WHEN the window closes, THE SYSTEM SHALL announce through the polite live region that the window closed and that the candle is still burning.
+3. WHEN the window closes, THE SYSTEM SHALL NOT announce or write any note about it, in the live region or in Settings (Requirement 11.5 decides).
 4. WHEN the person closes the window, THE SYSTEM SHALL NOT request another window during the same focus session.
 5. WHEN the person starts the next focus session with "Light a candle" AND the setting is on, THE SYSTEM SHALL request a window again.
 6. WHEN the person closes the window, THE SYSTEM SHALL leave the setting on.

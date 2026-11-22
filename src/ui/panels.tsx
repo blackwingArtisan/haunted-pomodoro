@@ -331,7 +331,7 @@ export interface SettingsActions {
   onNotifyChange: (on: boolean) => Promise<string>;
 }
 
-export const FOLLOW_HINT = 'Off by default. A small window floats over other apps while a candle burns. Closing it never affects your session.';
+export const FOLLOW_HINT = 'Off by default. A small window floats over other apps while a candle burns. Close it whenever you like; the candle burns on.';
 export const FOLLOW_UNSUPPORTED = 'This browser cannot show a floating window. The ghost follows you in the tab’s icon and title instead.';
 
 export function SettingsForm({

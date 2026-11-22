@@ -52,9 +52,21 @@ describe('tab title', () => {
     expect(title(awake, T0 + 5 * MIN, true)).toBe('Come back… 20:00 left · Haunted Pomodoro');
     expect(title(awake, T0 + 5 * MIN, false)).toBe('20:00 · Focus · Haunted Pomodoro');
     const asleep = running();
-    expect(title(asleep, T0 + 5 * MIN, true)).toBe('20:00 · Focus · Haunted Pomodoro');
+    expect(title(asleep, T0 + 5 * MIN, true)).toBe('Ottilie is here · 20:00 · Focus · Haunted Pomodoro');
     const pausedAwake: TimerState = { ...awake, status: 'paused', endsAt: null, remainingMs: 20 * MIN };
     expect(title(pausedAwake, T0, true)).toBe('20:00 · Focus · Haunted Pomodoro');
+  });
+
+  // Req ghost-follows-you:3.8, 2.2
+  it('says Ottilie is here from the moment the page is hidden in a running focus session, before the ghost wakes', () => {
+    const t = running();
+    expect(t.ghostWoke).toBe(false);
+    expect(title(t, T0 + 5 * MIN, true)).toBe('Ottilie is here · 20:00 · Focus · Haunted Pomodoro');
+    expect(title(t, T0 + 5 * MIN, false)).toBe('20:00 · Focus · Haunted Pomodoro');
+    const brk = run({ ...t, ghostWoke: false }, { type: 'skip' }, T0 + MIN);
+    expect(title(brk, T0 + MIN, true)).not.toContain('Ottilie');
+    const paused = run(t, { type: 'pause' }, T0 + MIN);
+    expect(title(paused, T0 + MIN, true)).not.toContain('Ottilie');
   });
 
   // Req ghost-follows-you:3.6, 11.2

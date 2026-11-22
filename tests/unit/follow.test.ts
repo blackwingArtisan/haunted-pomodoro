@@ -135,7 +135,7 @@ describe('follow state machine', () => {
       const r = stepFollow(at(status), { type: 'closed' }, NOW);
       expect(r.state.status).toBe('dismissed');
       expect(r.state.enabled).toBe(true);
-      expect(r.effects).toEqual([{ type: 'announce', note: 'closed' }]);
+      expect(r.effects).toEqual([]);
     }
     const d = at('dismissed');
     const quiet = drive(d, [{ type: 'hidden' }, { type: 'visible' }, ON, { type: 'closed' }]);

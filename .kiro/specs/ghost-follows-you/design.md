@@ -91,7 +91,7 @@ export const frameKey = (f: FaviconFrame): string =>
 The frame uses `progressAt`, which computes from `endsAt`, so a tab whose timers were throttled draws the right step the next time anything calls it (Req 1.7, 3.5). A paused focus session keeps the candle (Req 1.3); the ghost's face needs a running session (Req 2.4). Under reduced motion the face is always 0 (Req 9.1) while the candle keeps stepping (Req 9.2).
 
 ### Tab title (`src/core/tab-title.ts`)
-`tabTitle({ timer, now, hidden })` returns `Haunted Pomodoro` when idle, `Come back… mm:ss left · Haunted Pomodoro` when a focus session is running, the page is hidden and `timer.ghostWoke` is true, and otherwise `mm:ss · Focus · Haunted Pomodoro` (the phase name follows `PHASE_LABEL`). It reproduces the strings the inline effect in `App.tsx` builds today, so the existing title tests keep passing. It takes no counts, so a wandering count or a streak cannot reach the title (Req 3.6). `formatClock` moves here from `src/ui/panels.tsx` because `src/core` must not import from `src/ui`; `panels.tsx` re-exports it.
+`tabTitle({ timer, now, hidden })` returns `Haunted Pomodoro` when idle; while a focus session is running and the page is hidden, `Come back… mm:ss left · Haunted Pomodoro` when `timer.ghostWoke` is true and `Ottilie is here · mm:ss · Focus · Haunted Pomodoro` before that (Req 3.8), so the title speaks from the same update at which the icon shows the ghost's face and the icon never carries anything the title lacks; otherwise `mm:ss · Focus · Haunted Pomodoro` (the phase name follows `PHASE_LABEL`). It reproduces the strings the inline effect in `App.tsx` builds today, apart from the new pre-wake title. It takes no counts, so a wandering count or a streak cannot reach the title (Req 3.6). `formatClock` moves here from `src/ui/panels.tsx` because `src/core` must not import from `src/ui`; `panels.tsx` re-exports it.
 
 ### The follow state machine (`src/core/follow.ts`)
 ```ts
@@ -117,7 +117,7 @@ export type FollowEvent =
   | { type: 'visible' }
   | { type: 'sessionEnded' };                      // finished, skipped or reset
 
-export type FollowNote = 'opened' | 'closed' | 'failed';
+export type FollowNote = 'opened' | 'failed';
 
 export type FollowEffect =
   | { type: 'request'; requestedAt: number }       // call pip.open now, inside the gesture
@@ -137,7 +137,7 @@ Transitions (anything not listed leaves the state as it is and returns the same 
 | `opening` | `opened` with the same `requestedAt` | `resting` if page visible, else `floating` | `announce opened` |
 | `opening` | `rejected` with the same `requestedAt` | `unavailable` | `announce failed` |
 | any other status | `opened` (late or stale answer) | unchanged | `close` |
-| `resting`, `floating` | `closed` | `dismissed` | `announce closed` |
+| `resting`, `floating` | `closed` | `dismissed` | none (closing is not commented on, Req 11.5) |
 | `resting` | `hidden` | `floating` | |
 | `floating` | `visible` | `resting` | |
 | `resting`, `floating`, `opening`, `dismissed`, `unavailable` | `sessionEnded` | `ready` (and `requestedAt = null`) | `close` if a window is open |
@@ -156,8 +156,8 @@ stateDiagram-v2
     opening --> ready: sessionEnded (the late window is closed)
     resting --> floating: hidden
     floating --> resting: visible
-    resting --> dismissed: closed / announce closed
-    floating --> dismissed: closed / announce closed
+    resting --> dismissed: closed (no note)
+    floating --> dismissed: closed (no note)
     resting --> ready: sessionEnded / close
     floating --> ready: sessionEnded / close
     dismissed --> ready: sessionEnded
@@ -195,9 +195,9 @@ Only the ghost's picture takes `ghostOpacity`; the time, the phase and the line 
 - "I came along. Your candle is still burning."
 - "Take your time. I will keep the light."
 - "Nothing here needs hurrying."
-- "I am right here, over your shoulder."
+- "I am right here, humming by the window."
 - "Every minute is a small lamp."
-- "Work well. I will keep watch."
+- "Work well. I will keep the lamp."
 
 None mentions leaving, closing, counts or time away (Req 11.2, 11.5).
 
@@ -323,11 +323,11 @@ export class GhostFollower {
 - `sync()` derives `config` from `settings.ghostFollows` and `pip.isSupported()`, derives `hidden` or `visible` from `isHidden()`, and sends `sessionEnded` when the timer is no longer in a focus session that is running or paused while the status is `opening`, `resting`, `floating`, `dismissed` or `unavailable`. It then computes `faviconFrame`, `tabTitle` and `pipView` and writes each only when it differs from the last value written (Req 3.7, 13.4, 13.6). A tick that changes nothing therefore writes nothing.
 - Nothing in the follower calls `controller.dispatch`, `replace` or `setNotifyPhaseEnd`. It receives the controller only for `getModel()` and `subscribe()`, which a unit test enforces by passing a controller wrapper whose `dispatch` throws (Req 11.1).
 - The page is loaded in `ready` at most, never in an open state: no window is requested at load (Req 5.5, 12.6).
-- `announce` and `note` texts: opened "The ghost is following you in a small window."; closed "The small window closed. Your candle is still burning."; failed "The window could not open here. The ghost follows you in the tab's icon and title instead." Sentence case, no blame (Req 7.3, 8.2, 10.5).
+- `announce` and `note` texts: opened "The ghost is following you in a small window."; failed "The window could not open here. The ghost follows you in the tab's icon and title instead." Sentence case, no blame, and no note for closing (Req 7.3, 8.2, 10.5, 11.5).
 
 ### Settings and the start handlers
 - `Settings.ghostFollows: boolean`, default `false`, normalized with `s.ghostFollows === true` exactly like `notifyPhaseEnd`, so an older save without the field and any non-boolean value read as off (Req 12.2, 12.3). It is part of the settings the snapshot already saves and merges (Req 12.1).
-- `SettingsForm` gets a fieldset "The ghost" with a native checkbox with `role="switch"`, labelled "Let her follow me", with `aria-describedby="follow-note"`. The hint says "Off by default. A small window floats over other apps while a candle burns. Closing it never affects your session." When the browser has no API the checkbox is `disabled`, still shows the saved value, and the note reads "This browser cannot show a floating window. The ghost follows you in the tab's icon and title instead." (Req 4.4, 12.4). The note is `role="status"` and also shows the last follow note (Req 8.2).
+- `SettingsForm` gets a fieldset "The ghost" with a native checkbox with `role="switch"`, labelled "Let her follow me", with `aria-describedby="follow-note"`. The hint says "Off by default. A small window floats over other apps while a candle burns. Close it whenever you like; the candle burns on." When the browser has no API the checkbox is `disabled`, still shows the saved value, and the note reads "This browser cannot show a floating window. The ghost follows you in the tab's icon and title instead." (Req 4.4, 12.4). The note is `role="status"` and also shows the last follow note (Req 8.2).
 - `TimerPlaque` gets `onStart?: () => void`, called in `act('toggle')` when `timer.status === 'idle' && isFocus`, before `dispatch`. `App.tsx` calls `follower.startGesture()` in the same two places: `onStart`, and `timerAction('toggle')` in the keyboard handler (Space on a button is left to the button's own click, as today). Both run inside the click or key event, so the browser sees transient activation (Req 5.1).
 - `App.tsx` calls `follower.sync()` from the 250 ms ticker, the `visibilitychange` handler and when `reducedMotion` changes, and removes the inline title effect.
 
@@ -349,7 +349,7 @@ interface Settings {
 |---|---|
 | `requestWindow` rejects (`NotAllowedError`, `NotSupportedError`, `RangeError`, anything else) | The adapter returns `{ ok: false, reason }`. The follower moves to `unavailable`, announces the failure kindly once, shows the note in Settings, and does not retry until the next start gesture. The timer, the favicon and the title are untouched (Req 8.1 to 8.3, 8.8). |
 | `requestWindow` throws synchronously (for example the API object exists but is broken) | Same as a rejection with reason `failed`. |
-| The person closes the window | `pagehide` reaches the adapter, which reports `'external'`. The state becomes `dismissed`, one polite announcement says the candle is still burning, and no further request is made in this session. The setting stays on (Req 7.1 to 7.6). |
+| The person closes the window | `pagehide` reaches the adapter, which reports `'external'`. The state becomes `dismissed`, nothing is announced or written (the ghost does not comment on the closing, Req 7.3, 11.5), and no further request is made in this session. The setting stays on (Req 7.1 to 7.6). |
 | The window is closed by the browser (navigation, reload, another Picture-in-Picture window) | Same as the person closing it (Req 7.9). |
 | Writing to a window that is already gone throws | The adapter catches it, drops the reference and reports `'external'`; the follower treats it as a close (Req 8.5). |
 | The request settles after the session ended, was reset, or the setting was turned off | The late `opened` carries an old `requestedAt` or arrives in a status other than `opening`; the machine answers with `close`, so no stray window stays open (Req 8.6, 8.7). |
@@ -385,9 +385,9 @@ Each property is checked by a unit test that drives the follower or the pure fun
 ### Playwright (production build, fake clock, Chromium with `--disable-audio-output`)
 `tests/e2e/ghost-follows.spec.ts`:
 - **Favicon.** Read `link[rel="icon"]`'s `href`. At rest it is `/icon.svg`. After "Light a candle" it is a `data:image/png` URL; advancing the fake clock by one step changes it, and by less than a step does not. `setTabHidden(page, true)` changes it to a ghost frame and `setTabHidden(page, false)` brings back the candle's `href`. With `page.emulateMedia({ reducedMotion: 'reduce' })` the hidden `href` stays the same across several seconds, and without it the `href` alternates between two values.
-- **Title.** The title shows the time left, the "Come back…" title after the grace period while hidden, and the timer title again on return (this also covers open task 26).
+- **Title.** The title shows the time left, the "Ottilie is here" title from the moment the page is hidden, the "Come back…" title after the grace period while hidden, and the timer title again on return (this also covers open task 26).
 - **Setting.** `getByRole('switch', { name: 'Let her follow me' })` exists, is off by default, is reachable by Tab and toggled with Space, survives a reload, and an axe scan of Settings reports zero A and AA violations with the API present and with it removed (an init script deletes `window.documentPictureInPicture`; the setting is then disabled and the note is visible).
-- **Window, with a stand-in.** Real Picture-in-Picture cannot be tested in headless Chromium: the browser draws the window itself, `requestWindow` needs genuine transient activation in a real window, and Playwright cannot see or move the window. The spec therefore installs `window.documentPictureInPicture` with `page.addInitScript`. Its `requestWindow` checks `navigator.userActivation.isActive` (so a call from a tick still rejects with `NotAllowedError`, as in a browser), then appends a fixed-position, titled `<iframe>` to the page and returns its `contentWindow`, whose `close()` removes the iframe and dispatches `pagehide`. This is the real adapter and the real `renderPipDocument` writing a real document; only the browser's window chrome is replaced. The spec checks: no iframe before "Light a candle"; one iframe after it with the time left, the line and `role="timer"`; the ghost at opacity 1 after `setTabHidden(true)` and at 0.25 after `setTabHidden(false)` (polled, because a CSS transition does not follow the fake clock), and at once under reduced motion; the iframe's time equals the title's time; closing the iframe leaves the session running with the same time left and announces the close, and no second window opens in that session; the next session opens a new one; a rejected request (a stand-in variant that rejects) shows the note and leaves the timer running; a reload leaves no window; an axe scan of the stand-in document reports no violations; and no request other than the app's own assets is made during a session (Requirement 13.7).
+- **Window, with a stand-in.** Real Picture-in-Picture cannot be tested in headless Chromium: the browser draws the window itself, `requestWindow` needs genuine transient activation in a real window, and Playwright cannot see or move the window. The spec therefore installs `window.documentPictureInPicture` with `page.addInitScript`. Its `requestWindow` checks `navigator.userActivation.isActive` (so a call from a tick still rejects with `NotAllowedError`, as in a browser), then appends a fixed-position, titled `<iframe>` to the page and returns its `contentWindow`, whose `close()` removes the iframe and dispatches `pagehide`. This is the real adapter and the real `renderPipDocument` writing a real document; only the browser's window chrome is replaced. The spec checks: no iframe before "Light a candle"; one iframe after it with the time left, the line and `role="timer"`; the ghost at opacity 1 after `setTabHidden(true)` and at 0.25 after `setTabHidden(false)` (polled, because a CSS transition does not follow the fake clock), and at once under reduced motion; the iframe's time equals the title's time; closing the iframe leaves the session running with the same time left and announces nothing, and no second window opens in that session; the next session opens a new one; a rejected request (a stand-in variant that rejects) shows the note and leaves the timer running; a reload leaves no window; an axe scan of the stand-in document reports no violations; and no request other than the app's own assets is made during a session (Requirement 13.7).
 - **Never punish.** After opening, hiding, showing and closing the window, the day's comebacks and candles are exactly what the same steps give with the setting off.
 
 ### What is checked by hand

@@ -34,7 +34,6 @@ export interface FollowerDeps {
 
 export const FOLLOW_NOTES: Record<FollowNote, string> = {
   opened: 'The ghost is following you in a small window.',
-  closed: 'The small window closed. Your candle is still burning.',
   failed: 'The window could not open here. The ghost follows you in the tab’s icon and title instead.',
 };
 
