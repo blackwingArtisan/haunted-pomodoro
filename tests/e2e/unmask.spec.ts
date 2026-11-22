@@ -142,6 +142,16 @@ test('the plain timer drops its costume and sits beside the plain view at 1440x9
   // Tiles are as tall as their content: no tile is more than twice the shortest.
   const heights = await page.locator('.plain-row:not(.is-wide)').evaluateAll((els) => els.map((el) => el.getBoundingClientRect().height));
   expect(Math.max(...heights)).toBeLessThanOrEqual(Math.min(...heights) * 2);
-  expect(Math.max(...heights)).toBeLessThan(140);
+  // No tile is stretched past what its row's tallest content needs, whatever the system font
+  // (a fixed pixel cap held on macOS fonts but not on Linux, where a value wraps to two lines).
+  const needed = await page.locator('.plain-row:not(.is-wide)').evaluateAll((els) =>
+    els.map((el) => {
+      const style = getComputedStyle(el);
+      const first = el.firstElementChild!.getBoundingClientRect();
+      const last = el.lastElementChild!.getBoundingClientRect();
+      return last.bottom - first.top + parseFloat(style.paddingTop) + parseFloat(style.paddingBottom);
+    }),
+  );
+  expect(Math.max(...heights)).toBeLessThanOrEqual(Math.max(...needed) + 1);
   await context.close();
 });
