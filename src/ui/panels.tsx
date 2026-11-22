@@ -11,14 +11,11 @@ import { CandleIcon, CloseIcon, ResetIcon, SkipIcon, TrashIcon } from './icons';
 import { MANTEL_CANDLES, mantelCandles } from './candles';
 import { Scene } from './Scene';
 
+import { formatClock } from '../core/tab-title';
+
 type Dispatch = (action: AppAction) => void;
 
-export function formatClock(ms: number): string {
-  const total = Math.ceil(ms / 1000);
-  const m = Math.floor(total / 60);
-  const s = total % 60;
-  return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
-}
+export { formatClock };
 
 function spokenTime(ms: number): string {
   const total = Math.ceil(ms / 1000);

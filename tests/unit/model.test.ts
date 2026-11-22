@@ -130,4 +130,17 @@ describe('app reducer', () => {
     expect(demo.model.timer.durationMs).toBe(20_000);
     expect(DEFAULT_SETTINGS.focusMin).toBe(25);
   });
+
+  // Req ghost-follows-you:4.1, 12.3
+  it('keeps the follow setting off unless it is exactly the boolean true', () => {
+    expect(DEFAULT_SETTINGS.ghostFollows).toBe(false);
+    const h = harness();
+    expect(h.model.settings.ghostFollows).toBe(false);
+    h.send({ type: 'updateSettings', patch: { ghostFollows: true } });
+    expect(h.model.settings.ghostFollows).toBe(true);
+    for (const bad of ['true', 1, null]) {
+      h.send({ type: 'updateSettings', patch: { ghostFollows: bad as unknown as boolean } });
+      expect(h.model.settings.ghostFollows).toBe(false);
+    }
+  });
 });

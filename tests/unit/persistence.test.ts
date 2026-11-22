@@ -113,3 +113,22 @@ describe('persistence', () => {
     expect(stores.primary).toBe(stores.local);
   });
 });
+
+describe('the follow setting in a saved copy', () => {
+  // Req ghost-follows-you:12.2, 12.3
+  it('reads a copy without the field, "true" or 1 as off', () => {
+    const old = JSON.parse(serializeModel(createModel(1)));
+    delete old.settings.ghostFollows;
+    expect(parseModel(old, 3).settings.ghostFollows).toBe(false);
+    for (const bad of ['true', 1, null, {}]) {
+      old.settings.ghostFollows = bad;
+      expect(parseModel(old, 3).settings.ghostFollows).toBe(false);
+    }
+  });
+
+  // Req ghost-follows-you:12.1
+  it('keeps true through a save and a load', () => {
+    const model = reduceApp(createModel(1), { type: 'updateSettings', patch: { ghostFollows: true } }, 2).model;
+    expect(parseModel(JSON.parse(serializeModel(model)), 3).settings.ghostFollows).toBe(true);
+  });
+});

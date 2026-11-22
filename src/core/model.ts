@@ -34,6 +34,8 @@ export interface Settings {
   ghostCalls: boolean;
   /** Show a browser notification when a phase ends while the tab is hidden. Off until the person asks. */
   notifyPhaseEnd: boolean;
+  /** Open the follow window when a focus candle is lit by a gesture. Off until the person turns it on. */
+  ghostFollows: boolean;
   motion: MotionPreference;
 }
 
@@ -49,6 +51,7 @@ export const DEFAULT_SETTINGS: Settings = {
   ambient: false,
   ghostCalls: true,
   notifyPhaseEnd: false,
+  ghostFollows: false,
   motion: 'system',
 };
 
@@ -175,6 +178,7 @@ export function normalizeSettings(patch: Partial<Settings>, base: Settings = DEF
     ambient: Boolean(s.ambient),
     ghostCalls: Boolean(s.ghostCalls),
     notifyPhaseEnd: s.notifyPhaseEnd === true,
+    ghostFollows: s.ghostFollows === true,
     motion: s.motion === 'reduced' || s.motion === 'full' ? s.motion : 'system',
   };
 }

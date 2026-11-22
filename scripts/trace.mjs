@@ -1,17 +1,26 @@
-// Traceability: maps every EARS acceptance criterion in the spec to the tests that check it.
+// Traceability: maps every EARS acceptance criterion in each spec to the tests that check it.
 //
 // A test names the criteria it checks in a comment on the line(s) directly above it:
 //     // Req 3.2, 3.13
 //     it('a distraction wakes the ghost and is logged for the day', ...)
-// `npm run trace` rewrites .kiro/specs/haunted-focus-timer/traceability.md and lists the criteria no
-// test names yet. `--check` fails if that file is out of date; `--strict` also fails on uncovered
-// criteria. A unit test keeps the published table current and every tag pointing at a real criterion.
-import { readFileSync, readdirSync, writeFileSync } from 'node:fs';
+// An unqualified tag means the `haunted-focus-timer` spec. Another spec's criteria are named with
+// the spec's folder name in front, because every spec numbers its requirements from 1:
+//     // Req ghost-follows-you:2.3, 2.4
+// `npm run trace` rewrites `traceability.md` in every folder under .kiro/specs that has a
+// `requirements.md`, and lists the criteria no test names yet. `--check` fails if one of those files
+// is out of date; `--strict` also fails on uncovered criteria. A unit test keeps the published
+// tables current and every tag pointing at a real criterion.
+import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-export const SPEC_DIR = '.kiro/specs/haunted-focus-timer';
+export const SPECS_DIR = '.kiro/specs';
+export const DEFAULT_SPEC = 'haunted-focus-timer';
+export const SPEC_DIR = `${SPECS_DIR}/${DEFAULT_SPEC}`;
 export const TABLE_PATH = `${SPEC_DIR}/traceability.md`;
+
+/** The published table of one spec. */
+export const tablePathFor = (spec) => `${SPECS_DIR}/${spec}/traceability.md`;
 
 /** Every numbered criterion under a "## Requirement N: Title" heading. */
 export function parseCriteria(markdown) {
@@ -31,13 +40,22 @@ export function parseCriteria(markdown) {
 }
 
 const TEST_CALL = /^\s*(?:it|test)\(\s*(['"`])((?:\\.|(?!\1).)*)\1/;
-const TAG = /\bReq\s+(\d+\.\d+(?:\s*,\s*\d+\.\d+)*)/g;
+const TAG = /\bReq\s+(?:([a-z][a-z0-9-]*):)?(\d+\.\d+(?:\s*,\s*\d+\.\d+)*)/g;
 
+/** The criteria a piece of text names. A qualified tag keeps its spec in front: `ghost-follows-you:2.3`. */
 function ids(text) {
   const found = [];
-  for (const match of text.matchAll(TAG)) found.push(...match[1].split(',').map((s) => s.trim()));
+  for (const match of text.matchAll(TAG)) {
+    const prefix = match[1] ? `${match[1]}:` : '';
+    found.push(...match[2].split(',').map((s) => `${prefix}${s.trim()}`));
+  }
   return found;
 }
+
+/** The spec a tag belongs to: the qualifier, or the default spec. */
+export const tagSpec = (tag) => (tag.includes(':') ? tag.slice(0, tag.indexOf(':')) : DEFAULT_SPEC);
+/** The criterion number of a tag, without its qualifier. */
+export const tagId = (tag) => tag.slice(tag.indexOf(':') + 1);
 
 /** Every `it(...)` or `test(...)` in a file, with the criteria named in its title or in the comments right above it. */
 export function parseTests(source, file) {
@@ -59,11 +77,15 @@ function byId(a, b) {
   return ra - rb || ca - cb;
 }
 
-/** Joins criteria and tests: which tests check each criterion, which criteria none do, and tags that name no criterion. */
-export function trace(criteria, tests) {
+/**
+ * Joins one spec's criteria and the tests: which tests check each criterion, which criteria none do,
+ * and tags of this spec that name no criterion. Tags of other specs are not this spec's business.
+ */
+export function trace(criteria, tests, spec = DEFAULT_SPEC) {
   const known = new Set(criteria.map((c) => c.id));
-  const rows = criteria.map((c) => ({ ...c, tests: tests.filter((t) => t.reqs.includes(c.id)) }));
-  const unknown = tests.flatMap((t) => t.reqs.filter((r) => !known.has(r)).map((id) => ({ id, test: t })));
+  const own = (t) => t.reqs.filter((r) => tagSpec(r) === spec).map(tagId);
+  const rows = criteria.map((c) => ({ ...c, tests: tests.filter((t) => own(t).includes(c.id)) }));
+  const unknown = tests.flatMap((t) => own(t).filter((id) => !known.has(id)).map((id) => ({ id, test: t })));
   return {
     rows,
     covered: rows.filter((r) => r.tests.length > 0).length,
@@ -102,9 +124,17 @@ export function renderTable(result) {
   return out.join('\n');
 }
 
-/** Reads the spec and the test folders under `root` and returns the trace and its table. */
-export function traceRepo(root) {
-  const criteria = parseCriteria(readFileSync(join(root, SPEC_DIR, 'requirements.md'), 'utf8'));
+/** The names of every folder under .kiro/specs that has a requirements.md, sorted. */
+export function specFolders(root) {
+  const base = join(root, SPECS_DIR);
+  return readdirSync(base, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && existsSync(join(base, d.name, 'requirements.md')))
+    .map((d) => d.name)
+    .sort();
+}
+
+/** Every test in tests/unit and tests/e2e under `root`. */
+function readTests(root) {
   const tests = [];
   for (const [dir, suffix] of [['tests/unit', '.test.ts'], ['tests/e2e', '.spec.ts']]) {
     for (const name of readdirSync(join(root, dir)).filter((f) => f.endsWith(suffix)).sort()) {
@@ -112,37 +142,63 @@ export function traceRepo(root) {
       tests.push(...parseTests(readFileSync(path, 'utf8'), relative(root, path)));
     }
   }
-  const result = trace(criteria, tests);
-  return { result, table: renderTable(result) };
+  return tests;
+}
+
+/**
+ * Traces every spec folder. `specs` has one entry per folder (its trace and its table), and `stray`
+ * lists the qualified tags that name a spec folder that does not exist.
+ */
+export function traceAll(root) {
+  const folders = specFolders(root);
+  const tests = readTests(root);
+  const specs = folders.map((spec) => {
+    const criteria = parseCriteria(readFileSync(join(root, SPECS_DIR, spec, 'requirements.md'), 'utf8'));
+    const result = trace(criteria, tests, spec);
+    return { spec, tablePath: tablePathFor(spec), result, table: renderTable(result) };
+  });
+  const stray = tests.flatMap((t) => t.reqs.filter((r) => !folders.includes(tagSpec(r))).map((id) => ({ id, test: t })));
+  return { specs, stray };
+}
+
+/** Reads the default spec and the test folders under `root` and returns the trace and its table. */
+export function traceRepo(root) {
+  const entry = traceAll(root).specs.find((s) => s.spec === DEFAULT_SPEC);
+  return { result: entry.result, table: entry.table };
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {
   const root = fileURLToPath(new URL('..', import.meta.url));
-  const { result, table } = traceRepo(root);
-  const tablePath = join(root, TABLE_PATH);
+  const { specs, stray } = traceAll(root);
   const check = process.argv.includes('--check');
   const strict = process.argv.includes('--strict');
   let failed = false;
-  if (check) {
-    let current = '';
-    try {
-      current = readFileSync(tablePath, 'utf8');
-    } catch {
-      // missing counts as out of date
+  for (const { spec, tablePath, result, table } of specs) {
+    if (check) {
+      let current = '';
+      try {
+        current = readFileSync(join(root, tablePath), 'utf8');
+      } catch {
+        // missing counts as out of date
+      }
+      if (current !== table) {
+        console.error(`${tablePath} is out of date. Run npm run trace.`);
+        failed = true;
+      }
+    } else {
+      writeFileSync(join(root, tablePath), table);
     }
-    if (current !== table) {
-      console.error(`${TABLE_PATH} is out of date. Run npm run trace.`);
+    console.log(`${spec}: ${result.covered} of ${result.rows.length} criteria named by a test.`);
+    if (result.uncovered.length) console.log(`  Not yet named: ${result.uncovered.join(', ')}`);
+    for (const u of result.unknown) {
+      console.error(`${u.test.file}:${u.test.line} names Req ${spec}:${u.id}, which is not in ${spec}/requirements.md`);
       failed = true;
     }
-  } else {
-    writeFileSync(tablePath, table);
+    if (strict && result.uncovered.length) failed = true;
   }
-  console.log(`${result.covered} of ${result.rows.length} criteria named by a test (${result.tagged} of ${result.total} tests tagged).`);
-  if (result.uncovered.length) console.log(`Not yet named: ${result.uncovered.join(', ')}`);
-  for (const u of result.unknown) {
-    console.error(`${u.test.file}:${u.test.line} names Req ${u.id}, which is not in requirements.md`);
+  for (const s of stray) {
+    console.error(`${s.test.file}:${s.test.line} names Req ${s.id}, but there is no spec folder with that name`);
     failed = true;
   }
-  if (strict && result.uncovered.length) failed = true;
   process.exit(failed ? 1 : 0);
 }

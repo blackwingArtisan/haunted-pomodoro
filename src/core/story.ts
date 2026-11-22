@@ -113,6 +113,22 @@ const LATER_RETURN = [
 /** Every line the ghost can say when you come back, for review and tests. */
 export const ALL_RETURN_LINES: readonly string[] = [...Object.values(FIRST_RETURN), ...SECOND_RETURN, ...THIRD_RETURN, ...LATER_RETURN];
 
+/** What Ottilie says in the small follow window. None of it mentions leaving, closing, counts or time away. */
+export const FOLLOW_LINES: readonly string[] = [
+  'I came along. Your candle is still burning.',
+  'Take your time. I will keep the light.',
+  'Nothing here needs hurrying.',
+  'I am right here, over your shoulder.',
+  'Every minute is a small lamp.',
+  'Work well. I will keep watch.',
+];
+
+/** One line per minute of time left, so the same minute always reads the same. */
+export function followLine(remainingMs: number): string {
+  const minutes = Math.max(0, Math.ceil(remainingMs / 60_000));
+  return FOLLOW_LINES[minutes % FOLLOW_LINES.length] ?? FOLLOW_LINES[0]!;
+}
+
 /** What the ghost says when you come back for the `count`-th time this session, in this room. */
 export function returnLine(roomId: string, count: number): string {
   const roomIndex = Math.max(0, ROOMS.findIndex((r) => r.id === roomId));

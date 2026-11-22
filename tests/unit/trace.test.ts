@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
-import { parseCriteria, parseTests, renderTable, TABLE_PATH, trace, traceRepo } from '../../scripts/trace.mjs';
+import { DEFAULT_SPEC, parseCriteria, parseTests, renderTable, specFolders, tablePathFor, TABLE_PATH, tagSpec, trace, traceAll, traceRepo } from '../../scripts/trace.mjs';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 
@@ -59,5 +59,71 @@ describe('traceability', () => {
     const { result, table } = traceRepo(root);
     expect(result.unknown.map((u) => `${u.test.file}:${u.test.line} Req ${u.id}`)).toEqual([]);
     expect(readFileSync(`${root}/${TABLE_PATH}`, 'utf8'), 'run npm run trace').toBe(table);
+  });
+});
+
+// Fixtures are built line by line so that the trace of this repository does not read them as real tests.
+const QUALIFIED = [
+  '  // Req ghost-follows-you:2.1, 2.2',
+  "  it('is qualified', () => {});",
+  '  // Req 1.1',
+  "  it('is not qualified', () => {});",
+  '  // Req ghost-follows-you:2.1, 1.1',
+  "  it('mixes one qualifier over a list', () => {});",
+  '  // Req ghost-follows-you:9.9',
+  "  it('names a criterion that does not exist', () => {});",
+  "  it('says \"Req ghost-follows-you:2.2\" in its title', () => {});",
+].join('\n');
+
+const OTHER_SPEC = `# Requirements
+## Requirement 1: Window
+1. THE SYSTEM SHALL open.
+## Requirement 2: Icon
+1. THE SYSTEM SHALL draw.
+2. THE SYSTEM SHALL fade.
+`;
+
+describe('traceability across specs', () => {
+  // Req ghost-follows-you:13.1
+  it('reads a qualified tag, with the qualifier applying to its whole list', () => {
+    expect(parseTests(QUALIFIED, 'x.test.ts').map((t) => [t.title, t.reqs])).toEqual([
+      ['is qualified', ['ghost-follows-you:2.1', 'ghost-follows-you:2.2']],
+      ['is not qualified', ['1.1']],
+      ['mixes one qualifier over a list', ['ghost-follows-you:2.1', 'ghost-follows-you:1.1']],
+      ['names a criterion that does not exist', ['ghost-follows-you:9.9']],
+      ['says "Req ghost-follows-you:2.2" in its title', ['ghost-follows-you:2.2']],
+    ]);
+    expect(tagSpec('ghost-follows-you:2.1')).toBe('ghost-follows-you');
+    expect(tagSpec('2.1')).toBe(DEFAULT_SPEC);
+  });
+
+  // Req ghost-follows-you:13.1
+  it('resolves a qualified tag in its own spec only, and an unqualified tag in the default spec', () => {
+    const tests = parseTests(QUALIFIED, 'x.test.ts');
+    const own = trace(parseCriteria(OTHER_SPEC), tests, 'ghost-follows-you');
+    expect(own.rows.map((r) => [r.id, r.tests.length])).toEqual([['1.1', 1], ['2.1', 2], ['2.2', 2]]);
+    const base = trace(parseCriteria(OTHER_SPEC), tests);
+    expect(base.rows.map((r) => [r.id, r.tests.length])).toEqual([['1.1', 1], ['2.1', 0], ['2.2', 0]]);
+  });
+
+  // Req ghost-follows-you:13.1
+  it('fails a tag that names a criterion that does not exist, in either kind of tag', () => {
+    const tests = parseTests(QUALIFIED, 'x.test.ts');
+    expect(trace(parseCriteria(OTHER_SPEC), tests, 'ghost-follows-you').unknown.map((u) => u.id)).toEqual(['9.9']);
+    expect(trace(parseCriteria(SPEC), parseTests(TESTS, 'y.test.ts')).unknown.map((u) => u.id)).toEqual(['9.9']);
+    expect(trace(parseCriteria(OTHER_SPEC), tests, 'house-sync').unknown).toEqual([]);
+  });
+
+  // Req ghost-follows-you:13.1
+  it('writes a current table into every spec folder, and every tag in the suite names a real criterion', () => {
+    const { specs, stray } = traceAll(root);
+    expect(specs.map((s) => s.spec)).toEqual(specFolders(root));
+    expect(specs.map((s) => s.spec)).toEqual(expect.arrayContaining([DEFAULT_SPEC, 'ghost-follows-you', 'house-sync']));
+    expect(stray.map((s) => `${s.test.file}:${s.test.line} ${s.id}`)).toEqual([]);
+    for (const s of specs) {
+      expect(s.tablePath).toBe(tablePathFor(s.spec));
+      expect(s.result.unknown.map((u) => `${u.test.file}:${u.test.line} Req ${s.spec}:${u.id}`), s.spec).toEqual([]);
+      expect(readFileSync(`${root}/${s.tablePath}`, 'utf8'), `run npm run trace (${s.spec})`).toBe(s.table);
+    }
   });
 });

@@ -3,9 +3,11 @@ import { addDays } from '../../src/core/dates';
 import { CANDLES_PER_ROOM, ROOMS, lightCandle, type HouseState } from '../../src/core/house';
 import {
   ALL_RETURN_LINES,
+  FOLLOW_LINES,
   JOURNAL_FINALE,
   JOURNAL_PAGES,
   diaryLine,
+  followLine,
   hoursAndMinutes,
   journalFor,
   pageForRoom,
@@ -154,5 +156,28 @@ describe('the weekly reflection', () => {
     expect(hoursAndMinutes(30_000)).toBe('under 1 min');
     expect(hoursAndMinutes(120 * MIN)).toBe('2 h');
     expect(hoursAndMinutes(275 * MIN)).toBe('4 h 35 min');
+  });
+});
+
+describe('the follow window’s lines', () => {
+  // Req ghost-follows-you:11.2, 11.4, 11.5
+  it('are kind: no harsh word, and no mention of leaving, closing, counts or time away', () => {
+    expect(FOLLOW_LINES).toHaveLength(6);
+    expect(new Set(FOLLOW_LINES).size).toBe(6);
+    for (const line of FOLLOW_LINES) {
+      expect(line).not.toMatch(HARSH);
+      expect(line).not.toMatch(/\b(left|leave|leaving|away|clos\w*|gone|miss\w*|again|\d+)\b/i);
+    }
+  });
+
+  // Req ghost-follows-you:6.7
+  it('gives the same line for the same minute, and is deterministic', () => {
+    for (const ms of [0, 1, 59_999, 60_000, 12 * MIN + 1, 25 * MIN]) {
+      expect(followLine(ms)).toBe(followLine(ms));
+      expect(FOLLOW_LINES).toContain(followLine(ms));
+    }
+    expect(followLine(3 * MIN - 1)).toBe(followLine(2 * MIN + 1));
+    expect(followLine(2 * MIN)).toBe(followLine(2 * MIN - 59_000));
+    expect(followLine(MIN)).not.toBe(followLine(2 * MIN));
   });
 });
