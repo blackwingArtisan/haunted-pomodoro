@@ -55,6 +55,15 @@ describe('Kiro PreToolUse guard (scripts/kiro/guard.mjs)', { timeout: 20_000 }, 
     expect(blockReason({ cwd: root, tool_name: 'fs_write', tool_input: { path: 'docs/package.json.md' } })).toBeNull();
   });
 
+  it('reads the kiro-cli 3.5 input shapes: fs_write { path, text }, str_replace { path, oldStr, newStr }, execute_bash { command }', () => {
+    const lock = join(root, 'package-lock.json');
+    expect(runGuard('fs_write', { path: join(root, 'package.json'), text: '{}' }).status).toBe(2);
+    expect(runGuard('str_replace', { path: lock, oldStr: 'a', newStr: 'b' }).status).toBe(2);
+    expect(runGuard('execute_bash', { command: 'pnpm add zod' }).status).toBe(2);
+    expect(runGuard('fs_write', { path: join(root, 'src/core/house.ts'), text: 'export {};' }).status).toBe(0);
+    expect(runGuard('str_replace', { path: join(root, 'src/App.tsx'), oldStr: 'a', newStr: 'b' }).status).toBe(0);
+  });
+
   it('blocks a call it cannot read rather than letting it through', () => {
     const run = spawnSync(process.execPath, [guard], { input: 'not json', encoding: 'utf8' });
     expect(run.status).toBe(2);

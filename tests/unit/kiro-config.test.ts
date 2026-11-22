@@ -55,6 +55,31 @@ describe('Kiro configuration', () => {
     for (const t of ['SessionStart', 'PreToolUse', 'PostTaskExec', 'PostFileSave', 'Stop', 'Manual']) expect(triggers.has(t), t).toBe(true);
   });
 
+  it('every PostFileSave matcher matches an absolute path to a file it is meant to cover', () => {
+    // kiro-cli tests the matcher against the absolute path, so a pattern anchored with ^src/ never fires.
+    const covered: Record<string, { hits: string[]; misses: string[] }> = {
+      'a11y-motion-guard.json': { hits: ['src/styles.css', 'src/App.tsx', 'src/ui/Scene.tsx', 'src/ui/panels.tsx'], misses: ['src/core/timer.ts', 'src/ui/candles.ts', 'docs/src/App.tsx.md'] },
+      'core-tests.json': { hits: ['src/core/timer.ts', 'src/adapters/notify.ts', 'src/adapters/store/local.ts', 'src/app/controller.ts', 'src/audio/sound.ts', 'worker/index.ts'], misses: ['src/App.tsx', 'src/ui/Scene.tsx', 'tests/unit/timer.test.ts'] },
+      'test-on-save.json': { hits: ['src/core/model.ts', 'src/adapters/notify.ts', 'src/app/controller.ts', 'src/audio/levels.ts', 'worker/index.ts', 'tests/unit/timer.test.ts'], misses: ['src/App.tsx', 'tests/e2e/timer.spec.ts', 'src/core/notes.md'] },
+      'never-punish-guard.json': { hits: ['src/core/house.ts', 'src/core/streak.ts', 'src/core/snapshot.ts', 'src/core/model.ts', 'src/core/house-file.ts', 'src/core/wisps.ts'], misses: ['src/core/timer.ts', 'src/core/story.ts', 'src/app/house.ts'] },
+    };
+    const seen = new Set<string>();
+    for (const file of hookFiles) {
+      for (const hook of readJson(join(kiro, 'hooks', file)).hooks as Hook[]) {
+        if (hook.trigger !== 'PostFileSave') continue;
+        seen.add(file);
+        expect(hook.matcher, `${file}: a save hook needs a matcher`).toBeTruthy();
+        expect(hook.matcher!.startsWith('^'), `${file}: ${hook.matcher} is anchored to the start of an absolute path`).toBe(false);
+        const cases = covered[file];
+        expect(cases, `${file}: add the paths this matcher should and should not cover`).toBeDefined();
+        const matcher = new RegExp(hook.matcher!);
+        for (const path of cases!.hits) expect(matcher.test(join(root, path)), `${file} should match ${join(root, path)}`).toBe(true);
+        for (const path of cases!.misses) expect(matcher.test(join(root, path)), `${file} should not match ${join(root, path)}`).toBe(false);
+      }
+    }
+    expect([...seen].sort()).toEqual(Object.keys(covered).sort());
+  });
+
   it('the custom agent loads files that exist and its hooks are valid', () => {
     for (const file of readdirSync(join(kiro, 'agents')).filter((f) => f.endsWith('.json'))) {
       const agent = readJson(join(kiro, 'agents', file));

@@ -5,7 +5,7 @@
       "name": "Run unit tests on core save",
       "description": "Runs the Vitest unit suite whenever the agent saves a TypeScript file under src/core, src/adapters, src/app, src/audio, worker/ or tests/unit/, so a broken timer, streak, merge, import or notification rule is caught at once. A PostFileSave command hook cannot block the save; a failing suite is reported back to the agent.",
       "trigger": "PostFileSave",
-      "matcher": "^(src/core|src/adapters|src/app|src/audio|worker|tests/unit)/.*\\.ts$",
+      "matcher": "(^|/)(src/core|src/adapters|src/app|src/audio|worker|tests/unit)/.*\\.ts$",
       "action": { "type": "command", "command": "npm test" },
       "timeout": 120,
       "enabled": true
