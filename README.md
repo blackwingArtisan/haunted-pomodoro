@@ -1,5 +1,7 @@
 # Haunted Pomodoro
 
+[![CI](https://github.com/blackwingArtisan/haunted-pomodoro/actions/workflows/ci.yml/badge.svg)](https://github.com/blackwingArtisan/haunted-pomodoro/actions/workflows/ci.yml) [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+
 **Forest kills your tree when you look away. This ghost keeps your candle lit.**
 
 A real Pomodoro timer wearing a haunted house. Every focus session lights a candle. Wander to another tab and a lonely ghost wakes, calls you back and counts the comeback, without taking anything away. Finished sessions restore the house room by room. Built for Kiroween 2026 (Costume Contest) by Stubborn Otter Software.
