@@ -4,13 +4,15 @@
 
 **Forest kills your tree when you look away. This ghost keeps your candle lit.**
 
+**Live: [haunted-pomodoro.pages.dev](https://haunted-pomodoro.pages.dev/)** · [30-second demo](https://haunted-pomodoro.pages.dev/?demo=1)
+
 A real Pomodoro timer wearing a haunted house. Every focus session lights a candle. Wander to another tab and a lonely ghost wakes, calls you back and counts the comeback, without taking anything away. Finished sessions restore the house room by room. Built for Kiroween 2026 (Costume Contest) by Stubborn Otter Software.
 
 ![The demo in twelve seconds: a candle is lit in a haunted parlor, the ghost wakes when the tab is left while the tab title reads Come back, 14 seconds left, she greets the person on return, the room warms as the session runs, and a warm sweep restores it](docs/media/hero.gif)
 
 **Kiro at a glance:** 3 specs · 301 EARS criteria, 264 traced to tests · 9 hooks on 6 triggers · 5 steering files · 2 MCP servers · 1 custom agent · 7 logged Kiro sessions (84.75 credits) that caught a spec bug and built three features, including the ghost that follows you. [Built with Kiro](#built-with-kiro) · [KIRO-LOG.md](KIRO-LOG.md)
 
-> **Judges: 60 seconds.** Run `npm ci && npm run dev` and open `http://localhost:3180/?demo=1` (sound on).
+> **Judges: 60 seconds.** Open [haunted-pomodoro.pages.dev/?demo=1](https://haunted-pomodoro.pages.dev/?demo=1) with sound on (or run `npm ci && npm run dev` and open `http://localhost:3180/?demo=1`).
 > 1. Press **Light a candle**.
 > 2. Switch to another tab for 5 seconds, then come back: the ghost says so kindly, and a will-o'-wisp stays in the room.
 > 3. Wait for 0:00: the parlor is restored.
